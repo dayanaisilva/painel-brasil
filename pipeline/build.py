@@ -32,7 +32,7 @@ log = logging.getLogger("build")
 
 # Códigos fixos das fontes. Os do Ipeadata ficam None até a primeira execução
 # confirmar a série certa no log (a busca automática escolhe e registra).
-SGS = {"ipca": 433, "salario_minimo": 1619, "dolar": 3698, "pib_crescimento": 7326}
+SGS = {"ipca": 433, "salario_minimo": 1619, "dolar": 1, "pib_crescimento": 7326}
 IPEA = {"cesta_sp": None, "gasolina": None}
 
 STATUS: list[dict] = []
@@ -46,6 +46,8 @@ def coletar(id_: str, func, fonte: str) -> pd.DataFrame | None:
     try:
         df = func()
         fonte = FONTE_USADA.get(id_, fonte)
+        if df is not None:
+            df = df[df.data <= pd.Timestamp.today()]  # algumas séries trazem meses futuros já decretados
         if df is None or df.empty:
             raise ValueError("série vazia")
         df.to_csv(arq, index=False, date_format="%Y-%m-%d")
@@ -103,6 +105,9 @@ def sgs_ou_ipea(chave, codigo, rotulo_sgs, valido, ipea_args):
     def f():
         try:
             df = fontes.sgs(codigo, 2000)
+            df = df[df.data <= pd.Timestamp.today()]
+            if df.data.max() < pd.Timestamp.today() - pd.Timedelta(days=120):
+                raise ValueError(f"SGS {codigo} parou em {df.data.max().date()}")
             if not valido(df):
                 raise ValueError(f"SGS {codigo} fora da faixa esperada (último valor {df.valor.iloc[-1]})")
             FONTE_USADA[chave] = rotulo_sgs
@@ -113,6 +118,13 @@ def sgs_ou_ipea(chave, codigo, rotulo_sgs, valido, ipea_args):
             FONTE_USADA[chave] = "Ipeadata (fallback do SGS)"
             return df
     return f
+
+
+def gasolina():
+    df = fontes.anp_gasolina()
+    if not (2 <= df.valor.iloc[-1] <= 15):
+        raise ValueError(f"preço fora da faixa esperada: {df.valor.iloc[-1]}")
+    return df
 
 
 def queimadas():
@@ -243,17 +255,15 @@ def main():
         (["salário mínimo"], None, ["vigente", "nominal"], nao_decrescente(1000, 3000), ("real", "regional", "estadual"))),
         "BCB/SGS 1619")
     dolar = coletar("dolar", sgs_ou_ipea(
-        "dolar", SGS["dolar"], "BCB/SGS 3698", faixa(3, 10),
+        "dolar", SGS["dolar"], "BCB/SGS 1 (PTAX venda)", faixa(3, 10),
         (["câmbio", "comercial", "venda"], None, ["média", "r$ / us$"], faixa(3, 10), ("real", "efetiva", "fim"))),
-        "BCB/SGS 3698")
+        "BCB/SGS 1 (PTAX venda)")
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)")
     pibpc = coletar("pib_per_capita", lambda: fontes.banco_mundial("NY.GDP.PCAP.KD"), "Banco Mundial (IBGE)")
     cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
                                           faixa(300, 3000), ("variação", "horas", "%")),
                     "DIEESE via Ipeadata")
-    gas = coletar("gasolina", ipea_auto("gasolina", ["gasolina"], None, ["preço", "revenda", "comum", "médio"],
-                                        faixa(2, 15), ("consumo", "vendas", "produção", "importação", "exportação")),
-                  "ANP via Ipeadata")
+    gas = coletar("gasolina", gasolina, "ANP — Levantamento de Preços")
     focos = coletar("queimadas", queimadas, "INPE/BDQueimadas")
     try:
         fontes.prodes_descobrir()
@@ -327,9 +337,9 @@ def main():
         d = d[d.data.dt.year >= ANO_INICIAL]
         ind["dolar"] = dict(
             titulo="Dólar", unidade="R$ por US$", formato="moeda", grafico="linha", freq="mensal",
-            descricao="Média mensal da taxa de câmbio comercial (venda). Valor nominal.",
+            descricao="Média mensal da PTAX de venda (dólar comercial) calculada pelo Banco Central. Valor nominal.",
             resumo_rotulo="cotação média no governo", resumo=resumo_media_mensal(d),
-            serie=serie_json(d, "%Y-%m"), fonte=FONTE_USADA.get("dolar", "Banco Central (SGS 3698)"), fonte_url="https://www3.bcb.gov.br/sgspub/")
+            serie=serie_json(d, "%Y-%m"), fonte=FONTE_USADA.get("dolar", "Banco Central — PTAX venda (SGS 1)"), fonte_url="https://www3.bcb.gov.br/sgspub/")
 
     # Cesta básica como % do salário mínimo
     if cesta is not None and sm is not None:
@@ -355,7 +365,7 @@ def main():
             titulo="Gasolina", unidade=f"R$/litro de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
             descricao=f"Preço médio de revenda da gasolina comum no Brasil, corrigido pelo IPCA para reais de {ref_mes}.",
             resumo_rotulo="preço real médio no governo", resumo=resumo_media_mensal(r),
-            serie=serie_json(r, "%Y-%m"), fonte="ANP — Levantamento de Preços de Combustíveis, via Ipeadata",
+            serie=serie_json(r, "%Y-%m"), fonte="ANP — Levantamento de Preços de Combustíveis (série histórica mensal)",
             fonte_url="https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos")
 
     # Queimadas

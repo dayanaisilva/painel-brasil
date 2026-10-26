@@ -240,3 +240,60 @@ def prodes_descobrir() -> None:
         txt = f"{it.get('name')} {it.get('link')} {it.get('category')}"
         if re.search(r"rate|taxa|amaz|legal", txt, re.I):
             log.info("TerraBrasilis: %s", txt)
+
+
+# --------------------------------------------------------------------------- #
+# ANP — Levantamento de Preços de Combustíveis (série histórica mensal, Brasil)
+# --------------------------------------------------------------------------- #
+ANP_BASE = ("https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
+            "precos-revenda-e-de-distribuicao-combustiveis")
+ANP_ARQUIVOS = [f"{ANP_BASE}/shlp/mensal/mensal-brasil-2001-a-2012.xlsx",
+                f"{ANP_BASE}/shlp/mensal/mensal-brasil-desde-jan2013.xlsx"]
+ANP_PAGINAS = [f"{ANP_BASE}/serie-historica-do-levantamento-de-precos",
+               f"{ANP_BASE}/serie-historica-levantamento-precos"]
+
+
+def _anp_links() -> list[str]:
+    links = set(ANP_ARQUIVOS)
+    achados = []
+    for pg in ANP_PAGINAS:
+        try:
+            html = _get(pg, tentativas=1).text
+            for h in re.findall(r'href="([^"]+\.xlsx?)"', html, re.I):
+                achados.append(h)
+                if "mensal" in h.lower() and "brasil" in h.lower():
+                    links.add(h if h.startswith("http") else "https://www.gov.br" + h)
+        except Exception as e:  # noqa: BLE001
+            log.warning("ANP página %s: %s", pg, e)
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"link": achados}).to_csv(DESCOBERTA / "anp_links.csv", index=False)
+    return sorted(links)
+
+
+def _anp_planilha(conteudo: bytes) -> pd.DataFrame:
+    bruto = pd.read_excel(io.BytesIO(conteudo), header=None)
+    cab = next(i for i in range(min(30, len(bruto)))
+               if bruto.iloc[i].astype(str).str.upper().str.contains("PRODUTO").any())
+    df = pd.read_excel(io.BytesIO(conteudo), header=cab)
+    cols = {c: str(c).upper() for c in df.columns}
+    c_mes = next(c for c, u in cols.items() if u.startswith("M") and ("ÊS" in u or "ES" in u))
+    c_prod = next(c for c, u in cols.items() if "PRODUTO" in u)
+    c_preco = next(c for c, u in cols.items() if "REVENDA" in u and ("MÉDIO" in u or "MEDIO" in u)
+                   and "DESVIO" not in u and "MARGEM" not in u)
+    g = df[df[c_prod].astype(str).str.upper().str.contains("GASOLINA COMUM")]
+    return pd.DataFrame({"data": pd.to_datetime(g[c_mes], errors="coerce"),
+                         "valor": pd.to_numeric(g[c_preco], errors="coerce")}).dropna()
+
+
+def anp_gasolina() -> pd.DataFrame:
+    partes, erros = [], []
+    for url in _anp_links():
+        try:
+            partes.append(_anp_planilha(_get(url).content))
+            log.info("ANP %s: %d meses", url, len(partes[-1]))
+        except Exception as e:  # noqa: BLE001
+            erros.append(f"{url.rsplit('/', 1)[-1]}: {e}")
+    if not partes:
+        raise ValueError("ANP sem planilha válida. " + " | ".join(erros)[:300])
+    df = pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
+    return df
