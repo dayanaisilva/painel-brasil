@@ -58,16 +58,22 @@ def sgs(codigo: int, inicio: int = 2002) -> pd.DataFrame:
     hoje = date.today().year
     for ini in range(inicio, hoje + 1, 10):
         fim = min(ini + 9, hoje)
-        try:
-            r = _get(SGS_URL.format(cod=codigo), params={
-                "formato": "json", "dataInicial": f"01/01/{ini}", "dataFinal": f"31/12/{fim}"})
-            dados = _json(r)
-            if isinstance(dados, list):
-                partes.extend(dados)
-        except Exception as e:  # noqa: BLE001
-            erros.append(f"{ini}-{fim}: {e}")
-            log.warning("SGS %s janela %s-%s: %s", codigo, ini, fim, e)
-        time.sleep(1)
+        # A API do BCB às vezes devolve uma página HTML de erro com HTTP 200; tenta de novo com espera.
+        for tentativa in range(5):
+            try:
+                r = _get(SGS_URL.format(cod=codigo), params={
+                    "formato": "json", "dataInicial": f"01/01/{ini}", "dataFinal": f"31/12/{fim}"})
+                dados = _json(r)
+                if isinstance(dados, list):
+                    partes.extend(dados)
+                break
+            except Exception as e:  # noqa: BLE001
+                log.warning("SGS %s janela %s-%s, tentativa %d: %s", codigo, ini, fim, tentativa + 1, str(e)[:120])
+                if tentativa == 4:
+                    erros.append(f"{ini}-{fim}: {e}")
+                else:
+                    time.sleep(8 * (tentativa + 1))
+        time.sleep(2)
     if erros or not partes:
         # Uma janela que falha deixa a série com buracos: melhor falhar e reaproveitar a cópia anterior.
         raise ValueError(f"SGS {codigo}: falha em {len(erros)} janela(s). " + " | ".join(erros)[:300])
