@@ -22,4 +22,4 @@ homicidios,Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea,atua
 bolsa_familia,"Ministério do Desenvolvimento Social (MDS), via Ipeadata",atualizado,2025-01-01,
 leitos_sus,"Ministério da Saúde (CNES/DATASUS), via Ipeadata",atualizado,2025-01-01,
 desmatamento,INPE — PRODES Amazônia Legal (via Ipeadata),indisponível,,PRODES indisponível: https://terrabrasilis.dpi.inpe.br prodes_legal_amazon: 404 Client Error: Not Found for url: https://terrabrasilis.dpi.inpe.br/dashboard/api/v1/redis-cli/data/rates | https://terra
-inep_superior,INEP — Censo da Educação Superior,cópia anterior,2024,
+inep_superior,INEP — Censo da Educação Superior,atualizado,2024,
