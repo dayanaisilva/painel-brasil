@@ -2,43 +2,43 @@
 (() => {
   "use strict";
 
-  const ABREV = { lula1: "L1", lula2: "L2", dilma1: "D1", dilma2: "D2", temer: "T", bolsonaro: "B", lula3: "L3" };
-  const ORDEM_COMPARATIVO = ["pib_crescimento", "pib_per_capita", "ipca", "salario_minimo", "cesta_sp", "gasolina", "dolar", "queimadas"];
-  const ROTULO_CURTO = {
-    pib_crescimento: ["PIB", "média anual"],
-    pib_per_capita: ["PIB per capita", "cresc. médio anual"],
-    ipca: ["Inflação", "média anual"],
+  const ABREV = { sarney: "S", collor: "C", itamar: "I", fhc1: "F1", fhc2: "F2", lula1: "L1", lula2: "L2",
+                  dilma1: "D1", dilma2: "D2", temer: "T", bolsonaro: "B", lula3: "L3" };
+  const ORDEM = ["pib_crescimento", "pib_per_capita", "ipca", "salario_minimo", "cesta_sp", "gasolina", "queimadas", "dolar"];
+  const CURTO = {
+    pib_crescimento: ["PIB", "cresc. médio/ano"],
+    pib_per_capita: ["PIB per capita", "cresc. médio/ano"],
+    ipca: ["Inflação", "média/ano"],
     salario_minimo: ["Salário mínimo", "ganho real"],
     cesta_sp: ["Cesta básica SP", "% do mínimo"],
-    gasolina: ["Gasolina", "R$/l, valor de hoje"],
-    dolar: ["Dólar", "média R$"],
+    gasolina: ["Gasolina", "R$/l de hoje"],
     queimadas: ["Queimadas", "focos/ano"],
+    dolar: ["Dólar", "média R$"],
   };
 
   const nf = (min, max) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: min, maximumFractionDigits: max });
   const F = {
-    pct: (v) => (v > 0 ? "+" : "") + nf(1, 1).format(v) + "%",
-    pct_simples: (v) => nf(1, 1).format(v) + "%",
+    pct: (v) => (v > 0 ? "+" : "") + nf(Math.abs(v) >= 100 ? 0 : 1, Math.abs(v) >= 100 ? 0 : 1).format(v) + "%",
+    pct_simples: (v) => nf(Math.abs(v) >= 100 ? 0 : 1, Math.abs(v) >= 100 ? 0 : 1).format(v) + "%",
     moeda: (v) => "R$ " + nf(2, 2).format(v),
     moeda_usd: (v) => "US$ " + nf(0, 0).format(v),
     inteiro: (v) => nf(0, 0).format(Math.round(v)),
   };
   const fmt = (tipo, v) => (v == null || Number.isNaN(v) ? "—" : (F[tipo] || F.pct_simples)(v));
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const el = (tag, attrs = {}, html = "") => {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
     if (html) e.innerHTML = html;
     return e;
   };
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const dataBR = (iso) => iso.split("-").reverse().join("/");
 
   /* ---------- tema ---------- */
   const raiz = document.documentElement;
   try { const t = localStorage.getItem("tema"); if (t) raiz.dataset.theme = t; } catch (_) {}
   document.getElementById("tema").addEventListener("click", () => {
-    const escuro = raiz.dataset.theme
-      ? raiz.dataset.theme === "dark"
-      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const escuro = raiz.dataset.theme ? raiz.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     raiz.dataset.theme = escuro ? "light" : "dark";
     try { localStorage.setItem("tema", raiz.dataset.theme); } catch (_) {}
     redesenhar();
@@ -53,7 +53,6 @@
     return GOV.find((g) => g.inicio <= d && d <= g.fim)?.id ?? null;
   };
   const govDoAno = (ano) => {
-    // ano anual: governo com mais dias no ano (2016 → Temer)
     let melhor = null, dias = -1;
     for (const g of GOV) {
       const a = Math.max(Date.parse(`${ano}-01-01`), Date.parse(g.inicio));
@@ -63,69 +62,103 @@
     return melhor;
   };
   const govDoPonto = (x) => (x.length > 4 ? govDoMes(+x.slice(0, 4), +x.slice(5, 7)) : govDoAno(+x));
-  const nomeGov = (id) => GOV.find((g) => g.id === id)?.nome ?? "";
+  const gov = (id) => GOV.find((g) => g.id === id);
+  const nomeGov = (id) => gov(id)?.nome ?? "";
 
-  /* ---------- render ---------- */
-  let DADOS = null;
+  /* ---------- carga ---------- */
+  let D = null;
   const graficos = [];
-
   fetch("data/painel.json", { cache: "no-cache" })
     .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then((d) => { DADOS = d; GOV = d.governos; montar(); })
+    .then((d) => { D = d; GOV = d.governos; montar(); })
     .catch((e) => {
       document.getElementById("lista-indicadores").innerHTML =
         `<p class="indisponivel">Não foi possível carregar os dados (${esc(e.message)}).</p>`;
     });
 
+  const indicadores = () => ORDEM.filter((id) => D.indicadores[id]).map((id) => [id, D.indicadores[id]]);
+  const resumoFmt = (ind) => ind.resumo_formato || ind.formato;
+  const ast = (r) => (r?.parcial ? '<span class="parcial-tag">*</span>' : "");
+
   function montar() {
-    const d = DADOS;
     document.getElementById("gerado-em").textContent =
-      new Date(d.gerado_em).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
+      new Date(D.gerado_em).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
     linhaDoTempo();
+    cardsGoverno();
     tabelaComparativo();
     tabelaGovernos();
     tabelaStatus();
     const lista = document.getElementById("lista-indicadores");
     const chips = document.getElementById("chips");
-    for (const id of ORDEM_COMPARATIVO) {
-      const ind = d.indicadores[id];
-      if (!ind) continue;
+    for (const [id, ind] of indicadores()) {
       chips.append(el("a", { href: `#ind-${id}` }, esc(ind.titulo)));
-      lista.append(cartao(id, ind));
+      lista.append(cartaoIndicador(id, ind));
     }
     redesenhar();
   }
 
+  /* ---------- linha do tempo ---------- */
   function linhaDoTempo() {
     const box = document.getElementById("linha-tempo");
-    const t0 = Date.parse(GOV[0].inicio), t1 = Date.parse(GOV.at(-1).fim);
+    const t0 = Date.parse(GOV[0].inicio), t1 = Date.now();
     for (const g of GOV) {
-      const w = (Date.parse(g.fim) - Date.parse(g.inicio)) / (t1 - t0);
-      const seg = el("div", { class: "lt-seg", title: `${g.nome}: ${g.presidente}` });
-      seg.style.flex = `${w} 1 0`;
-      const fim = g.id === "lula3" ? "hoje" : g.fim.slice(0, 4);
-      seg.innerHTML = `<span class="lt-nome">${esc(g.nome)}</span><span class="lt-anos">${g.inicio.slice(0, 4)}–${fim}</span>`;
+      const fim = Math.min(Date.parse(g.fim), t1);
+      const seg = el("a", { class: "lt-seg", href: `#gov-${g.id}`, title: `${g.nome}: ${g.presidente}` });
+      seg.style.flex = `${(fim - Date.parse(g.inicio)) / (t1 - t0)} 1 0`;
+      seg.innerHTML = `<span class="lt-nome">${esc(g.nome)}</span><span class="lt-anos">${g.inicio.slice(0, 4)}</span>`;
       box.append(seg);
     }
   }
 
-  const resumoFmt = (ind) => ind.resumo_formato || ind.formato;
+  /* ---------- cards por governo ---------- */
+  function cardsGoverno() {
+    const box = document.getElementById("cards-gov");
+    const ctx = D.contexto || {};
+    for (const g of GOV) {
+      const fortes = [], fracos = [], trilhas = [];
+      for (const [id, ind] of indicadores()) {
+        const r = ind.resumo[g.id];
+        if (!r || !r.posicao) continue;
+        const valor = `${fmt(resumoFmt(ind), r.valor)}${ast(r)}`;
+        const item = (lado) => `<li><span class="it-nome">${esc(CURTO[id][0])}</span>
+            <span class="it-valor">${valor}</span>
+            <span class="it-pos">${r.posicao === 1 && lado === "bom" ? "melhor de todos" : r.posicao === r.total && lado === "ruim" ? "pior de todos" : lado === "bom" ? `${r.posicao}º melhor de ${r.total}` : `${r.total - r.posicao + 1}º pior de ${r.total}`}</span></li>`;
+        if (r.avaliacao === "bom") fortes.push(item("bom"));
+        if (r.avaliacao === "ruim") fracos.push(item("ruim"));
+        const x = r.total > 1 ? ((r.posicao - 1) / (r.total - 1)) * 100 : 50;
+        trilhas.push(`<div class="trilha" title="${esc(ind.titulo)}: ${r.posicao}º de ${r.total}">
+            <span class="tr-nome">${esc(CURTO[id][0])}</span>
+            <span class="tr-pista"><span class="tr-ponto ${r.avaliacao || ""}" style="left:${x}%"></span></span></div>`);
+      }
+      const fim = g.id === "lula3" ? "em curso" : dataBR(g.fim);
+      const card = el("article", { class: "card-gov", id: `gov-${g.id}` });
+      card.innerHTML = `
+        <header><h3>${esc(g.nome)}</h3><p>${esc(g.presidente)} · ${dataBR(g.inicio)} – ${fim}</p></header>
+        <div class="listas">
+          <div><h4 class="h-bom">▲ Pontos fortes</h4>${fortes.length ? `<ul>${fortes.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os melhores.</p>'}</div>
+          <div><h4 class="h-ruim">▼ Pontos fracos</h4>${fracos.length ? `<ul>${fracos.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os piores.</p>'}</div>
+        </div>
+        ${trilhas.length ? `<div class="trilhas" aria-label="Posição em cada indicador"><div class="tr-eixo"><span>melhor</span><span>pior</span></div>${trilhas.join("")}</div>` : ""}
+        ${ctx[g.id] ? `<details class="contexto"><summary>Contexto do período</summary><ul>${ctx[g.id].map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}`;
+      box.append(card);
+    }
+  }
 
+  /* ---------- tabela comparativa ---------- */
   function tabelaComparativo() {
     const t = document.getElementById("tabela-comparativo");
-    const ids = ORDEM_COMPARATIVO.filter((id) => DADOS.indicadores[id]);
+    const ids = indicadores();
     let h = "<thead><tr><th>Governo</th>";
-    for (const id of ids) h += `<th>${ROTULO_CURTO[id][0]}<small>${ROTULO_CURTO[id][1]}</small></th>`;
+    for (const [id] of ids) h += `<th>${CURTO[id][0]}<small>${CURTO[id][1]}</small></th>`;
     h += "</tr></thead><tbody>";
     for (const g of GOV) {
-      const fim = g.id === "lula3" ? "em curso" : g.fim.split("-").reverse().join("/");
-      h += `<tr><td class="gov">${esc(g.nome)}<small>${g.inicio.split("-").reverse().join("/")} – ${fim}</small></td>`;
-      for (const id of ids) {
-        const ind = DADOS.indicadores[id];
+      h += `<tr><td class="gov"><a href="#gov-${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}–${g.id === "lula3" ? "hoje" : g.fim.slice(0, 4)}</small></td>`;
+      for (const [, ind] of ids) {
         const r = ind.resumo[g.id];
-        h += r
-          ? `<td class="num">${fmt(resumoFmt(ind), r.valor)}${r.parcial ? '<span class="parcial-tag">*</span>' : ""}</td>`
-          : `<td class="num sem-dado">—</td>`;
+        if (!r) { h += '<td class="num sem-dado">—</td>'; continue; }
+        const cls = r.avaliacao === "bom" ? " cel-bom" : r.avaliacao === "ruim" ? " cel-ruim" : "";
+        const ic = r.avaliacao === "bom" ? '<span class="ic">▲</span>' : r.avaliacao === "ruim" ? '<span class="ic">▼</span>' : "";
+        h += `<td class="num${cls}">${ic}${fmt(resumoFmt(ind), r.valor)}${ast(r)}</td>`;
       }
       h += "</tr>";
     }
@@ -133,37 +166,63 @@
   }
 
   function tabelaGovernos() {
-    let h = '<div class="tabela-rolagem"><table><thead><tr><th>Período</th><th>Presidente</th><th>Início</th><th>Fim</th></tr></thead><tbody>';
+    let h = '<div class="tabela-rolagem"><table><thead><tr><th>Período</th><th style="text-align:left">Presidente</th><th>Início</th><th>Fim</th></tr></thead><tbody>';
     for (const g of GOV) {
-      h += `<tr><td>${esc(g.nome)}</td><td style="text-align:left">${esc(g.presidente)}</td><td class="num">${g.inicio.split("-").reverse().join("/")}</td><td class="num">${g.id === "lula3" ? "em curso" : g.fim.split("-").reverse().join("/")}</td></tr>`;
+      h += `<tr><td>${esc(g.nome)}</td><td style="text-align:left">${esc(g.presidente)}</td><td class="num">${dataBR(g.inicio)}</td><td class="num">${g.id === "lula3" ? "em curso" : dataBR(g.fim)}</td></tr>`;
     }
     document.getElementById("tabela-governos").innerHTML = h + "</tbody></table></div>";
   }
 
   function tabelaStatus() {
     let h = "<thead><tr><th>Série</th><th style='text-align:left'>Fonte</th><th>Situação</th><th>Último dado</th></tr></thead><tbody>";
-    for (const s of DADOS.fontes) {
+    for (const s of D.fontes) {
       const ok = s.status === "atualizado";
       h += `<tr><td>${esc(s.indicador)}</td><td style="text-align:left">${esc(s.fonte)}</td><td class="${ok ? "st-ok" : "st-alerta"}">${esc(s.status)}</td><td class="num">${esc(s.ultima_obs || "—")}</td></tr>`;
     }
     document.getElementById("tabela-status").innerHTML = h + "</tbody>";
   }
 
-  function cartao(id, ind) {
+  /* ---------- cartão de indicador ---------- */
+  function cartaoIndicador(id, ind) {
     const c = el("article", { class: "ind", id: `ind-${id}` });
+    const m = ind.melhor && ind.resumo[ind.melhor], p = ind.pior && ind.resumo[ind.pior];
+    const destaque = m && p ? `<div class="hero">
+        <div class="hero-item bom"><span class="hero-rot">▲ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span></div>
+        <div class="hero-item ruim"><span class="hero-rot">▼ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span></div>
+      </div>` : "";
     c.innerHTML = `
-      <div class="ind-cab"><h3>${esc(ind.titulo)}</h3><span class="ind-unid">${esc(ind.unidade)}</span></div>
+      <p class="ind-kicker">${esc(ind.titulo)} · <span>${esc(ind.unidade)}</span></p>
+      <h3>${esc(ind.pergunta || ind.titulo)}</h3>
       <p class="ind-desc">${esc(ind.descricao)}</p>
-      <div class="grafico"><canvas role="img" aria-label="${esc(ind.titulo)} de 2003 a hoje, com faixas por governo"></canvas></div>
-      <div class="mini">${GOV.map((g) => {
-        const r = ind.resumo[g.id];
-        return `<div><span>${esc(g.nome)}</span><b>${r ? fmt(resumoFmt(ind), r.valor) : "—"}${r?.parcial ? '<span class="parcial-tag">*</span>' : ""}</b></div>`;
-      }).join("")}</div>
-      <p class="mini-rot">Por governo: ${esc(ind.resumo_rotulo)}.</p>
+      ${destaque}
+      <div class="ind-graficos">
+        <figure class="fig-serie"><figcaption>Ao longo do tempo</figcaption>
+          <div class="grafico"><canvas class="c-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
+          <p class="legenda-marcos">${legendaMarcos(ind.serie.map((p) => p.x), ind.serie[0]?.x.length === 4)}</p></figure>
+        <figure class="fig-rank"><figcaption>${ind.direcao ? `Ranking por governo: ${esc(ind.resumo_rotulo)}` : `Por governo: ${esc(ind.resumo_rotulo)}`}</figcaption>
+          <div class="grafico grafico-rank"><canvas class="c-rank" role="img" aria-label="${esc(ind.titulo)} por governo"></canvas></div></figure>
+      </div>
       <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a></p>`;
     c._ind = ind;
     return c;
   }
+
+  /* ---------- gráficos ---------- */
+  function redesenhar() {
+    if (!D) return;
+    for (const g of graficos.splice(0)) g.destroy();
+    Chart.defaults.font.family = "IBM Plex Sans, system-ui, sans-serif";
+    Chart.defaults.color = cor("--ink-2");
+    for (const card of document.querySelectorAll(".ind")) {
+      graficos.push(graficoSerie(card), graficoRanking(card));
+    }
+  }
+
+  const tooltipBase = () => ({
+    backgroundColor: cor("--surface"), titleColor: cor("--ink"), bodyColor: cor("--ink-2"),
+    borderColor: cor("--rule"), borderWidth: 1, padding: 10, displayColors: false,
+    titleFont: { weight: 600 }, bodyFont: { family: "IBM Plex Mono", size: 12 },
+  });
 
   function faixas(labels, largura) {
     const out = {};
@@ -173,13 +232,15 @@
       let j = i;
       while (j + 1 < labels.length && govDoPonto(labels[j + 1]) === g) j++;
       if (g) {
+        const px = ((j - i + 1) / labels.length) * largura;
+        const nome = nomeGov(g);
         out[`f${n}`] = {
           type: "box", xMin: i - 0.5, xMax: j + 0.5, drawTime: "beforeDatasetsDraw",
           backgroundColor: n % 2 ? cor("--band-b") : cor("--band-a"), borderWidth: 0,
           label: {
-            display: true, content: largura < 620 ? ABREV[g] : nomeGov(g),
+            display: px >= 14, content: px < nome.length * 6.6 + 6 ? ABREV[g] : nome,
             position: { x: "center", y: "start" }, color: cor("--ink-3"),
-            font: { family: "IBM Plex Sans", size: 11, weight: 500 }, padding: 4,
+            font: { family: "IBM Plex Sans", size: 10.5, weight: 500 }, padding: 3,
           },
         };
         n++;
@@ -189,24 +250,47 @@
     return out;
   }
 
-  function redesenhar() {
-    if (!DADOS) return;
-    for (const g of graficos.splice(0)) g.destroy();
-    Chart.defaults.font.family = "IBM Plex Sans, system-ui, sans-serif";
-    Chart.defaults.color = cor("--ink-2");
-    for (const card of document.querySelectorAll(".ind")) graficos.push(grafico(card));
+  function marcos(labels, largura, anual) {
+    const out = {};
+    let n = 0;
+    for (const [k, m] of (D.marcos || []).entries()) {
+      const alvo = anual ? m.data.slice(0, 4) : m.data;
+      const i = labels.indexOf(alvo);
+      if (i < 0) continue;
+      out[`m${k}`] = {
+        type: "line", xMin: i, xMax: i, borderColor: cor("--accent"), borderWidth: 1, borderDash: [3, 3],
+        drawTime: "afterDatasetsDraw",
+        label: {
+          display: largura >= 380, content: m.curto, position: "start", yAdjust: n % 2 ? -20 : -4,
+          backgroundColor: cor("--surface"), color: cor("--accent"),
+          font: { family: "IBM Plex Sans", size: 10, weight: 600 }, padding: { x: 3, y: 1 },
+        },
+      };
+      n++;
+    }
+    return out;
   }
 
-  function grafico(card) {
+  function legendaMarcos(labels, anual) {
+    const ms = (D.marcos || []).filter((m) => labels.includes(anual ? m.data.slice(0, 4) : m.data));
+    if (!ms.length) return "";
+    return '<span class="lm-traco"></span> Marcos: ' + ms.map((m) => `${esc(m.rotulo)} (${m.data.slice(0, 4)})`).join(" · ");
+  }
+
+  function graficoSerie(card) {
     const ind = card._ind;
-    const canvas = card.querySelector("canvas");
+    const canvas = card.querySelector(".c-serie");
     const labels = ind.serie.map((p) => p.x);
     const valores = ind.serie.map((p) => p.y);
     const barra = ind.grafico === "barra";
+    const log = ind.escala === "log";
     const anoAtual = String(new Date().getFullYear());
     const parcial = (x) => barra && x === anoAtual;
     const serie = cor("--series"), suave = cor("--series-soft");
-    const largura = canvas.parentElement.clientWidth;
+    const largura = canvas.parentElement.clientWidth - 56;
+    const anos = labels.length && labels[0].length > 4;
+    const span = +labels.at(-1).slice(0, 4) - +labels[0].slice(0, 4);
+    const passo = largura < 420 ? (span > 25 ? 10 : 5) : largura < 700 ? (span > 25 ? 5 : 4) : span > 25 ? 5 : 2;
 
     return new Chart(canvas, {
       type: barra ? "bar" : "line",
@@ -216,49 +300,55 @@
           data: valores,
           backgroundColor: barra ? labels.map((x) => (parcial(x) ? suave : serie)) : serie,
           borderColor: serie, borderWidth: barra ? 0 : 2,
-          borderRadius: barra ? 3 : 0, maxBarThickness: 22, categoryPercentage: 0.8, barPercentage: 0.9,
+          borderRadius: barra ? 2 : 0, maxBarThickness: 18, categoryPercentage: 0.86, barPercentage: 0.92,
           pointRadius: 0, pointHoverRadius: 5, pointHoverBorderWidth: 2,
-          pointHoverBackgroundColor: serie, pointHoverBorderColor: cor("--surface"), tension: 0,
+          pointHoverBackgroundColor: serie, pointHoverBorderColor: cor("--surface"), spanGaps: false,
         }],
       },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
         interaction: { mode: "index", intersect: false },
-        layout: { padding: { top: 18 } },
+        layout: { padding: { top: 16 } },
         scales: {
           x: {
             grid: { display: false }, border: { color: cor("--rule") },
             ticks: {
-              autoSkip: barra, maxRotation: 0, color: cor("--ink-3"), font: { size: 11 },
+              autoSkip: false, maxRotation: 0, color: cor("--ink-3"), font: { size: 11 },
               callback(v) {
                 const x = labels[v];
-                if (barra) return largura < 620 ? "’" + x.slice(2) : x;
-                if (!x.endsWith("-01")) return null;
+                if (anos && !x.endsWith("-01")) return null;
                 const ano = +x.slice(0, 4);
-                const passo = largura < 620 ? 4 : 2;
                 return ano % passo === 0 ? String(ano) : null;
               },
             },
           },
           y: {
-            beginAtZero: barra,
+            type: log ? "logarithmic" : "linear",
+            beginAtZero: barra && !log,
+            grace: log ? undefined : "8%",
+            max: log ? Math.max(...valores) * 4 : undefined,
             grid: { color: (c) => (c.tick.value === 0 ? cor("--ink-3") : cor("--grid")) },
             border: { display: false },
-            ticks: { color: cor("--ink-3"), font: { size: 11 }, maxTicksLimit: 6, callback: (v) => fmt(ind.formato === "pct" ? "pct_simples" : ind.formato, v) },
+            ticks: {
+              color: cor("--ink-3"), font: { size: 11 }, maxTicksLimit: 6,
+              callback(v) {
+                if (log && ![1, 10, 100, 1000, 10000].includes(v)) return null;
+                return fmt(ind.formato === "pct" ? "pct_simples" : ind.formato, v);
+              },
+            },
           },
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: faixas(labels, largura) },
+          annotation: { annotations: { ...faixas(labels, largura), ...marcos(labels, largura, !anos) } },
           tooltip: {
-            backgroundColor: cor("--surface"), titleColor: cor("--ink"), bodyColor: cor("--ink-2"),
-            borderColor: cor("--rule"), borderWidth: 1, padding: 10, displayColors: false,
-            titleFont: { weight: 600 }, bodyFont: { family: "IBM Plex Mono", size: 12 },
+            ...tooltipBase(),
             callbacks: {
               title: (it) => {
                 const x = it[0].label;
                 const quando = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x;
-                return `${quando} · ${nomeGov(govDoPonto(x))}`;
+                const g = nomeGov(govDoPonto(x));
+                return g ? `${quando} · ${g}` : quando;
               },
               label: (it) => fmt(ind.formato, it.parsed.y) + (parcial(it.label) ? " (ano incompleto)" : ""),
             },
@@ -268,6 +358,84 @@
     });
   }
 
-  let tRes;
-  addEventListener("resize", () => { clearTimeout(tRes); tRes = setTimeout(redesenhar, 200); });
+  // Escreve o valor ao lado de cada barra do ranking.
+  const rotulosBarra = {
+    id: "rotulosBarra",
+    afterDatasetsDraw(chart, _a, opts) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = "500 11.5px IBM Plex Mono, ui-monospace, monospace";
+      ctx.textBaseline = "middle";
+      meta.data.forEach((bar, i) => {
+        const v = chart.data.datasets[0].data[i];
+        const neg = v < 0 && !opts.log;
+        ctx.fillStyle = opts.cor;
+        ctx.textAlign = neg ? "right" : "left";
+        ctx.fillText(opts.textos[i], bar.x + (neg ? -6 : 6), bar.y);
+      });
+      ctx.restore();
+    },
+  };
+
+  function graficoRanking(card) {
+    const ind = card._ind;
+    const canvas = card.querySelector(".c-rank");
+    let ids = GOV.map((g) => g.id).filter((g) => ind.resumo[g]);
+    if (ind.direcao) ids.sort((a, b) => ind.resumo[a].posicao - ind.resumo[b].posicao);
+    const r = ids.map((g) => ind.resumo[g]);
+    const valores = r.map((x) => x.valor);
+    const log = ind.escala === "log";
+    const corDe = (x) => (x.avaliacao === "bom" ? cor("--bom") : x.avaliacao === "ruim" ? cor("--ruim") : cor("--neutro"));
+    const textos = r.map((x) => fmt(resumoFmt(ind), x.valor) + (x.parcial ? "*" : ""));
+    const min = Math.min(0, ...valores), max = Math.max(0, ...valores);
+    const folga = (max - min) * 0.32 || 1;
+    canvas.parentElement.style.height = `${Math.max(150, ids.length * 26 + 36)}px`;
+
+    return new Chart(canvas, {
+      type: "bar",
+      plugins: [rotulosBarra],
+      data: {
+        labels: ids.map((g) => (ind.direcao ? `${ind.resumo[g].posicao}º  ` : "") + nomeGov(g)),
+        datasets: [{
+          data: valores, backgroundColor: r.map((x) => (x.parcial ? corDe(x) + "99" : corDe(x))),
+          borderRadius: 3, barPercentage: 0.78, categoryPercentage: 0.95, minBarLength: 2,
+        }],
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: false,
+        layout: { padding: { right: 8 } },
+        scales: {
+          x: log
+            ? { type: "logarithmic", display: false, max: Math.max(...valores) * 25 }
+            : { display: false, min: min < 0 ? min - folga : 0, max: max + folga },
+          y: { grid: { display: false }, border: { display: false },
+               ticks: { color: cor("--ink-2"), font: { size: 12 }, autoSkip: false } },
+        },
+        plugins: {
+          legend: { display: false },
+          rotulosBarra: { textos, cor: cor("--ink"), log },
+          tooltip: {
+            ...tooltipBase(),
+            callbacks: {
+              title: (it) => nomeGov(ids[it[0].dataIndex]),
+              label: (it) => {
+                const x = r[it.dataIndex];
+                const base = `${fmt(resumoFmt(ind), x.valor)} · ${x.periodo ?? ""}`;
+                const av = x.avaliacao === "bom" ? " · ponto forte" : x.avaliacao === "ruim" ? " · ponto fraco" : "";
+                return base + av + (x.parcial ? " · parcial" : "");
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  let tRes, larguraAnterior = innerWidth;
+  addEventListener("resize", () => {
+    if (innerWidth === larguraAnterior) return;
+    larguraAnterior = innerWidth;
+    clearTimeout(tRes); tRes = setTimeout(redesenhar, 200);
+  });
 })();

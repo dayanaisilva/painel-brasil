@@ -47,3 +47,12 @@ SELECT periodo,
 FROM serie
 WHERE indicador = 'dolar'
 ORDER BY periodo;
+
+-- 7. Pontos fortes e fracos de cada governo (mesma régua do site)
+SELECT g.nome AS governo,
+       GROUP_CONCAT(CASE WHEN r.avaliacao = 'bom'  THEN r.indicador END, ', ') AS pontos_fortes,
+       GROUP_CONCAT(CASE WHEN r.avaliacao = 'ruim' THEN r.indicador END, ', ') AS pontos_fracos
+FROM governo g
+LEFT JOIN resumo r ON r.governo = g.id
+GROUP BY g.id
+ORDER BY g.inicio;

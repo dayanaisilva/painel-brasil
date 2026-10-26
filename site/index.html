@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Painel Brasil 2003–2026</title>
-<meta name="description" content="PIB, inflação, salário mínimo, custo de vida e queimadas no Brasil de 2003 a 2026, comparados governo a governo com dados públicos oficiais.">
-<meta property="og:title" content="Painel Brasil 2003–2026">
-<meta property="og:description" content="Indicadores econômicos e ambientais do Brasil comparados governo a governo, com dados do IBGE, Banco Central, DIEESE, ANP e INPE.">
+<title>Painel Brasil 1985–2026</title>
+<meta name="description" content="PIB, inflação, salário mínimo, custo de vida e queimadas no Brasil desde a redemocratização, comparados governo a governo com dados públicos oficiais.">
+<meta property="og:title" content="Painel Brasil 1985–2026">
+<meta property="og:description" content="Do Sarney ao Lula 3: indicadores econômicos e ambientais comparados governo a governo, com dados do IBGE, Banco Central, DIEESE, ANP e INPE.">
 <meta property="og:locale" content="pt_BR">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,12 +18,12 @@
 
 <header class="topo">
   <div class="wrap topo-linha">
-    <span class="marca">Painel Brasil <span class="marca-anos">2003–2026</span></span>
+    <span class="marca">Painel Brasil <span class="marca-anos">1985–2026</span></span>
     <nav class="menu" aria-label="Seções">
+      <a href="#governos">Governos</a>
       <a href="#comparativo">Comparativo</a>
       <a href="#indicadores">Indicadores</a>
       <a href="#metodologia">Metodologia</a>
-      <a href="#dados">Dados</a>
     </nav>
     <button class="tema" type="button" id="tema" aria-label="Alternar tema claro e escuro">◐</button>
   </div>
@@ -31,18 +31,25 @@
 
 <main id="conteudo">
   <section class="wrap abertura">
-    <p class="kicker">Dados públicos oficiais · atualização mensal automática</p>
+    <p class="kicker">Desde a redemocratização · dados públicos oficiais</p>
     <h1>O Brasil em números, governo a governo</h1>
-    <p class="lede">Crescimento, inflação, salário, custo de vida e queimadas de 2003 até hoje, recortados pelos sete períodos de governo. Todos os números vêm de fontes oficiais e o código que os calcula é aberto.</p>
+    <p class="lede">Doze períodos, de Sarney a Lula 3. Crescimento, inflação, salário, custo de vida e queimadas medidos com a mesma régua para todos, a partir de fontes oficiais e com código aberto.</p>
     <aside class="aviso" role="note">
-      <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Leia cada indicador com o seu contexto.
+      <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Cada período traz o seu contexto logo abaixo dos números.
     </aside>
     <div class="linha-tempo" id="linha-tempo" aria-label="Linha do tempo dos governos"></div>
   </section>
 
+  <section class="wrap bloco" id="governos">
+    <h2>Pontos fortes e fracos de cada governo</h2>
+    <p class="sub">Em cada indicador, os governos são ordenados do melhor para o pior resultado. Quem fica no quarto de cima ganha <span class="tag tag-bom">▲ ponto forte</span>, quem fica no quarto de baixo ganha <span class="tag tag-ruim">▼ ponto fraco</span>. A régua é a mesma para todos e está explicada na <a href="#metodologia">metodologia</a>.</p>
+    <div class="cards-gov" id="cards-gov"></div>
+  </section>
+
   <section class="wrap bloco" id="comparativo">
     <h2>Comparativo</h2>
-    <p class="sub">A métrica-resumo de cada indicador em cada governo. <span class="nota-parcial">*</span> Lula 3 está em andamento: os valores são parciais.</p>
+    <p class="sub">A métrica-resumo de cada indicador em cada governo. <span class="nota-parcial">*</span> Lula 3 está em andamento: valores parciais. — sem dado para o período.</p>
+    <div class="legenda-tabela"><span class="tag tag-bom">▲ entre os melhores</span><span class="tag tag-ruim">▼ entre os piores</span><span class="tag tag-neutro">dólar: sem ranking</span></div>
     <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela comparativa">
       <table class="comparativo" id="tabela-comparativo"></table>
     </div>
@@ -58,20 +65,30 @@
     <h2>Metodologia</h2>
     <h3>Períodos de governo</h3>
     <div id="tabela-governos"></div>
+    <h3>A régua de pontos fortes e fracos</h3>
+    <ul>
+      <li><strong>Maior é melhor:</strong> crescimento do PIB, crescimento do PIB per capita, ganho real do salário mínimo.</li>
+      <li><strong>Menor é melhor:</strong> inflação, peso da cesta básica no salário mínimo, preço real da gasolina, focos de queimada.</li>
+      <li><strong>Sem ranking:</strong> dólar. Câmbio alto ajuda exportadores e encarece importados e viagens; não é bom nem ruim por si só.</li>
+      <li>Entre os governos com dado no indicador, o quarto melhor (arredondado para cima) recebe ▲ ponto forte e o quarto pior recebe ▼ ponto fraco. Com 12 governos, são 3 de cada lado.</li>
+      <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do seu período. Por isso Itamar não aparece no dólar (a série começa no Plano Real, em jul/1994) e os governos anteriores a 2003 não aparecem em queimadas.</li>
+      <li>Lula 3 entra no ranking com os dados até agora, marcado com *.</li>
+    </ul>
     <h3>Como cada número é atribuído a um governo</h3>
     <ul>
-      <li><strong>Dados mensais</strong> (salário mínimo, dólar, cesta básica, gasolina, inflação): o mês pertence a quem governava no dia 15. Assim, maio de 2016 conta para Temer, que assumiu interinamente em 12/05/2016.</li>
-      <li><strong>Dados anuais</strong> (PIB, queimadas): o ano é dividido na proporção dos dias que cada governo exerceu o cargo. Só 2016 é dividido: cerca de 36% para Dilma 2 e 64% para Temer. Nos gráficos anuais, 2016 aparece na faixa de Temer.</li>
-      <li><strong>Inflação do governo</strong>: média anual equivalente, calculada a partir do IPCA acumulado em todos os meses do mandato.</li>
+      <li><strong>Dados mensais</strong>: o mês pertence a quem governava no dia 15. Nos dois impeachments, o vice entra na data em que assumiu como interino: Itamar em 02/10/1992 e Temer em 12/05/2016.</li>
+      <li><strong>Dados anuais</strong> (PIB, queimadas): o ano é dividido na proporção dos dias de cada governo. Isso afeta 1985 (Sarney a partir de 15/03), 1990, 1992 e 2016. Nos gráficos anuais, o ano aparece na faixa de quem governou mais dias.</li>
+      <li><strong>Inflação do governo</strong>: média anual equivalente ao IPCA acumulado em todos os meses do mandato.</li>
       <li><strong>Ganho real do salário mínimo</strong>: variação do poder de compra entre o último mês do governo anterior e o último mês do governo.</li>
-      <li><strong>Valores em reais de hoje</strong>: salário mínimo e gasolina são corrigidos pelo IPCA para a moeda do último mês divulgado. O dólar aparece em valor nominal.</li>
+      <li><strong>Moedas antes do Real</strong>: de 1986 a 1994 o Brasil trocou de moeda quatro vezes (Cruzado, Cruzado Novo, Cruzeiro, Cruzeiro Real, Real). Salário mínimo e cesta básica são convertidos para reais pelos fatores oficiais de cada troca e depois corrigidos pelo IPCA. O resultado é conferido contra a série de salário mínimo real do Ipea.</li>
+      <li><strong>Valores em reais de hoje</strong>: salário mínimo e gasolina são corrigidos pelo IPCA até o último mês divulgado. O dólar aparece em valor nominal, só a partir do Plano Real.</li>
     </ul>
     <h3>Limites</h3>
     <ul>
       <li>Correlação não é causalidade: um indicador melhor ou pior não prova efeito de política de governo.</li>
+      <li>Governos têm durações diferentes: Itamar governou 2 anos e 3 meses, FHC e Lula, 8 anos cada. Médias de períodos curtos oscilam mais.</li>
       <li>A cesta básica é a de São Paulo (DIEESE) e é comparada ao salário mínimo bruto, sem descontos.</li>
-      <li>Focos de queimada vêm do satélite de referência do INPE, o único com série comparável desde 2003. Contagem de focos não é área queimada.</li>
-      <li>O ano corrente é sempre parcial e fica de fora das médias anuais de queimadas.</li>
+      <li>Focos de queimada vêm do satélite de referência do INPE, com série comparável desde 2003. Contagem de focos não é área queimada.</li>
       <li>A ANP não fez pesquisa de preços de combustíveis entre 18/8/2020 e 17/10/2020; esses meses ficam sem dado de gasolina.</li>
       <li>A taxa oficial de desmatamento do PRODES/INPE não é publicada em formato de tabela para download automático, por isso ainda não entra no painel.</li>
       <li>Fontes oficiais revisam dados. A cada atualização o painel baixa a série inteira de novo.</li>

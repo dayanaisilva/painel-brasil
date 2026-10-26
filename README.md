@@ -1,6 +1,8 @@
-# Painel Brasil 2003–2026
+# Painel Brasil 1985–2026
 
-Indicadores econômicos e ambientais do Brasil comparados governo a governo, de Lula 1 a Lula 3, com dados públicos oficiais e atualização automática.
+Indicadores econômicos e ambientais do Brasil desde a redemocratização, comparados governo a governo (de Sarney a Lula 3), com dados públicos oficiais e atualização automática.
+
+Cada indicador tem uma direção declarada (maior é melhor, menor é melhor ou sem ranking). Em cada um, o quarto melhor dos governos recebe ▲ ponto forte e o quarto pior ▼ ponto fraco, com a mesma régua para todos.
 
 **Site:** https://dayanaisilva.github.io/painel-brasil/
 
@@ -13,11 +15,11 @@ Indicadores econômicos e ambientais do Brasil comparados governo a governo, de 
 | Inflação (IPCA) | IBGE via Banco Central (SGS 433) | mensal | média anual equivalente |
 | Salário mínimo real | Banco Central (SGS 1619) deflacionado pelo IPCA | mensal | ganho real no mandato |
 | Cesta básica SP | DIEESE via Ipeadata | mensal | % do salário mínimo |
-| Gasolina | ANP via Ipeadata, deflacionada pelo IPCA | mensal | preço real médio |
-| Dólar | Banco Central (SGS 3698) | mensal | cotação média |
-| Focos de queimada | INPE, satélite de referência | anual | média anual |
+| Gasolina | ANP, deflacionada pelo IPCA, desde 2001 | mensal | preço real médio |
+| Dólar | Banco Central, PTAX venda (SGS 1), desde jul/1994 | mensal | cotação média (sem ranking) |
+| Focos de queimada | INPE, satélite de referência, desde 2003 | anual | média anual |
 
-Regras de atribuição (mês pelo dia 15, ano pela proporção de dias governados) e limites de leitura estão na seção Metodologia do site.
+Regras de atribuição (mês pelo dia 15, ano pela proporção de dias governados), conversão das moedas anteriores ao Real (`pipeline/moedas.py`) e limites de leitura estão na seção Metodologia do site.
 
 ## Arquitetura
 
@@ -25,7 +27,8 @@ Regras de atribuição (mês pelo dia 15, ano pela proporção de dias governado
 GitHub Actions (dias 12 e 28 + a cada push)
   └─ python -m pipeline.build
        ├─ pipeline/fontes.py     coleta: APIs do BCB, Banco Mundial, Ipeadata, INPE
-       ├─ pipeline/governos.py   períodos e regras de atribuição
+       ├─ pipeline/governos.py   períodos, contexto e regras de atribuição
+       ├─ pipeline/moedas.py     conversão Cruzeiro → Cruzado → … → Real
        └─ pipeline/build.py      tratamento, deflação, resumos por governo
             ├─ data/raw/*.csv          séries originais (versionadas)
             ├─ data/processed/*.csv    séries tratadas + governo
