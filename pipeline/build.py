@@ -231,20 +231,25 @@ def resumo_media_ponderada(df_anual):
     return out
 
 
-def resumo_variacao(dm):
-    """Variação % do último mês antes do governo até o último mês do governo."""
+def resumo_variacao(dm, janela=12):
+    """Variação % do poder de compra: média dos 12 meses antes da posse contra a média dos
+    últimos 12 meses do governo. Usar médias evita o serrote da hiperinflação, quando o
+    salário era reajustado num mês e corroído nos seguintes."""
     s = dm.set_index("data")["valor"]
     out = {}
     for g in GOVERNOS:
-        meses = dm[dm.governo == g["id"]]
+        meses = dm[dm.governo == g["id"]].sort_values("data")
         if meses.empty or cobertura_mensal(dm, g["id"]) < COBERTURA_MINIMA:
             continue
-        ini = meses.data.min() - pd.offsets.MonthBegin(1)
-        if ini not in s.index:
+        ini = meses.data.min()
+        antes = s[(s.index < ini) & (s.index >= ini - pd.DateOffset(months=janela))]
+        fim = meses.tail(janela)
+        if len(antes) < janela * 0.75 or fim.empty:
             continue
-        fim = meses.data.max()
-        out[g["id"]] = {"valor": (s[fim] / s[ini] - 1) * 100,
-                        "periodo": f"{ini:%m/%Y} → {fim:%m/%Y}", "parcial": g["id"] == "lula3"}
+        out[g["id"]] = {"valor": (fim.valor.mean() / antes.mean() - 1) * 100,
+                        "de": float(antes.mean()), "para": float(fim.valor.mean()),
+                        "periodo": f"média {antes.index.min():%m/%Y}–{antes.index.max():%m/%Y} → média {fim.data.min():%m/%Y}–{fim.data.max():%m/%Y}",
+                        "parcial": g["id"] == "lula3"}
     return out
 
 
@@ -305,7 +310,7 @@ def ano_base_fim(g, ultimo_ano):
     return base, min(final, ultimo_ano)
 
 
-def resumo_ritmo(df_anual, tolerancia=2):
+def resumo_ritmo(df_anual, tolerancia=2, relativo=False):
     """Variação média por ano de um indicador de nível durante cada governo.
 
     Compara o valor do ano anterior à posse com o do último ano do governo, com
@@ -325,7 +330,13 @@ def resumo_ritmo(df_anual, tolerancia=2):
             continue
         if pd.isna(serie[base]) or pd.isna(serie[final]) or not (perto(base) and perto(final)):
             continue
-        out[g["id"]] = {"valor": (serie[final] - serie[base]) / (final - base),
+        if relativo:
+            if serie[base] <= 0 or serie[final] <= 0:
+                continue
+            valor = ((serie[final] / serie[base]) ** (1 / (final - base)) - 1) * 100
+        else:
+            valor = (serie[final] - serie[base]) / (final - base)
+        out[g["id"]] = {"valor": valor,
                         "de": float(serie[base]), "para": float(serie[final]),
                         "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3"}
     return out
@@ -358,19 +369,15 @@ def main():
         (["câmbio", "comercial", "venda"], None, ["média", "r$ / us$"], faixa(3, 10), ("real", "efetiva", "fim")),
         inicio=1994), "BCB/SGS 1 (PTAX venda)")
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)", max_atraso_dias=800)
-    pibpc = coletar("pib_per_capita", lambda: fontes.banco_mundial("NY.GDP.PCAP.KD"), "Banco Mundial (IBGE)",
-                    max_atraso_dias=800)
+    pop = coletar("populacao", lambda: fontes.ipea_serie("DEPIS_POP"), "IBGE — população residente (via Ipeadata)",
+                  max_atraso_dias=800)
+    pibpc_nom = coletar("pib_per_capita_nominal", lambda: fontes.ipea_serie("GAC_PIBCAPN"),
+                        "IBGE — PIB per capita em R$ correntes (via Ipeadata)", max_atraso_dias=800)
     cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
                                           faixa(300, 3000), ("variação", "horas", "%")),
                     "DIEESE via Ipeadata")
     gas = coletar("gasolina", gasolina, "ANP — Levantamento de Preços")
     focos = coletar("queimadas", queimadas, "INPE/BDQueimadas", max_atraso_dias=800)
-    # Descoberta (não afeta o site): candidatas oficiais do IBGE para PIB per capita e população.
-    for termos in (["per capita"], ["população"]):
-        try:
-            fontes.ipea_buscar(*termos, periodicidade="Anual")
-        except Exception as e:  # noqa: BLE001
-            log.warning("descoberta %s: %s", termos, e)
 
     idx = indice_precos(ipca) if ipca is not None else None
     ref_mes = idx.index[-1].strftime("%m/%Y") if idx is not None else ""
@@ -396,21 +403,43 @@ def main():
             resumo_rotulo="crescimento médio por ano", resumo=resumo_media_ponderada(a),
             serie=serie_json(a, "%Y"), fonte=FONTE_PIB["txt"], fonte_url="https://www3.bcb.gov.br/sgspub/")
 
-    if pibpc is not None:
-        a = anual(pibpc)
-        a["cresc"] = a.valor.pct_change() * 100
-        g = a.dropna()[["ano", "cresc"]].rename(columns={"cresc": "valor"})
-        g = g[g.ano >= ANO_INICIAL]
-        a = a[a.ano >= ANO_INICIAL]
+    if pib is not None and pop is not None:
+        # Crescimento real per capita = (1 + crescimento real do PIB) / (1 + crescimento da população) - 1.
+        p_ = anual(pop).groupby("ano").valor.mean()
+        p_ = p_.reindex(range(int(p_.index.min()), int(p_.index.max()) + 1))  # lacunas viram NaN, sem crescimento falso
+        g_ = anual(pib).groupby("ano").valor.mean()
+        cresc_pop = p_.pct_change() * 100
+        anos_ok = [a for a in g_.index if a in cresc_pop.index and not pd.isna(cresc_pop[a])]
+        pc = pd.DataFrame({"ano": anos_ok,
+                           "valor": [((1 + g_[a] / 100) / (1 + cresc_pop[a] / 100) - 1) * 100 for a in anos_ok]})
+        pc = pc[pc.ano >= ANO_INICIAL]
+        serie_pc, unidade_pc = [], "% ao ano"
+        nivel = None
+        if pibpc_nom is not None:
+            nom = anual(pibpc_nom).groupby("ano").valor.mean()
+            ult = int(min(nom.index.max(), pc.ano.max()))
+            if ult in nom.index:
+                # nível em R$ do último ano: valor nominal do último ano, recuado pelo crescimento real per capita
+                fator = {ult: 1.0}
+                cres = dict(zip(pc.ano, pc.valor))
+                for a in range(ult, ANO_INICIAL, -1):
+                    fator[a - 1] = fator[a] / (1 + cres.get(a, float("nan")) / 100)
+                nivel = pd.DataFrame({"data": pd.to_datetime([f"{a}-01-01" for a in sorted(fator)]),
+                                      "valor": [nom[ult] * fator[a] for a in sorted(fator)]}).dropna()
+                unidade_pc = f"R$ de {ult} por pessoa"
         ind["pib_per_capita"] = dict(
             tema="economia",
-            titulo="PIB per capita", unidade="US$ de 2015 por pessoa", formato="moeda_usd", grafico="barra", freq="anual",
+            titulo="PIB per capita", unidade=unidade_pc,
+            formato="moeda_int" if nivel is not None else "pct", grafico="barra", freq="anual",
             direcao="maior", pergunta="A riqueza por pessoa aumentou?",
-            descricao="PIB dividido pela população, em dólares constantes de 2015, sem efeito de inflação ou câmbio.",
+            descricao=("PIB dividido pela população, sem efeito da inflação: o valor de cada ano está em reais do ano mais recente. "
+                       "Calculado com o crescimento real do PIB e a população estimada pelo IBGE."),
             resumo_rotulo="crescimento médio por ano", resumo_formato="pct",
-            resumo=resumo_media_ponderada(g), serie=serie_json(a, "%Y"),
-            fonte="Banco Mundial, World Development Indicators (NY.GDP.PCAP.KD), a partir de dados do IBGE",
-            fonte_url="https://data.worldbank.org/indicator/NY.GDP.PCAP.KD?locations=BR")
+            resumo=resumo_media_ponderada(pc),
+            serie=serie_json(nivel[nivel.data.dt.year >= ANO_INICIAL], "%Y") if nivel is not None else serie_json(
+                pd.DataFrame({"data": pd.to_datetime([f"{a}-01-01" for a in pc.ano]), "valor": pc.valor}), "%Y"),
+            fonte="IBGE — Contas Nacionais e estimativas de população (via Banco Central e Ipeadata)",
+            fonte_url="https://www.ibge.gov.br/estatisticas/economicas/contas-nacionais/9300-contas-nacionais-trimestrais.html")
 
     if ipca is not None:
         m = mensal(recorte(ipca))
@@ -501,21 +530,23 @@ def main():
     sociais = [
         # id, código, título, pergunta, unidade, tema, direção, método, descrição, fonte
         ("fome", "SN.ITK.DEFC.ZS", "Mapa da Fome", "O Brasil estava no Mapa da Fome?", "% da população subalimentada",
-         "fome", "menor", "nivel",
+         "fome", "menor", "ritmo_rel",
          "Prevalência de subalimentação calculada pela FAO (média de três anos). O país entra no Mapa da Fome quando "
-         "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa.",
+         "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
+         "O ranking mede quanto a subalimentação caiu ou subiu por ano em cada governo.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
         ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Quantos viviam na extrema pobreza?", "% da população",
-         "fome", "menor", "ritmo",
-         "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial (paridade de poder de compra), calculada com a PNAD/IBGE.",
+         "fome", "menor", "ritmo_rel",
+         "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial (paridade de poder de compra), calculada com a PNAD/IBGE. "
+         "O ranking mede a variação percentual por ano em cada governo.",
          "Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE"),
         ("gini", "SI.POV.GINI", "Desigualdade (Gini)", "A desigualdade de renda caiu?", "índice de Gini (0 a 100)",
          "fome", "menor", "ritmo",
-         "Índice de Gini da renda: 0 seria todos com a mesma renda, 100 seria uma pessoa com toda a renda. Calculado com a PNAD/IBGE.",
+         "Índice de Gini da renda domiciliar per capita: 0 seria todos com a mesma renda, 100 seria uma pessoa com toda a renda. Calculado pelo Ipea com a PNAD/IBGE.",
          "Banco Mundial (SI.POV.GINI), a partir da PNAD/IBGE"),
         ("mortalidade_infantil", "SP.DYN.IMRT.IN", "Mortalidade infantil", "Morriam menos bebês?", "mortes por mil nascidos vivos",
-         "saude", "menor", "ritmo",
-         "Mortes antes de 1 ano de idade a cada mil nascidos vivos. Cai há décadas no Brasil, por isso o ranking mede a velocidade da queda em cada governo.",
+         "saude", "menor", "ritmo_rel",
+         "Mortes antes de 1 ano de idade a cada mil nascidos vivos. Cai há décadas no Brasil, por isso o ranking mede a queda percentual por ano em cada governo, e não o nível.",
          "ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE"),
         ("expectativa_vida", "SP.DYN.LE00.IN", "Expectativa de vida", "Os brasileiros passaram a viver mais?", "anos ao nascer",
          "saude", "maior", "ritmo",
@@ -530,16 +561,32 @@ def main():
          "Despesa pública com educação (todas as esferas) como parcela do PIB. Há anos sem dado. Sem ranking: gasto é insumo, não resultado.",
          "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
         ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "O analfabetismo caiu?", "% das pessoas com 15 anos ou mais",
-         "educacao", "menor", "ritmo",
-         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e Censo/IBGE). O ranking mede a velocidade da queda.",
+         "educacao", "menor", "ritmo_rel",
+         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e Censo/IBGE). O ranking mede a queda percentual por ano em cada governo.",
          "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
         ("ensino_superior", "SE.TER.ENRR", "Acesso ao ensino superior", "Mais gente chegou à faculdade?", "taxa bruta de matrícula, %",
          "educacao", "maior", "ritmo",
          "Matrículas no ensino superior em relação à população na idade típica (taxa bruta, Censo da Educação Superior/INEP). O ranking mede quanto ela subiu por ano.",
          "UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP"),
     ]
+    def gini_ipea():
+        df = fontes.ipea_serie("PNADS_GINI")
+        if df.valor.max() <= 1:
+            df["valor"] = df["valor"] * 100
+        return df
+
+    preferir_oficial = {"gini": (gini_ipea, "Ipea, a partir da PNAD e PNAD Contínua/IBGE",
+                                 "https://www.ipeadata.gov.br/")}
     for id_, cod, titulo, pergunta, unidade, tema, direcao, metodo, descricao, fonte in sociais:
-        bruto = coletar(id_, (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
+        fonte_url = WB.format(cod)
+        if id_ in preferir_oficial:
+            func_of, fonte_of, url_of = preferir_oficial[id_]
+            bruto = coletar(id_, func_of, fonte_of, max_atraso_dias=365 * 6)
+            fonte, fonte_url = fonte_of, url_of
+            if bruto is None:
+                bruto = coletar(id_ + "_bm", (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
+        else:
+            bruto = coletar(id_, (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
         if bruto is None:
             continue
         a = anual(bruto)
@@ -548,12 +595,15 @@ def main():
         a = a[a.ano >= ANO_INICIAL - 1]
         d = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao,
                  formato="pct_simples" if "%" in unidade or id_ == "gini" else "decimal",
-                 grafico="linha_anual", freq="anual", descricao=descricao, fonte=fonte, fonte_url=WB.format(cod),
+                 grafico="linha_anual", freq="anual", descricao=descricao, fonte=fonte, fonte_url=fonte_url,
                  serie=serie_anual_completa(a[a.ano >= ANO_INICIAL]))
         if id_ == "gini":
             d["formato"] = "decimal"
         if metodo == "ritmo":
             d.update(resumo=resumo_ritmo(a), resumo_rotulo="variação por ano no governo", resumo_formato="delta")
+        elif metodo == "ritmo_rel":
+            d.update(resumo=resumo_ritmo(a, relativo=True), resumo_rotulo="variação % por ano no governo",
+                     resumo_formato="delta_pct")
         else:
             d.update(resumo=resumo_media_ponderada(a[a.ano >= ANO_INICIAL]), resumo_rotulo="média no governo")
         if id_ == "fome":
@@ -561,10 +611,34 @@ def main():
             d["mapa_fome"] = {str(int(r.ano)): bool(r.valor > 2.5) for r in a.itertuples()}
         ind[id_] = d
 
-    try:
-        fontes.mec_descobrir()
-    except Exception as e:  # noqa: BLE001
-        log.warning("descoberta MEC falhou: %s", e)
+    inep = coletar_inep()
+    if inep is not None and not inep.empty:
+        for col, titulo, pergunta, unidade, descricao in [
+            ("universidades_federais", "Universidades federais", "Quantas universidades federais foram criadas?",
+             "universidades federais em funcionamento",
+             "Número de universidades federais no Censo da Educação Superior (INEP), ano a ano. O resumo mostra quantas "
+             "passaram a existir entre o ano anterior à posse e o último ano do governo. Sem ranking: é expansão da rede, "
+             "não resultado de aprendizagem. Governos mais longos tendem a somar mais."),
+            ("municipios_federais", "Interiorização do ensino superior federal", "O ensino federal chegou a mais cidades?",
+             "municípios com curso presencial federal",
+             "Municípios onde universidades e institutos federais oferecem curso superior presencial (Censo da Educação "
+             "Superior/INEP). Mostra a chegada de campi federais a novas cidades. Sem ranking."),
+        ]:
+            if col not in inep or inep[col].isna().all():
+                continue
+            a = inep[["ano", col]].rename(columns={col: "valor"}).dropna()
+            res = {}
+            for g in GOVERNOS:
+                base, final = ano_base_fim(g, int(a.ano.max()))
+                v = dict(zip(a.ano, a.valor))
+                if base in v and final in v and final > base:
+                    res[g["id"]] = {"valor": v[final] - v[base], "de": v[base], "para": v[final],
+                                    "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3"}
+            ind[col] = dict(tema="educacao", titulo=titulo, pergunta=pergunta, unidade=unidade, direcao=None,
+                            formato="inteiro", grafico="barra", freq="anual", descricao=descricao,
+                            resumo=res, resumo_rotulo="aumento no governo", resumo_formato="inteiro_delta",
+                            serie=serie_anual_completa(a), fonte="INEP — Censo da Educação Superior (microdados)",
+                            fonte_url="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior")
 
     for v in ind.values():
         ranquear(v)
@@ -611,6 +685,33 @@ def main():
     pd.DataFrame(STATUS).to_csv(RAIZ / "data" / "status_fontes.csv", index=False)
     log.info("Status das fontes:\n%s", pd.DataFrame(STATUS).to_string(index=False))
     log.info("Indicadores gerados: %s", list(ind))
+
+
+def coletar_inep():
+    """Conta universidades federais e municípios com oferta federal em cada Censo da Educação Superior.
+    Anos já contados ficam em data/raw/inep_superior.csv e não são baixados de novo."""
+    arq = RAW / "inep_superior.csv"
+    cache = pd.read_csv(arq) if arq.exists() else pd.DataFrame(columns=["ano"])
+    feitos = set(cache.ano.astype(int)) if len(cache) else set()
+    diag, novos = [], []
+    ultimo = date.today().year - 1
+    for ano in range(1995, ultimo + 1):
+        if ano in feitos and ano < ultimo - 1:
+            continue
+        try:
+            novos.append(fontes.inep_ano(ano, diag))
+        except Exception as e:  # noqa: BLE001
+            log.warning("INEP %d: %s", ano, e)
+    (RAIZ / "data" / "descoberta").mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(diag).to_csv(RAIZ / "data" / "descoberta" / "inep.csv", index=False)
+    if novos:
+        cache = pd.concat([cache[~cache.ano.isin([n["ano"] for n in novos])], pd.DataFrame(novos)])
+        cache = cache.sort_values("ano")
+        cache.to_csv(arq, index=False)
+    STATUS.append({"indicador": "inep_superior", "fonte": "INEP — Censo da Educação Superior",
+                   "status": "atualizado" if novos else ("cópia anterior" if len(cache) else "indisponível"),
+                   "ultima_obs": str(int(cache.ano.max())) if len(cache) else ""})
+    return cache if len(cache) else None
 
 
 def validar_salario(r, ref_mes):

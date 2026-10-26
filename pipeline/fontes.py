@@ -348,3 +348,75 @@ def mec_descobrir(consultas=("e-mec instituições", "rede federal", "plataforma
             linhas.append({"consulta": q, "erro": str(e)[:200]})
     DESCOBERTA.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(linhas).to_csv(DESCOBERTA / "mec_ckan.csv", index=False)
+
+
+# --------------------------------------------------------------------------- #
+# INEP — Censo da Educação Superior (microdados): universidades e campi federais
+# --------------------------------------------------------------------------- #
+INEP_URLS = [
+    "https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_{ano}.zip",
+    "https://download.inep.gov.br/microdados/microdados_educacao_superior_{ano}.zip",
+    "https://download.inep.gov.br/microdados/micro_censo_edu_superior{ano}.zip",
+]
+
+
+def _norm(c: str) -> str:
+    return re.sub(r"[^A-Z_]", "", str(c).upper().strip())
+
+
+def _ler_csv_zip(z, nome: str, usecols_pred) -> pd.DataFrame:
+    with z.open(nome) as f:
+        cab = f.readline().decode("latin-1")
+    sep = ";" if cab.count(";") >= cab.count("|") else "|"
+    colunas = [c.strip().strip('"') for c in cab.strip().split(sep)]
+    usar = [c for c in colunas if usecols_pred(_norm(c))]
+    with z.open(nome) as f:
+        return pd.read_csv(f, sep=sep, encoding="latin-1", usecols=usar, dtype=str, low_memory=False)
+
+
+def inep_ano(ano: int, diag: list) -> dict:
+    """Conta, no Censo da Educação Superior de `ano`:
+    - universidades federais (categoria pública federal, organização acadêmica universidade);
+    - institutos federais e CEFETs (IES federais com essa organização acadêmica);
+    - municípios com oferta de curso presencial por instituição federal (proxy de campi).
+    Só lê do zip os arquivos necessários (download parcial)."""
+    from remotezip import RemoteZip
+
+    ultimo_erro = None
+    for modelo in INEP_URLS:
+        url = modelo.format(ano=ano)
+        try:
+            with RemoteZip(url, timeout=120) as z:
+                nomes = z.namelist()
+                diag.append({"ano": ano, "url": url, "arquivos": " | ".join(n for n in nomes if n.lower().endswith((".csv", ".txt")))[:900]})
+                ies = next((n for n in nomes if re.search(r"(^|/)(MICRODADOS_ED_SUP_IES|DM_IES|IES)[^/]*\.(csv|txt)$", n, re.I)), None)
+                cursos = next((n for n in nomes if re.search(r"(CADASTRO_CURSOS|DM_CURSO|CURSO)[^/]*\.(csv|txt)$", n, re.I)
+                               and "ALUNO" not in n.upper()), None)
+                out = {"ano": ano, "url": url}
+                if ies:
+                    d = _ler_csv_zip(z, ies, lambda c: "CATEGORIA" in c or "ORGANIZACAO" in c or c in ("CO_IES",))
+                    d.columns = [_norm(c) for c in d.columns]
+                    cat = next(c for c in d.columns if "CATEGORIA" in c)
+                    org = next(c for c in d.columns if "ORGANIZACAO" in c)
+                    diag.append({"ano": ano, "url": url, "arquivos": f"IES colunas: {list(d.columns)} | cat={d[cat].value_counts().head(6).to_dict()} | org={d[org].value_counts().head(6).to_dict()}"[:900]})
+                    fed = d[d[cat].str.strip().isin(["1", "Pública Federal", "PUBLICA FEDERAL"])]
+                    o = fed[org].str.strip()
+                    out["universidades_federais"] = int(o.isin(["1", "Universidade", "UNIVERSIDADE"]).sum())
+                    out["institutos_federais"] = int(o.isin(["4", "5", "Instituto Federal de Educação, Ciência e Tecnologia",
+                                                            "Centro Federal de Educação Tecnológica"]).sum())
+                if cursos:
+                    c = _ler_csv_zip(z, cursos, lambda c: "CATEGORIA" in c or c in ("CO_MUNICIPIO", "CO_MUNICIPIO_CURSO", "TP_MODALIDADE_ENSINO", "CO_MODALIDADE_ENSINO"))
+                    c.columns = [_norm(x) for x in c.columns]
+                    cat = next(x for x in c.columns if "CATEGORIA" in x)
+                    mun = next((x for x in c.columns if x.startswith("CO_MUNICIPIO")), None)
+                    mod = next((x for x in c.columns if "MODALIDADE" in x), None)
+                    f = c[c[cat].str.strip().isin(["1", "Pública Federal", "PUBLICA FEDERAL"])]
+                    if mod:
+                        f = f[f[mod].str.strip().isin(["1", "Presencial"])]
+                    if mun:
+                        out["municipios_federais"] = int(f[mun].dropna().str.strip().replace("", pd.NA).dropna().nunique())
+                return out
+        except Exception as e:  # noqa: BLE001
+            ultimo_erro = e
+            diag.append({"ano": ano, "url": url, "arquivos": f"ERRO: {str(e)[:300]}"})
+    raise ValueError(f"INEP {ano}: {ultimo_erro}")

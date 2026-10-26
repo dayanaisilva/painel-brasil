@@ -9,7 +9,7 @@
     ["custo", "Custo de vida e renda", ["ipca", "salario_minimo", "cesta_sp", "gasolina"]],
     ["fome", "Fome, pobreza e desigualdade", ["fome", "pobreza", "gini"]],
     ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "gasto_saude"]],
-    ["educacao", "Educação", ["analfabetismo", "ensino_superior", "gasto_educacao"]],
+    ["educacao", "Educação", ["analfabetismo", "ensino_superior", "universidades_federais", "municipios_federais", "gasto_educacao"]],
     ["ambiente", "Meio ambiente", ["queimadas"]],
   ];
   const ORDEM = TEMAS.flatMap((t) => t[2]);
@@ -22,13 +22,15 @@
     gasolina: ["Gasolina", "R$/l de hoje"],
     queimadas: ["Queimadas", "focos/ano"],
     dolar: ["Dólar", "média R$"],
-    fome: ["Fome (FAO)", "% subalimentada"],
-    pobreza: ["Extrema pobreza", "variação/ano"],
+    fome: ["Fome (FAO)", "variação %/ano"],
+    pobreza: ["Extrema pobreza", "variação %/ano"],
     gini: ["Desigualdade", "Gini, variação/ano"],
-    mortalidade_infantil: ["Mortalidade infantil", "variação/ano"],
+    mortalidade_infantil: ["Mortalidade infantil", "variação %/ano"],
     expectativa_vida: ["Expectativa de vida", "anos, variação/ano"],
     gasto_saude: ["Gasto em saúde", "% do PIB"],
-    analfabetismo: ["Analfabetismo", "variação/ano"],
+    analfabetismo: ["Analfabetismo", "variação %/ano"],
+    universidades_federais: ["Universidades federais", "novas no governo"],
+    municipios_federais: ["Cidades com ensino federal", "novas no governo"],
     ensino_superior: ["Ensino superior", "variação/ano"],
     gasto_educacao: ["Gasto em educação", "% do PIB"],
   };
@@ -42,6 +44,9 @@
     inteiro: (v) => nf(0, 0).format(Math.round(v)),
     decimal: (v) => nf(1, 1).format(v),
     delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(2, 2).format(Math.abs(v)) + "/ano",
+    delta_pct: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1, 1).format(Math.abs(v)) + "% ao ano",
+    inteiro_delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(0, 0).format(Math.abs(Math.round(v))),
+    moeda_int: (v) => "R$ " + nf(0, 0).format(v),
   };
   const fmt = (tipo, v) => (v == null || Number.isNaN(v) ? "—" : (F[tipo] || F.pct_simples)(v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
