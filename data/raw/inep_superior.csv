@@ -12,7 +12,7 @@ ano,url,municipios_federais,universidades_federais,institutos_federais
 2006,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2006.zip,,,
 2007,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2007.zip,,,
 2008,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2008.zip,,,
-2009,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2009.zip,334.0,,
+2009,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2009.zip,334.0,55.0,35.0
 2010,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2010.zip,383.0,58.0,37.0
 2011,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2011.zip,430.0,59.0,40.0
 2012,https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_2012.zip,443.0,59.0,40.0
