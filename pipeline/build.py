@@ -652,8 +652,9 @@ def main():
         if id_ in preferir_oficial:
             func_of, fonte_of, url_of = preferir_oficial[id_]
             bruto = coletar(id_, func_of, fonte_of, max_atraso_dias=365 * 6)
-            fonte, fonte_url = fonte_of, url_of
-            if bruto is None:
+            if bruto is not None:
+                fonte, fonte_url = fonte_of, url_of
+            else:
                 bruto = coletar(id_ + "_bm", (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
         else:
             bruto = coletar(id_, (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
