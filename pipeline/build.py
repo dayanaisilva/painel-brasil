@@ -580,7 +580,8 @@ def main():
         # id, código, título, pergunta, unidade, tema, direção, método, descrição, fonte
         ("fome", "SN.ITK.DEFC.ZS", "Mapa da Fome", "O Brasil estava no Mapa da Fome?", "% da população subalimentada",
          "fome", None, "anos_mapa",
-         "Prevalência de subalimentação calculada pela FAO (média de três anos). O país entra no Mapa da Fome quando "
+         "Prevalência de subalimentação calculada pela FAO. Cada ano do gráfico é uma média de três anos centrada nele "
+         "(2021 = média de 2020 a 2022), como a FAO publica, e a FAO revisa a série inteira a cada relatório. O país entra no Mapa da Fome quando "
          "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
          "Sem ranking: como a FAO não mede abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
          "O resumo mostra em quantos anos de cada governo o Brasil esteve no mapa.",
@@ -612,7 +613,7 @@ def main():
          "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
         ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "O analfabetismo caiu?", "% das pessoas com 15 anos ou mais",
          "educacao", "menor", "ritmo_rel",
-         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e Censo/IBGE). O ranking mede a queda percentual por ano em cada governo.",
+         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e PNAD Contínua/IBGE). O ranking mede a queda percentual por ano em cada governo.",
          "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
         ("ensino_superior", "SE.TER.ENRR", "Acesso ao ensino superior", "Mais gente chegou à faculdade?", "taxa bruta de matrícula, %",
          "educacao", "maior", "ritmo",
@@ -625,8 +626,17 @@ def main():
             df["valor"] = df["valor"] * 100
         return df
 
+    def analfabetismo_ibge():
+        cands = fontes.ipea_buscar("analfabet", periodicidade="Anual")
+        def valido(df):
+            v = dict(zip(df.data.dt.year, df.valor))
+            return 4.5 <= v.get(2024, 0) <= 6.0 and 6.0 <= v.get(2019, 0) <= 7.2 and df.data.dt.year.min() <= 1995
+        return fontes.ipea_validada(cands, ["15 anos", "pnad"], valido, "analfabetismo")
+
     preferir_oficial = {"gini": (gini_ipea, "Ipea, a partir da PNAD e PNAD Contínua/IBGE",
-                                 "https://www.ipeadata.gov.br/")}
+                                 "https://www.ipeadata.gov.br/"),
+                        "analfabetismo": (analfabetismo_ibge, "IBGE — PNAD e PNAD Contínua (via Ipeadata)",
+                                          "https://www.ipeadata.gov.br/")}
     for id_, cod, titulo, pergunta, unidade, tema, direcao, metodo, descricao, fonte in sociais:
         fonte_url = WB.format(cod)
         if id_ in preferir_oficial:
@@ -640,7 +650,7 @@ def main():
         if bruto is None:
             continue
         a = anual(bruto)
-        if id_ == "analfabetismo":
+        if id_ == "analfabetismo" and a.valor.median() > 50:  # série do Banco Mundial é de alfabetização
             a["valor"] = 100 - a["valor"]
         a = a[a.ano >= ANO_INICIAL - 1]
         d = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao,
@@ -684,10 +694,11 @@ def main():
     # ---------------- Emprego, segurança e programas sociais (IBGE, DATASUS, MDS via Ipeadata) ----------------
     oficiais = [
         # id, código Ipeadata, título, pergunta, unidade, tema, direção, freq, descrição, fonte
-        ("desemprego", "PNADC12_TDESOCM12", "Desemprego", "Faltou emprego?", "% da força de trabalho", "economia", "menor", "mensal",
-         "Taxa de desocupação da PNAD Contínua (IBGE), que começa em 2012. Pesquisas anteriores usavam outra metodologia e "
-         "cobriam só regiões metropolitanas, por isso não entram na comparação.",
-         "IBGE — PNAD Contínua (mensalizada pelo Ipea)"),
+        ("desemprego", "PAN4_TDESOC4", "Desemprego", "Faltou emprego?", "% da força de trabalho", "economia", "menor", "trimestral",
+         "Taxa de desocupação trimestral oficial da PNAD Contínua (IBGE), que começa em 2012. A média de cada ano bate com a "
+         "taxa anual divulgada pelo IBGE. Pesquisas anteriores usavam outra metodologia e cobriam só regiões metropolitanas, "
+         "por isso não entram na comparação.",
+         "IBGE — PNAD Contínua (taxa trimestral oficial)"),
         ("homicidios", "AVIOL12_THOMIC", "Homicídios", "A violência aumentou?", "por 100 mil habitantes", "seguranca", "menor", "anual",
          "Taxa de homicídios por 100 mil habitantes, a partir das declarações de óbito do Ministério da Saúde (SIM/DATASUS), "
          "compilada no Atlas da Violência (Ipea).",
@@ -704,12 +715,22 @@ def main():
          "Ministério da Saúde (CNES/DATASUS), via Ipeadata"),
     ]
     for id_, cod, titulo, pergunta, unidade, tema, direcao, freq, descricao, fonte in oficiais:
-        bruto = coletar(id_, (lambda c=cod: fontes.ipea_serie(c)), fonte, max_atraso_dias=120 if freq == "mensal" else 365 * 4)
+        bruto = coletar(id_, (lambda c=cod: fontes.ipea_serie(c)), fonte,
+                        max_atraso_dias=120 if freq == "mensal" else 200 if freq == "trimestral" else 365 * 4)
         if bruto is None:
             continue
         base = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao, descricao=descricao,
                     fonte=fonte, fonte_url="https://www.ipeadata.gov.br/", freq=freq)
-        if freq == "mensal":
+        if freq == "trimestral":
+            # cada trimestre vale para os seus três meses: a média de 4 trimestres é a taxa anual oficial
+            t = mensal(bruto)[["data", "valor"]]
+            linhas_m = [(d + pd.DateOffset(months=k), v) for d, v in zip(t.data, t.valor) for k in range(3)]
+            dm = pd.DataFrame(linhas_m, columns=["data", "valor"])
+            dm["governo"] = [governo_do_mes(x.year, x.month) for x in dm.data]
+            dm = dm[dm.data.dt.year >= ANO_INICIAL]
+            ind[id_] = dict(base, freq="mensal", formato="pct_simples", grafico="linha", resumo=resumo_media_mensal(dm),
+                            resumo_rotulo="média no governo", serie=serie_json(dm, "%Y-%m"))
+        elif freq == "mensal":
             dm = mensal(bruto)
             dm = dm[dm.data.dt.year >= ANO_INICIAL]
             ind[id_] = dict(base, formato="pct_simples", grafico="linha", resumo=resumo_media_mensal(dm),

@@ -457,8 +457,8 @@
     const anos = Object.entries(ind.mapa_fome).filter(([a]) => +a >= 2000);
     if (!anos.length) return "";
     return `<div class="mapa-fome" aria-label="Anos em que o Brasil estava no Mapa da Fome">
-      <p class="mf-tit">Brasil no Mapa da Fome, ano a ano</p>
-      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${a}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${a.slice(2)}</span>`).join("")}</div>
+      <p class="mf-tit">Brasil no Mapa da Fome (cada ano = média de três anos centrada nele)</p>
+      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${+a - 1}–${+a + 1}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${a.slice(2)}</span>`).join("")}</div>
       <p class="mf-leg"><span class="mf-ano no"><b>✕</b></span> no mapa (acima de 2,5%) <span class="mf-ano fora"><b>✓</b></span> fora do mapa</p></div>`;
   }
 
