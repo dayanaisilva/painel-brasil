@@ -1,0 +1,8 @@
+nota,url,achados
+2021 estimativa,https://www.gov.br/inpe/pt-br/assuntos/divulgacao-de-dados-prodes.pdf,"{2020: 10851.0, 2021: 13235.0}"
+2021 consolidada,https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/nota-tecnica-prodes/NotaTecnica_consolidado_PRODES_2021_rev.pdf,"ERRO: ValueError: não é PDF (HTTP 200, text/html;charset=utf-8)"
+2022 consolidada,https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/a-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-amazonia-legal-em-2022-foi-de-11-594-km2-1/NotaTecnica_consolidado_PRODES_2022.pdf,"ERRO: ValueError: não é PDF (HTTP 200, text/html;charset=utf-8)"
+2024 estimativa,https://data.inpe.br/wp-content/uploads/2024/11/NT_Amz_tx_Prodes2024_T.pdf,"{2023: 9064.0, 2024: 6288.0}"
+2024 consolidada,https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf,"{2023: 6288.0, 2024: 6518.0}"
+2025 estimativa,https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf,"{2024: 6518.0, 2025: 5796.0}"
+2025 consolidada,https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf,"{2024: 6518.0, 2025: 5731.0}"

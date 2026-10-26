@@ -1,0 +1,180 @@
+A taxa consolidada de desmatamento para os nove estados
+da Amazônia Legal para 2024 é de 6.518 km2
+1. Apresentação dos resultados
+O Instituto Nacional de Pesquisas Espaciais (INPE), unidade vinculada ao Ministério
+de Ciência, Tecnologia e Inovação (MCTI), divulga anualmente a taxa consolidada de
+desmatamento para os nove estados da Amazônia Legal Brasileira (ALB), por meio do
+Monitoramento Anual da Supressão da Vegetação Nativa (Prodes). O valor consolidado
+da taxa de desmatamento para os nove estados da ALB entre o período de 1º de agosto
+de 2023 e 31 de julho de 2024 foi de 6.518 km2. Este valor representou uma redução de
+28,09% em relação à taxa de desmatamento apurada pelo Prodes em 2023, que foi de
+9.064 km2.
+Para gerar a taxa consolidada de desmatamento na ALB de 2024, o INPE analisou
+516 tiles Brazil Data Cube (BDC) que recobrem integralmente a Amazônia Legal. O
+mapeamento foi feito com base em imagens dos satélites Sentinel-2 (sensor MSI) e
+Sentinel-1 (sensor SAR)1. No caso de áreas sem cobertura Sentinel-1, foram empregadas
+imagens ALOS-2 (sensor PALSAR-2)2.
+Foram registradas e mapeadas as áreas desmatadas maiores que 1
+hectare. Porém, visando manter a compatibilidade com a série histórica iniciada em
+1988, apenas os polígonos maiores que 6,25 hectares foram contabilizados para cálculo
+da taxa. O Prodes considera como desmatamento a remoção completa da cobertura
+florestal primária por corte raso (subdividido em desmatamento por corte raso com solo
+exposto, com vegetação, mineração e floresta inundada) ou o estágio final de uma
+degradação progressiva da floresta em que há a perda completa do dossel,
+independentemente da futura utilização destas áreas.
+A Tabela 1 apresenta a distribuição da taxa consolidada de desmatamento para o
+ano de 2024 nos estados da ALB. Os estados do Pará, Mato Grosso e Amazonas
+correspondem a 74,79% do desmatamento na ALB para o ano, conforme apresentado
+na Figura 1, onde se pode observar a distribuição espacial das ocorrências de
+desmatamento para 2024.
+1
+As imagens Sentinel são fornecidas pela Agência Espacial Europeia (European Space Agency - ESA),
+no âmbito do programa Copernicus. Porém, os produtos utilizados foram pré-processados e
+disponibilizados pelo projeto Brazil Data Cube (DBC), iniciativa brasileira em dados prontos para
+análise (analysis-ready data), desenvolvido pelo INPE.
+2
+Os dados originais para este produto de dados com valor agregado foram fornecidos pela Agência
+de Exploração Aeroespacial do Japão (Japan Aerospace Exploration Agency - JAXA).
+1
+Tabela 1 – Distribuição da taxa consolidada por estado da Amazônia Legal Brasileira.
+Prodes 2024 Contribuição
+Estado
+(km2) (%)
+Acre 449 6,89%
+1.22 18,76
+Amazonas 3 %
+Amapá 27 0,41%
+Maranhão 307 4,71%
+1.25 19,29
+Mato Grosso 7 %
+2.39 36,74
+Pará 5 %
+Rondônia 360 5,52%
+Roraima 468 7,18%
+Tocantins 32 0,49%
+6.51 100,0
+ALB 8 0%
+Figura 1 – Mapa das ocorrências de desmatamento identificadas na Amazônia Legal
+Brasileira pelo Prodes 2024.
+2
+A Tabela 2 apresenta as variações da taxa consolidada para cada estado da ALB,
+entre os anos Prodes de 2023 e 2024. Dos nove estados da Amazônia Legal, Acre,
+Amazonas, Mato Grosso, Pará e Rondônia tiveram redução do desmatamento entre
+2023 e 2024, sendo os maiores valores de redução observados em Rondônia (-58,48%)
+e Mato Grosso (-38,62%). Tocantins apresentou o mesmo valor registrado no ano
+anterior. Os estados que apresentaram aumento da taxa de desmatamento foram
+Roraima (64,79%), Amapá (58,82%) e Maranhão (0,33%).
+Tabela 2 – Valores absolutos e variação percentual da taxa de desmatamento para cada
+estado da Amazônia Legal Brasileira (ALB).
+Prodes 2023 Prodes 2024 Variação
+Estado
+(km2) (km2) (%)
+-
+Acre 601 449
+25,29%
+-
+Amazonas 1.610 1.223
+24,04%
+Amapá 17 27 58,82%
+Maranhão 306 307 0,33%
+-
+Mato Grosso 2.048 1.257
+38,62%
+-
+Pará 3.299 2.395
+27,40%
+-
+Rondônia 867 360
+58,48%
+Roraima 284 468 64,79%
+Tocantins 32 32 0,00%
+9.06 6.518 -
+ALB
+4 28,09%
+Em outubro de 2024, o INPE havia divulgado o valor estimado da taxa de
+desmatamento. A estimativa da taxa foi calculada por meio de um subconjunto de 268
+tiles prioritários, dentre os 516 que recobrem a Amazônia Legal. A seleção dos 268 tiles
+como prioritários atendeu a três critérios: 1) cobrir a região onde foram registrados pelo
+menos 90% do desmatamento no período anterior do Prodes (agosto/2022 a
+julho/2023); 2) cobrir a região onde foram registrados pelo menos 90% dos avisos de
+desmatamento do Monitoramento Diário da Supressão e Degradação da Vegetação
+Nativa (Deter) no período atual do Prodes (agosto/2023 a julho/2024); e 3) cobrir os 70
+municípios prioritários para fiscalização referidos na portaria GM/MMA nº 834, de 09
+de novembro de 2023. A variação entre os valores estimado e consolidado por estado
+da ALB é apresentada na Tabela 3.
+3
+Tabela 3 – Prodes 2024 - taxas de desmatamento estimadas e consolidadas por
+estado da Amazônia Legal Brasileira (ALB).
+Estimativa Consolidada Consolidada /
+Estado 268 tiles 516 tiles Estimativa
+(km2) (km2) Variação (%)
+Acre 448 449 0,22
+Amazonas 1.143 1.223 7,00
+Amapá * 27 *
+Maranhão 287 307 6,97
+Mato 1.264 1.257 -0,55
+Grosso
+Pará 2.362 2.395 1,40
+Rondônia 325 360 10,77
+Roraima 436 468 7,34
+Tocantins 23 32 39,13
+ALB 6.288 6.518 3,66
+*Não houve detecção de polígonos no Amapá na estimativa do desmatamento devido aos
+baixos valores de desmatamento do Prodes 2023 e Deter 2023/2024. Tem-se, portanto, apenas
+o valor consolidado.
+As Figuras 2 e 3 mostram, respectivamente, a série histórica das taxas de
+desmatamento do Prodes para a ALB, em km2, considerando em 2024 o valor
+consolidado apresentado nesta nota, e a variação percentual das taxas de um ano para
+o outro. A Figura 4 apresenta as taxas de desmatamento consolidadas anuais por estado
+da ALB.
+Figura 2 –Taxas consolidadas anuais de desmatamento do Prodes (em km2), desde 1988,
+na Amazônia Legal Brasileira.
+4
+Figura 3 – Variação relativa anual das taxas consolidadas do Prodes na Amazônia Legal
+Brasileira.
+Figura 4 – Taxas consolidadas de desmatamento anual por estado da Amazônia Legal
+Brasileira na série histórica do Prodes (em km²).
+2. Datas das imagens e área não observada no Prodes
+Historicamente, a observação do Prodes é feita na Amazônia durante o período
+seco. Para cada área da Amazônia era considerado um período seco ideal, no qual havia
+menor probabilidade de ocorrência de nuvem. Por essa razão, poderia haver um
+afastamento das datas das imagens em relação à data referência (1º de agosto). Um dos
+objetivos da taxa de desmatamento é estimar o valor de perda florestal na data
+referência, mesmo que tenha sido utilizado uma imagem que se afasta da data ideal. O
+boxplot apresentado na Figura 5 demonstra a distribuição das datas das imagens
+utilizadas pelo Prodes, desde 2008, em relação ao dia 1º de agosto (dia juliano 214, linha
+tracejada em vermelho).
+5
+Figura 5 – Boxplot das datas das imagens utilizadas no Prodes, na Amazônia Legal
+Brasileira, entre 2008 e 2024. A linha tracejada vermelha indica o dia juliano 214 (1º de
+agosto de 2024), data referência Prodes.
+Pode-se perceber uma grande variação nas datas das imagens utilizadas no
+mapeamento Prodes ao longo dos anos, em especial em 2016. Entre 2008 e 2023, a
+amplitude média anual da janela de datas utilizadas pelo Prodes foi de 177,12 dias
+(desvio padrão = 72,78). Em 2024, foram usadas imagens dentro de um período de 47
+dias (de 11/07/2024 a 27/08/2024). Além dessa redução, a data mediana do Prodes
+2024 foi 7 de agosto de 2024, aproximando-se da data referência.
+O uso das imagens óticas (Sentinel-2 / MSI) do cubo de dados do BDC com
+cobertura reduzida de nuvem, assim como imagens de radar (Sentinel-1 / SAR),
+permitiram a observação de 100% dos tiles prioritários. Sendo assim, a estimativa do
+Prodes 2024 para a ALB está livre de área não observada. Entre 2000 e 2023, em média,
+277.256 km² não eram anualmente observados pelo Prodes, tendo ocorrido picos
+representativos em 2002, 2010 e 2013 (Figura 6).
+6
+Figura 6 – Série histórica de áreas anuais não observadas pelo Prodes, na Amazônia
+Legal Brasileira.
+3. Considerações finais
+Por meio do sistema Prodes, o INPE/MCTI realiza o mapeamento sistemático da
+Amazônia Legal e produz, desde 1988, as taxas anuais de desmatamento nas áreas
+originalmente constituídas por fitofisionomias florestais na região. Essa série histórica é
+usada pelo governo brasileiro para avaliação e estabelecimento de políticas públicas
+relativas ao controle do desmatamento, emissões de gases de efeito estufa e ações
+voltadas à temática de REDD+.
+Além do uso governamental, os dados do Prodes embasam iniciativas bem-
+sucedidas no setor privado que conjugam produção e sustentabilidade, como a
+Moratória da Soja e o Termo de Ajuste de Conduta (TAC) da cadeia produtiva de carne
+bovina, entre outras. A série histórica da taxa de desmatamento é utilizada em milhares
+de trabalhos científicos, demonstrando também sua importância na área científica e
+ambiental em benefício da sociedade brasileira.
+São José dos Campos, 25 de julho de 2025.
+7

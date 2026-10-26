@@ -1,0 +1,189 @@
+Estimativa de desmatamento na Amazônia Legal para 2025 é
+de 5.796 km2
+1. Apresentação dos resultados
+O Instituto Nacional de Pesquisas Espaciais (INPE), unidade vinculada ao Ministério
+da Ciência, Tecnologia e Inovação (MCTI), concluiu a estimativa da taxa de desmatamento
+na Amazônia Legal Brasileira (ALB). O valor estimado do desmatamento no período de 01
+de agosto de 2024 a 31 de julho de 2025 foi de 5.796 km². Esse valor representa uma
+redução de 11,08% em relação à taxa de desmatamento consolidada pelo Prodes 2024,
+que foi de 6.518 km² para os nove estados da ALB. Esta estimativa é resultado do sistema
+de Monitoramento Anual da Supressão da Vegetação Nativa - Prodes, do Programa
+BiomasBR.
+O mapeamento do Prodes de 2025 foi feito com base em imagens dos satélites
+Sentinel-2 (sensor MSI) e Sentinel-1 (sensor SAR). Foram registradas as áreas desmatadas
+maiores que 1 hectare. Porém, visando manter a compatibilidade com a série histórica
+iniciada em 1988, apenas os polígonos maiores que 6,25 hectares são contabilizados para
+cálculo da taxa de desmatamento. O Prodes considera como desmatamento a remoção
+completa da cobertura florestal primária por corte raso, que inclui as classes
+desmatamento por corte raso com solo exposto, com vegetação, mineração e floresta
+inundada; e também o desmatamento que corresponde ao estágio final de uma
+degradação progressiva da floresta, em que há a perda completa do dossel,
+independentemente da futura utilização destas áreas.
+Para gerar a estimativa da taxa de desmatamento Prodes 2025, dos 516 tiles Brazil
+Data Cube (BDC) que recobrem a Amazônia Legal, o INPE analisou um subconjunto de 282
+tiles prioritários, conforme apresentado na Figura 1.
+Para a escolha dos 282 tiles prioritários foram considerados três critérios:
+1) corresponder à região onde foram registrados pelo menos 90% do desmatamento
+no período anterior do Prodes (agosto/2023 a julho/2024);
+2) corresponder às regiões onde foram registrados pelo menos 90% dos avisos de
+desmatamento do Monitoramento Diário da Supressão e Degradação da Vegetação
+Nativa (Deter) detectados no intervalo do ano Prodes 2025 (agosto/2024 a julho/2025);
+3) cobrir os 81 municípios prioritários para fiscalização listados na portaria
+GM/MMA nº 1.202, de 11 de novembro de 2024.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Figura 1 – Localização dos 282 tiles BDC selecionados para a estimativa Prodes 2025.
+A Tabela 1 apresenta a distribuição da estimativa da taxa de desmatamento para o
+ano de 2025 nos estados da ALB. Os estados do Pará, Mato Grosso e Amazonas
+correspondem a 80,84% do desmatamento estimado na ALB para o ano. Isso fica
+espacialmente explícito na Figura 2, que apresenta o mapa de ocorrências de
+desmatamento.
+Tabela 1 – Distribuição da estimativa de desmatamento Prodes 2025 por estados da ALB.
+Prodes 2025 Contribuição
+Estado
+(km2) (%)
+Acre 325 5,61%
+Amazonas 1.016 17,53%
+Amapá 14 0,24%
+Maranhão 227 3,92%
+Mato Grosso 1.572 27,12%
+Pará 2.098 36,20%
+Rondônia 239 4,12%
+Roraima 293 5,06%
+Tocantins 12 0,21%
+ALB 5.796 100,00%
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Figura 2 – Mapa das ocorrências de desmatamento identificadas no Prodes 2025, nos 282
+tiles prioritários da ALB.
+A Tabela 2 apresenta as variações da taxa para cada estado, entre os anos Prodes
+de 2024 e 2025. Oito dos nove estados da Amazônia Legal tiveram redução do
+desmatamento entre 2024 e 2025, sendo os valores mais acentuados observados no
+estado do Tocantins (-62,5 %), Amapá (-48,15 %) e Roraima (-37,39 %). O estado de Mato
+Grosso foi o único que apresentou aumento do desmatamento (25,06 %).
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Tabela 2 – Valores absolutos e variação percentual da estimativa de desmatamento Prodes
+2025 por estados da ALB.
+Prodes 2024 Prodes 2025
+Estado Consolidado Estimativa Variação (%)
+516 tiles (km²) 282 tiles (km²)
+Acre 449 325 -27,62%
+Amazonas 1.223 1.016 -16,93%
+Amapá 27 14 -48,15%
+Maranhão 307 227 -26,06%
+Mato Grosso 1.257 1.572 25,06%
+Pará 2.395 2.098 -12,40%
+Rondônia 360 239 -33,61%
+Roraima 468 293 -37,39%
+Tocantins 32 12 -62,50%
+ALB 6.518 5.796 -11,08%
+As Figuras 3 e 4 mostram, respectivamente, a série histórica do Prodes para a ALB
+(em km²), considerando em 2025 o valor da estimativa apresentada nesta nota, e a
+variação percentual de um ano para o outro, para toda a série de taxas do Prodes.
+Figura 3 – Taxa anual de desmatamento desde 1988 na ALB. Em preto, a estimativa para
+2025.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Figura 4 – Variação relativa anual das taxas do Prodes na ALB. Em preto, a estimativa para 2025.
+2. Confiabilidade da taxa
+Historicamente, a observação do Prodes é feita na Amazônia durante o período
+seco. Para cada área da Amazônia, era considerado um período seco ideal, no qual havia
+menor probabilidade de ocorrência de nuvem. Por essa razão, poderia haver um
+afastamento das datas das imagens em relação à data de referência (1º de agosto). Um
+dos objetivos da taxa de desmatamento é estimar o valor de perda florestal na data de
+referência, mesmo que tenha sido empregada uma imagem que se afasta da data ideal.
+O boxplot apresentado na Figura 5 demonstra a distribuição das datas das imagens
+empregadas pelo Prodes, desde 2008, em relação ao dia 1º de agosto (dia juliano 213,
+linha tracejada em vermelho).
+Pode-se perceber uma grande variação nas datas das imagens utilizadas no
+mapeamento Prodes ao longo dos anos, em especial em 2016. Entre 2008 e 2024, a
+amplitude média anual da janela de datas utilizadas pelo Prodes foi de 170,52 dias (desvio
+padrão = 75,22). Em 2025, foram usadas imagens dentro de um período de 48 dias (de
+12/07/2025 a 28/08/2025). Em 2025, pela primeira vez na série histórica, este intervalo é
+muito similar ao utilizado no ano anterior (11/07/2024 a 27/08/2024). Além disso, a data
+mediana do Prodes 2025 foi 4 de agosto de 2025, a que mais se aproxima da data de
+referência (1º de agosto) em toda a série histórica.
+Entre 2000 e 2024, em média, 266.165 km² não eram anualmente observados pelo
+Prodes, tendo ocorrido picos representativos em 2002, 2010 e 2013. Desde 2024, o uso
+das imagens óticas (Sentinel-2 / MSI) do cubo de dados do BDC com cobertura reduzida
+de nuvem, e a sua associação com imagens de radar (Sentinel-1 / SAR) permitiram a
+observação de 100% dos tiles prioritários (Figura 6). Portanto, assim como no ano
+anterior, a estimativa do Prodes 2025 para a ALB está livre de área não observada.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Figura 5 – Boxplot apresentando as variações de datas empregadas nas imagens do Prodes
+entre 2008 e 2025. A linha tracejada vermelha indica o dia juliano 214 (1º de agosto de 2024),
+data de referência Prodes.
+Figura 6 – Série histórica de áreas anuais não observadas pelo Prodes.
+Para explicitar a confiabilidade da taxa obtida, o valor da estimativa do
+desmatamento foi simulado para 3000 amostras geradas com 90% dos tiles selecionados
+aleatoriamente dentre os 282 tiles prioritários. A Figura 7 ilustra os resultados, descritos
+na Tabela 3, dos valores de estimativa, desvio padrão, média e mediana de taxa de
+desmatamento por estado da ALB. Os resultados das medianas e das médias se
+mostraram bastante próximos das estimativas dos estados baseadas nos 282 tiles. A
+proximidade dos valores de tendência central mostrou uma boa capacidade preditiva, e a
+amplitude dos desvios padrão mostrou que a quantidade amostrada foi adequada.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Figura 7 – Valores máximo, mediana, estimado, média e mínimo da taxa de desmatamento
+estimada para a Amazônia Legal Brasileira (7a) e por estado (7b) para 2025. Simulação da
+estimativa utilizando 3000 amostras geradas com 90% de tiles, selecionados aleatoriamente
+dentre os 282 tiles prioritários, distribuídos por estado.
+(7a)
+8000
+6929
+7000
+5811 5796 5801
+6000
+) ² 4738
+m 5000
+k
+(
+o 4000
+t
+n
+e
+m 3000
+a
+t
+a
+m 2000
+s
+e
+d 1000
+e
+d
+a
+0
+x Amazônia Legal
+a
+T
+Máximo Mediana Estimativa 268 tiles Média Mínimo
+(7b)
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000
+Tabela 3 – Estatísticas da taxa de desmatamento 2025 (km²), geradas na simulação.
+Estimativa Desvio Padrão Média Mediana
+Estado
+282 tiles 90% dos tiles 90% dos tiles 90% dos tiles
+Acre 325 12,73 325 325
+Amazonas 1.016 40,05 1.017 1.021
+Amapá 14 4,21 13 14
+Maranhão 227 12,53 227 227
+Mato Grosso 1.572 76,43 1.573 1.578
+Pará 2.098 55,93 2.098 2.102
+Rondônia 239 11,43 239 239
+Roraima 293 42,40 297 293
+Tocantins 12 4,48 13 12
+A confiança nessa estimativa pode também ser observada pela grande quantidade
+de tiles usados para seu cálculo. Com o uso das imagens Sentinel que intersectam os 282
+tiles, foi possível cobrir uma região com 94,98% das ocorrências de desmatamento
+ocorridas no ano Prodes 2024, 98,29% das supressões detectadas pelo Deter entre agosto
+de 2024 e julho de 2025 (ano Prodes 2025) e 95,17% das queimadas detectadas pelo Deter
+entre agosto de 2024 e julho de 2025. Como o desmatamento é um evento com forte
+correlação espacial, a expectativa de ocorrência de muitos focos de desmatamento fora
+dessa área é pequena.
+3. Considerações finais
+Para detalhes sobre a metodologia empregada pelo Prodes, deve-se acessar o
+endereço: http://mtc-m21d.sid.inpe.br/col/sid.inpe.br/mtc-
+m21d/2022/08.25.11.46/doc/publicacao.pdf.
+O INPE enfatiza que os valores apresentados nesta nota são uma estimativa da taxa
+de desmatamento para o mapeamento Prodes 2025. A taxa consolidada será apresentada
+no primeiro semestre de 2026, quando for completado o processamento de todos os 516
+tiles que recobrem a ALB.
+São José dos Campos, 15 de outubro de 2025.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil Tel. + 55-12-32086000

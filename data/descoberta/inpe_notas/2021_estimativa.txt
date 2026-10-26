@@ -1,0 +1,140 @@
+Estimativa de desmatamento por corte raso na Amazônia Legal
+para 2021 é de 13.235 km2
+O Instituto Nacional de Pesquisas Espaciais (INPE), unidade vinculada ao Ministério de
+Ciência, Tecnologia e Inovações (MCTI), concluiu a estimativa da taxa de desmatamento
+na Amazônia Legal Brasileira (ALB). O valor estimado foi de 13.235 km2 de corte raso no
+período de 01 agosto de 2020 a 31 julho de 2021. Esse valor representa um aumento de
+21,97% em relação a taxa de desmatamento apurada pelo PRODES 2020 que foi de 10.851
+km2 para os nove estados da ALB. Esta estimativa é fruto do Projeto de Monitoramento
+do Desmatamento na Amazônia Legal por Satélite (PRODES).
+O mapeamento do PRODES é feito com base em imagens do satélite Landsat ou similares,
+para registrar e quantificar as áreas desmatadas maiores que 6,25 hectares. O PRODES
+considera como desmatamento a remoção completa da cobertura florestal primária por
+corte raso, independentemente da futura utilização destas áreas. A estimativa da taxa
+2021 foi calculada a partir da análise de 106 cenas prioritárias de todos os estados da ALB.
+A Tabela 1 apresenta a distribuição da estimativa da taxa de desmatamento para o ano
+de 2021 nos estados da ALB. Os estados do Pará, Amazonas, Mato Grosso e Rondônia
+correspondem a 87,25% do desmatamento estimado na ALB. Isso fica espacialmente
+explícito na Figura 1, que apresenta o mapa de ocorrências de desmatamento.
+Tabela 1 – Distribuição da estimativa por estado.
+Estado PRODES 2021 (km2) Contribuição (%)
+Acre 871 6,58
+Amazonas 2.347 17,73
+Amapá 39 0,29
+Maranhão 363 2,74
+Mato Grosso 2.263 17,10
+Pará 5.257 39,72
+Rondônia 1.681 12,70
+Roraima 386 2,92
+Tocantins 28 0,21
+ALB 13.235 100,0
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
+Figura 1 – Mapa das ocorrências de desmatamento identificadas no PRODES 2021, nas 106
+cenas prioritárias das ALB.
+A Tabela 2 apresenta as variações da taxa para cada estado entre os anos de 2020 e 2021.
+A análise desta tabela mostra um crescimento do desmatamento em todos os estados da
+ALB. Deve-se ressaltar que o estado com maior contribuição absoluta de desmatamento
+(Pará com 5.257 km2) também é o estado com menor variação percentual de
+desmatamento (7,31%).
+Tabela 2 – Valores absolutos e variação percentual para cada estado.
+Estado PRODES 2020 (km2) PRODES 2021 (km2) Variação (%)
+Acre 706 871 23,37%
+Amazonas 1.512 2.347 55,22%
+Amapá 24 39 62,50%
+Maranhão 336 363 8,04%
+Mato Grosso 1.779 2.263 27,21%
+Pará 4.899 5.257 7,31%
+Rondônia 1.273 1.681 32,05%
+Roraima 297 386 29,97%
+Tocantins 25 28 12,00%
+ALB 10.851 13.235 21,97%
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
+Para gerar esta estimativa, o INPE analisou um subconjunto de 106 cenas do sensor
+OLI/Landsat-8 dentro das 229 que recobrem a Amazônia Legal. As 106 cenas selecionadas
+como prioritárias atendem a três critérios: 1) cobrir a região onde foram registrados pelo
+menos 90% do desmatamento no período anterior do PRODES (agosto/2019 a
+julho/2020); 2) cobrir regiões onde foram registrados pelo menos 90% dos avisos de
+desmatamento do DETER 2020/2021; e 3) cobrir os 54 municípios prioritários para
+fiscalização referidos no Decreto Federal 6.321/2007 e atualizado em 2018, 2020 e 2021
+pelas Portarias No. 428, 161 e 9 do 19 de novembro de 2018, 15 de abril de 2020 e 11 de
+janeiro de 2021 do Ministério do Meio Ambiente (MMA). A localização dessas 106 cenas
+é mostrada na Figura 2.
+Figura 2 – Áreas em verde indicam as 106 cenas OLI/Landsat-8 selecionadas para a estimativa
+PRODES 2021.
+Para explicitar a confiabilidade da taxa obtida, o valor da estimativa do desmatamento foi
+simulado para 5000 conjuntos de 95 cenas selecionadas aleatoriamente dentre as 106
+cenas prioritárias. Os resultados das medianas se mostrou bastante próximo das
+estimativas dos estados baseadas nas 106 cenas e das médias. A proximidade dos valores
+de tendência central mostrou uma boa capacidade preditiva, e a amplitude dos desvios
+padrões mostrou que a quantidade amostrada foi adequada. A Tabela 3 mostra os
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
+resultados (estimativa, desvio padrão, média e mediana) encontrados para cada um dos
+estados e a Figura 3 ilustra os resultados.
+Tabela 3 – Estatísticas geradas na simulação (em km2).
+Estimativa Desvio Padrão Média Mediana
+106 cenas 95 cenas 95 cenas 95 cenas
+AC 871 106,6 871,6 867,0
+AM 2347 124,1 2343,9 2336,0
+AP 39 18,8 24,7 39,0
+MA 363 67,7 361,3 363,0
+MT 2263 170,5 2277,6 2254,0
+PA 5257 346,4 5287,1 5213,5
+RO 1681 73,4 1679,1 1683,0
+RR 386 172,1 395,4 386,0
+TO 28 9,1 24,1 28,0
+7000,00
+)
+2
+m
+6000,00
+K
+(
+o
+5000,00
+t
+n
+e
+m 4000,00
+a
+t
+a
+3000,00
+m
+s
+e
+2000,00
+d
+e
+d
+1000,00
+a
+x
+a
+T 0,00
+AC AM AP MA MT PA RO RR TO
+média
+Figura 3 – Simulação da estimativa, utilizando 5000 conjuntos de 95 cenas, distribuição por
+estado. A barra azul representa o valor médio da taxa estimada por estado. A barra preta
+representa os valores mínimo e máximo da taxa estimada por estado.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
+A confiança nessa estimativa pode também ser observada pela grande quantidade de cenas
+usadas para sua geração. Com o uso das 106 cenas Landsat/OLI foi possível cobrir uma região
+com 95,4% das ocorrências de desmatamento no ano PRODES 2020. Como o desmatamento
+é um evento com forte correlação espacial, a expectativa de ocorrência de muitos focos de
+desmatamento fora dessa área é pequena.
+As Figuras 4 e 5 mostram respectivamente a série histórica do PRODES para a ALB em km2,
+considerando em 2021 o valor da estimativa apresentada nessa nota, e a variação percentual
+de um ano para o outro, para toda a série de taxas do PRODES.
+Figura 4 – Taxa anual de desmatamento desde 1988 na ALB. Em preto a estimativa para 2021.
+Figura 5 – Variação relativa anual das taxas do PRODES na ALB. Em preto a estimativa para 2021.
+O INPE reforça que os valores apresentados nessa nota são uma estimativa da taxa de
+desmatamento para o PRODES 2021. A taxa consolidada será apresentada no primeiro
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
+semestre de 2022 quando for completado o processamento de todas as 229 cenas que
+recobrem a ALB.
+O INPE também informa que através do projeto Monitoramento Ambiental dos Biomas
+Brasileiros: Mata Atlântica, Caatinga, Pampa e Pantanal, financiado pelo Fundo Amazônia,
+e do projeto FIP FM Cerrado do Ministério da Ciência, Tecnologia e Inovações (MCTI) está
+produzindo mapeamentos PRODES para todos os biomas brasileiros.
+São José dos Campos, 27 de outubro de 2021.
+Sede: Av. dos Astronautas, 1758, 12227-010 São José dos Campos (SP) Brasil tel +55-12-32086035
