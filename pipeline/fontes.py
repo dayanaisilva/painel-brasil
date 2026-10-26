@@ -563,6 +563,33 @@ def _ler_nota(ano: int, urls: list[str]) -> tuple[dict, str, str]:
     return achados, texto, url
 
 
+# Apresentação oficial do INPE na coletiva do PRODES 2026 (16/10/2026, publicada pelo MMA). O gráfico da série
+# histórica traz o valor de cada ano como rótulo: 1988 até a estimativa mais recente, em ordem.
+PRODES_SERIE = ["https://www.gov.br/mma/pt-br/noticias-defeso-eleitoral/apresentacao-coletiva-prodes-2026_inpe.pdf"]
+PRODES_SERIE_ULTIMO = 2026  # ano da estimativa mais recente nessa apresentação
+
+
+def prodes_serie_apresentacao() -> tuple[dict, str]:
+    conteudo, url = _baixar_pdf(PRODES_SERIE)
+    import pdfplumber
+    with pdfplumber.open(io.BytesIO(conteudo)) as pdf:
+        texto = "\n".join((pg.extract_text() or "") for pg in pdf.pages)
+    (DESCOBERTA / "inpe_notas").mkdir(parents=True, exist_ok=True)
+    (DESCOBERTA / "inpe_notas" / "apresentacao_prodes_2026.txt").write_text(texto, encoding="utf-8")
+    nums = [_km(n) for n in re.findall(r"(?<![\d.,])(\d{1,2}\.\d{3})(?![\d.,])", texto)]
+    n_anos = PRODES_SERIE_ULTIMO - 1988 + 1
+    # procura a sequência que começa nas taxas de 1988–1990 (21.050, 17.770, 13.730) e tem um valor por ano
+    for i in range(len(nums) - n_anos + 1):
+        if nums[i:i + 3] == [21050.0, 17770.0, 13730.0]:
+            serie = dict(zip(range(1988, PRODES_SERIE_ULTIMO + 1), nums[i:i + n_anos]))
+            # conferências com valores que o INPE publica em texto em outras notas
+            for ano, v in {1995: 29059, 2004: 27772, 2012: 4571, 2019: 10129, 2021: 13038, 2025: 5731}.items():
+                if serie.get(ano) != v:
+                    raise ValueError(f"apresentação: {ano} = {serie.get(ano)}, esperado {v}")
+            return serie, url
+    raise ValueError(f"série 1988–{PRODES_SERIE_ULTIMO} não encontrada no texto ({len(nums)} números)")
+
+
 def prodes_taxas() -> pd.DataFrame:
     """Taxa anual PRODES da Amazônia Legal (km²), só com o que o INPE publica nas notas técnicas.
     Para cada ano vale a nota consolidada mais recente; a estimativa só entra se não houver consolidada."""
@@ -584,6 +611,18 @@ def prodes_taxas() -> pd.DataFrame:
             prioridade = (t == "consolidada", ano)  # consolidada vence; entre iguais, a nota mais nova
             if a not in melhor or prioridade > melhor[a]["_p"]:
                 melhor[a] = {"ano": a, "valor": v, "tipo": t, "nota_ano": ano, "url": url, "_p": prioridade}
+    try:
+        serie, url_s = prodes_serie_apresentacao()
+        divergentes = {a: (melhor[a]["valor"], v) for a, v in serie.items() if a in melhor and melhor[a]["valor"] != v}
+        if divergentes:
+            raise ValueError(f"apresentação diverge das notas técnicas: {divergentes}")
+        for a, v in serie.items():
+            if a not in melhor:
+                melhor[a] = {"ano": a, "valor": v, "tipo": "estimativa" if a == PRODES_SERIE_ULTIMO else "consolidada",
+                             "nota_ano": PRODES_SERIE_ULTIMO, "url": url_s, "_p": (False, 0)}
+        diag.append({"nota": "apresentação PRODES 2026", "url": url_s, "achados": f"{len(serie)} anos, 1988–{PRODES_SERIE_ULTIMO}"})
+    except Exception as e:  # noqa: BLE001
+        diag.append({"nota": "apresentação PRODES 2026", "url": PRODES_SERIE[0], "achados": f"ERRO: {type(e).__name__}: {str(e)[:250]}"})
     pd.DataFrame(diag).to_csv(DESCOBERTA / "prodes_notas.csv", index=False)
     if not melhor:
         raise ValueError("nenhuma nota técnica do INPE pôde ser lida: " + " | ".join(d["achados"] for d in diag)[:300])

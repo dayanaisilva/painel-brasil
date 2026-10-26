@@ -794,11 +794,11 @@ def main():
     def desmatamento():
         df = fontes.prodes_taxas()
         v = dict(zip(df.data.dt.year, df.valor))
-        FONTE_USADA["desmatamento"] = "INPE — PRODES, notas técnicas oficiais"
+        FONTE_USADA["desmatamento"] = "INPE — PRODES (notas técnicas e apresentação oficial)"
         # Conferência com as taxas consolidadas divulgadas pelo INPE (manchetes das próprias notas)
         conferir = {2021: 13038, 2022: 11594, 2023: 9064, 2024: 6518, 2025: 5731}
         erradas = {a: v.get(a) for a, x in conferir.items() if a in v and abs(v[a] - x) > 0.5}
-        if erradas or len(v) < 3:
+        if erradas or len(v) < 3 or (len(v) > 10 and min(v) != 1988):
             raise ValueError(f"notas PRODES fora do esperado: {erradas or v}")
         return df
 
@@ -811,10 +811,12 @@ def main():
             tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="Quanta floresta foi derrubada por ano na Amazônia?",
             unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
             descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
-                       "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. O site mostra só os "
-                       "anos cujo valor o INPE publica em texto nas notas técnicas oficiais (PDF); cada ano tem o link da nota."),
+                       "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. Os valores vêm das notas "
+                       "técnicas do INPE (cada uma traz o ano e o anterior) e, para os anos que as notas não trazem em texto, da série "
+                       "apresentada pelo INPE na coletiva do PRODES 2026 (16/10/2026). Cada ano tem o link do documento. O último ano "
+                       "é estimativa até o INPE publicar a taxa consolidada."),
             resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
-            notas=notas, fonte="INPE — PRODES, notas técnicas oficiais",
+            notas=notas, fonte="INPE — PRODES (notas técnicas e apresentação oficial)",
             fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
 
     inep = coletar_inep()
@@ -919,9 +921,9 @@ AVISOS = {
              "(SOFI 2025) se refere à média de 2022 a 2024, que inclui o último ano do governo Bolsonaro e os dois primeiros do Lula 3. "
              "O ano de divulgação do relatório também não é o ano medido."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
-    "desmatamento": ("Só entram os anos cujo valor o INPE escreve em texto nas notas técnicas oficiais (cada nota traz o ano "
-                     "e o anterior); a série completa desde 1988 só aparece em gráfico nas notas. Por isso a comparação cobre "
-                     "poucos governos. O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior."),
+    "desmatamento": ("O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior, e o site "
+                     "atribui cada ano pela regra geral (dias de governo no ano civil). Desmatamento depende também de preço de "
+                     "commodities, clima e fiscalização de estados e municípios."),
     "gini": ("O IBGE divulga, para a PNAD Contínua, Gini de 0,545 em 2018, 0,518 em 2022 e 0,506 em 2024. A série do Ipea "
              "usada aqui (PNADS_GINI), escolhida porque volta até antes de 2012, dá 54,5, 51,7 e 50,4 nos mesmos anos: "
              "diferenças de até 0,2 ponto entre os cálculos das duas instituições."),

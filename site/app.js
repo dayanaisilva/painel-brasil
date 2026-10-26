@@ -402,8 +402,8 @@
           <div class="grafico grafico-rank"><canvas class="c-rank" role="img" aria-label="${esc(ind.titulo)} por governo"></canvas></div></figure>
       </div>
       <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a> · <button type="button" class="baixar-csv" data-id="${esc(id)}">Baixar dados e cálculo (CSV)</button></p>
-      ${ind.notas ? `<details class="notas"><summary>Valor de cada ano e a nota técnica do INPE de onde ele saiu</summary><ul>${
-        ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">nota técnica (PDF)</a></li>`).join("")
+      ${ind.notas ? `<details class="notas"><summary>Valor de cada ano e o documento do INPE de onde ele saiu</summary><ul>${
+        ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">${/apresentacao/.test(n.url) ? "apresentação oficial do INPE (PDF)" : "nota técnica do INPE (PDF)"}</a></li>`).join("")
       }</ul></details>` : ""}`;
     c._ind = ind;
     return c;
