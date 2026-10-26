@@ -9,7 +9,9 @@ from __future__ import annotations
 import io
 import logging
 import re
+import time
 import zipfile
+from pathlib import Path
 from datetime import date
 
 import pandas as pd
@@ -21,10 +23,27 @@ S.headers["User-Agent"] = "painel-brasil/1.0 (+https://github.com/dayanaisilva/p
 TIMEOUT = 90
 
 
-def _get(url, **kw):
-    r = S.get(url, timeout=TIMEOUT, **kw)
-    r.raise_for_status()
-    return r
+DESCOBERTA = Path(__file__).resolve().parent.parent / "data" / "descoberta"
+
+
+def _get(url, tentativas=3, **kw):
+    for i in range(tentativas):
+        try:
+            r = S.get(url, timeout=TIMEOUT, **kw)
+            r.raise_for_status()
+            return r
+        except requests.RequestException:
+            if i == tentativas - 1:
+                raise
+            time.sleep(4 * (i + 1))
+
+
+def _json(r):
+    try:
+        return r.json()
+    except ValueError as e:
+        raise ValueError(f"resposta não-JSON (HTTP {r.status_code}, {r.headers.get('content-type')}): "
+                         f"{r.text[:120]!r}") from e
 
 
 # --------------------------------------------------------------------------- #
@@ -35,17 +54,22 @@ SGS_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{cod}/dados"
 
 def sgs(codigo: int, inicio: int = 2002) -> pd.DataFrame:
     """Série do SGS, baixada em janelas de 10 anos (limite da API)."""
-    partes = []
+    partes, erros = [], []
     hoje = date.today().year
     for ini in range(inicio, hoje + 1, 10):
         fim = min(ini + 9, hoje)
-        r = _get(SGS_URL.format(cod=codigo), params={
-            "formato": "json", "dataInicial": f"01/01/{ini}", "dataFinal": f"31/12/{fim}"})
-        dados = r.json()
-        if isinstance(dados, list):
-            partes.extend(dados)
+        try:
+            r = _get(SGS_URL.format(cod=codigo), params={
+                "formato": "json", "dataInicial": f"01/01/{ini}", "dataFinal": f"31/12/{fim}"})
+            dados = _json(r)
+            if isinstance(dados, list):
+                partes.extend(dados)
+        except Exception as e:  # noqa: BLE001
+            erros.append(f"{ini}-{fim}: {e}")
+            log.warning("SGS %s janela %s-%s: %s", codigo, ini, fim, e)
+        time.sleep(1)
     if not partes:
-        raise ValueError(f"SGS {codigo}: resposta vazia")
+        raise ValueError(f"SGS {codigo}: sem dados. " + " | ".join(erros)[:300])
     df = pd.DataFrame(partes)
     df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y")
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
@@ -81,23 +105,28 @@ def ipea_metadados() -> pd.DataFrame:
     global _meta_cache
     if _meta_cache is None:
         r = _get(f"{IPEA}/Metadados")
-        _meta_cache = pd.DataFrame(r.json()["value"])
+        _meta_cache = pd.DataFrame(_json(r)["value"])
         log.info("Ipeadata: %d séries no catálogo", len(_meta_cache))
     return _meta_cache
 
 
-def ipea_buscar(*termos: str, fonte: str | None = None, periodicidade: str | None = "Mensal") -> pd.DataFrame:
+def ipea_buscar(*termos: str, fonte: str | None = None, periodicidade: str | None = "Mensal",
+                excluir: tuple[str, ...] = ()) -> pd.DataFrame:
     m = ipea_metadados()
     nome = m["SERNOME"].fillna("").str.lower()
     mask = pd.Series(True, index=m.index)
     for t in termos:
         mask &= nome.str.contains(t.lower(), regex=False)
+    for t in excluir:
+        mask &= ~nome.str.contains(t.lower(), regex=False)
     if fonte:
         mask &= m["FNTSIGLA"].fillna("").str.upper().str.contains(fonte.upper(), regex=False)
     if periodicidade:
         mask &= m["PERNOME"].fillna("").str.lower().eq(periodicidade.lower())
     cols = [c for c in ["SERCODIGO", "SERNOME", "FNTSIGLA", "PERNOME", "UNINOME", "SERSTATUS", "SERMAXDATA"] if c in m]
     achados = m.loc[mask, cols]
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    achados.to_csv(DESCOBERTA / ("ipea_" + "_".join(re.sub(r"\W+", "", t) for t in termos) + ".csv"), index=False)
     log.info("Ipeadata busca %s fonte=%s: %d candidatos\n%s", termos, fonte, len(achados),
              achados.head(15).to_string(index=False))
     return achados
@@ -105,12 +134,43 @@ def ipea_buscar(*termos: str, fonte: str | None = None, periodicidade: str | Non
 
 def ipea_serie(codigo: str) -> pd.DataFrame:
     r = _get(f"{IPEA}/ValoresSerie(SERCODIGO='{codigo}')")
-    v = pd.DataFrame(r.json()["value"])
+    v = pd.DataFrame(_json(r)["value"])
     df = pd.DataFrame({"data": pd.to_datetime(v["VALDATA"].str[:10]),
                        "valor": pd.to_numeric(v["VALVALOR"], errors="coerce")}).dropna()
     df = df.sort_values("data").reset_index(drop=True)
     log.info("Ipeadata %s: %d obs (%s a %s)", codigo, len(df), df.data.min().date(), df.data.max().date())
     return df
+
+
+def ipea_validada(candidatos: pd.DataFrame, preferir: list[str], valido, chave: str, max_testes: int = 10):
+    """Testa os candidatos em ordem de preferência e devolve a primeira série
+    cujo valor mais recente passa em `valido` (faixa plausível de valores)."""
+    if candidatos.empty:
+        raise ValueError("nenhuma série candidata no Ipeadata")
+    ordem = ipea_ordenar(candidatos, preferir)
+    testes = []
+    for _, c in ordem.head(max_testes).iterrows():
+        try:
+            df = ipea_serie(c.SERCODIGO)
+            ok = (not df.empty) and df.data.max().year >= date.today().year - 1 and bool(valido(df))
+            testes.append({"codigo": c.SERCODIGO, "nome": c.SERNOME, "ultimo": df.valor.iloc[-1] if len(df) else None,
+                           "ultima_data": df.data.max() if len(df) else None, "aprovada": ok})
+            if ok:
+                pd.DataFrame(testes).to_csv(DESCOBERTA / f"escolha_{chave}.csv", index=False)
+                return df
+        except Exception as e:  # noqa: BLE001
+            testes.append({"codigo": c.SERCODIGO, "nome": c.SERNOME, "erro": str(e)[:150]})
+    pd.DataFrame(testes).to_csv(DESCOBERTA / f"escolha_{chave}.csv", index=False)
+    raise ValueError(f"nenhuma série do Ipeadata passou na validação para {chave}")
+
+
+def ipea_ordenar(candidatos: pd.DataFrame, preferir: list[str]) -> pd.DataFrame:
+    c = candidatos.copy()
+    c["_score"] = sum(c["SERNOME"].str.lower().str.contains(p.lower(), regex=False).astype(int) for p in preferir)
+    if "SERMAXDATA" in c:
+        c["_max"] = pd.to_datetime(c["SERMAXDATA"].astype(str).str[:10], errors="coerce")
+        return c.sort_values(["_score", "_max"], ascending=False)
+    return c.sort_values("_score", ascending=False)
 
 
 def ipea_escolher(candidatos: pd.DataFrame, preferir: list[str]) -> str:
@@ -173,7 +233,9 @@ TERRABRASILIS = "https://terrabrasilis.dpi.inpe.br"
 def prodes_descobrir() -> None:
     """Registra no log os arquivos que o TerraBrasilis publica (para achar a tabela de taxas)."""
     r = _get(f"{TERRABRASILIS}/business/api/v1/download/all")
-    itens = r.json()
+    itens = _json(r)
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(itens).to_csv(DESCOBERTA / "terrabrasilis_downloads.csv", index=False)
     for it in itens:
         txt = f"{it.get('name')} {it.get('link')} {it.get('category')}"
         if re.search(r"rate|taxa|amaz|legal", txt, re.I):

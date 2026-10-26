@@ -45,6 +45,7 @@ def coletar(id_: str, func, fonte: str) -> pd.DataFrame | None:
     arq = RAW / f"{id_}.csv"
     try:
         df = func()
+        fonte = FONTE_USADA.get(id_, fonte)
         if df is None or df.empty:
             raise ValueError("série vazia")
         df.to_csv(arq, index=False, date_format="%Y-%m-%d")
@@ -74,10 +75,43 @@ def pib_crescimento():
         return fontes.banco_mundial("NY.GDP.MKTP.KD.ZG")
 
 
-def ipea_auto(chave, termos, fonte, preferir):
+def ipea_auto(chave, termos, fonte, preferir, valido, excluir=()):
     def f():
-        cod = IPEA[chave] or fontes.ipea_escolher(fontes.ipea_buscar(*termos, fonte=fonte), preferir)
-        return fontes.ipea_serie(cod)
+        if IPEA.get(chave):
+            return fontes.ipea_serie(IPEA[chave])
+        cands = fontes.ipea_buscar(*termos, fonte=fonte, excluir=excluir)
+        return fontes.ipea_validada(cands, preferir, valido, chave)
+    return f
+
+
+def faixa(lo, hi):
+    return lambda df: lo <= df.valor.iloc[-1] <= hi
+
+
+def nao_decrescente(lo, hi):
+    """Salário mínimo nominal nunca cai: série desde 2002 é não decrescente e termina na faixa."""
+    def v(df):
+        d = df[df.data.dt.year >= 2002].valor
+        return len(d) > 100 and d.is_monotonic_increasing and lo <= d.iloc[-1] <= hi
+    return v
+
+
+FONTE_USADA: dict[str, str] = {}
+
+
+def sgs_ou_ipea(chave, codigo, rotulo_sgs, valido, ipea_args):
+    def f():
+        try:
+            df = fontes.sgs(codigo, 2000)
+            if not valido(df):
+                raise ValueError(f"SGS {codigo} fora da faixa esperada (último valor {df.valor.iloc[-1]})")
+            FONTE_USADA[chave] = rotulo_sgs
+            return df
+        except Exception as e:  # noqa: BLE001
+            log.warning("%s: SGS falhou (%s); tentando Ipeadata", chave, e)
+            df = ipea_auto(chave, *ipea_args)()
+            FONTE_USADA[chave] = "Ipeadata (fallback do SGS)"
+            return df
     return f
 
 
@@ -204,13 +238,21 @@ def main():
     corte = pd.Timestamp(ANO_INICIAL - 1, 1, 1)
 
     ipca = coletar("ipca", lambda: fontes.sgs(SGS["ipca"], 2000), "BCB/SGS 433 (IBGE)")
-    sm = coletar("salario_minimo", lambda: fontes.sgs(SGS["salario_minimo"], 2000), "BCB/SGS 1619")
-    dolar = coletar("dolar", lambda: fontes.sgs(SGS["dolar"], 2000), "BCB/SGS 3698")
+    sm = coletar("salario_minimo", sgs_ou_ipea(
+        "salario_minimo", SGS["salario_minimo"], "BCB/SGS 1619", nao_decrescente(1000, 3000),
+        (["salário mínimo"], None, ["vigente", "nominal"], nao_decrescente(1000, 3000), ("real", "regional", "estadual"))),
+        "BCB/SGS 1619")
+    dolar = coletar("dolar", sgs_ou_ipea(
+        "dolar", SGS["dolar"], "BCB/SGS 3698", faixa(3, 10),
+        (["câmbio", "comercial", "venda"], None, ["média", "r$ / us$"], faixa(3, 10), ("real", "efetiva", "fim"))),
+        "BCB/SGS 3698")
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)")
     pibpc = coletar("pib_per_capita", lambda: fontes.banco_mundial("NY.GDP.PCAP.KD"), "Banco Mundial (IBGE)")
-    cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"]),
+    cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
+                                          faixa(300, 3000), ("variação", "horas", "%")),
                     "DIEESE via Ipeadata")
-    gas = coletar("gasolina", ipea_auto("gasolina", ["gasolina"], "ANP", ["revenda", "consumidor", "médio"]),
+    gas = coletar("gasolina", ipea_auto("gasolina", ["gasolina"], None, ["preço", "revenda", "comum", "médio"],
+                                        faixa(2, 15), ("consumo", "vendas", "produção", "importação", "exportação")),
                   "ANP via Ipeadata")
     focos = coletar("queimadas", queimadas, "INPE/BDQueimadas")
     try:
@@ -276,7 +318,7 @@ def main():
             resumo_rotulo="ganho real no governo", resumo_formato="pct", resumo=resumo_variacao(r),
             serie=serie_json(r[r.data.dt.year >= ANO_INICIAL], "%Y-%m"),
             extra={"nominal_atual": float(n.valor.iloc[-1]), "mes_atual": n.data.iloc[-1].strftime("%m/%Y")},
-            fonte="Banco Central (SGS 1619), deflacionado pelo IPCA/IBGE", fonte_url="https://www3.bcb.gov.br/sgspub/")
+            fonte=FONTE_USADA.get("salario_minimo", "Banco Central (SGS 1619)") + ", deflacionado pelo IPCA/IBGE", fonte_url="https://www3.bcb.gov.br/sgspub/")
         r.to_csv(PROC / "salario_minimo_real.csv", index=False, date_format="%Y-%m-%d")
 
     # Dólar
@@ -287,7 +329,7 @@ def main():
             titulo="Dólar", unidade="R$ por US$", formato="moeda", grafico="linha", freq="mensal",
             descricao="Média mensal da taxa de câmbio comercial (venda). Valor nominal.",
             resumo_rotulo="cotação média no governo", resumo=resumo_media_mensal(d),
-            serie=serie_json(d, "%Y-%m"), fonte="Banco Central (SGS 3698)", fonte_url="https://www3.bcb.gov.br/sgspub/")
+            serie=serie_json(d, "%Y-%m"), fonte=FONTE_USADA.get("dolar", "Banco Central (SGS 3698)"), fonte_url="https://www3.bcb.gov.br/sgspub/")
 
     # Cesta básica como % do salário mínimo
     if cesta is not None and sm is not None:
