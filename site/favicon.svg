@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <title>Tira-Teima</title>
-  <rect width="64" height="64" rx="14" fill="#9a4a1f"/>
-  <!-- T geométrico: barra superior e haste -->
-  <rect x="13" y="14" width="38" height="9" rx="2" fill="#f6f4ef"/>
-  <rect x="27.5" y="14" width="9" height="36" rx="2" fill="#f6f4ef"/>
-  <!-- marcação de "conferido" no canto -->
-  <path d="M40 43 l4.5 4.5 l8.5 -9" fill="none" stroke="#f6f4ef" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- cores da bandeira: verde, amarelo, azul e branco -->
+  <rect width="64" height="64" rx="14" fill="#009C3B"/>
+  <path d="M32 6 L58 32 L32 58 L6 32 Z" fill="#FFDF00"/>
+  <rect x="17" y="17" width="30" height="8" rx="2" fill="#002776"/>
+  <rect x="28" y="17" width="8" height="30" rx="2" fill="#002776"/>
+  <circle cx="45" cy="45" r="10" fill="#ffffff"/>
+  <path d="M40.2 45.2 l3.3 3.3 l6.3 -6.6" fill="none" stroke="#009C3B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
