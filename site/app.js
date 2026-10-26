@@ -30,7 +30,7 @@
     gini: ["Desigualdade", "Gini, variação/ano"],
     mortalidade_infantil: ["Mortalidade infantil", "variação %/ano"],
     expectativa_vida: ["Expectativa de vida", "anos, variação/ano"],
-    gasto_saude: ["Gasto em saúde", "% do PIB"],
+    gasto_saude: ["Investimento em saúde", "% do PIB"],
     desemprego: ["Desemprego", "média, % (desde 2012)"],
     homicidios: ["Homicídios", "por 100 mil hab."],
     bolsa_familia: ["Bolsa Família", "benefícios, média"],
@@ -39,7 +39,7 @@
     universidades_federais: ["Universidades federais", "novas no governo"],
     municipios_federais: ["Cidades com ensino federal", "novas no governo"],
     ensino_superior: ["Matrícula no ensino superior (taxa bruta)", "variação/ano"],
-    gasto_educacao: ["Gasto em educação", "% do PIB"],
+    gasto_educacao: ["Investimento em educação", "% do PIB"],
   };
 
   // Critério do ranking em palavras e o que o número-resumo significa. Evita que a pessoa leia
