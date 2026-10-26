@@ -556,22 +556,18 @@
     });
   }
 
-  // Escreve o valor ao lado de cada barra do ranking.
+  // Escreve o valor de cada barra numa coluna à direita do gráfico, alinhada, sem encostar nas barras nem nos nomes.
   const rotulosBarra = {
     id: "rotulosBarra",
     afterDatasetsDraw(chart, _a, opts) {
-      const { ctx } = chart;
+      const { ctx, chartArea } = chart;
       const meta = chart.getDatasetMeta(0);
       ctx.save();
       ctx.font = "500 11.5px IBM Plex Mono, ui-monospace, monospace";
       ctx.textBaseline = "middle";
-      meta.data.forEach((bar, i) => {
-        const v = chart.data.datasets[0].data[i];
-        const neg = v < 0 && !opts.log;
-        ctx.fillStyle = opts.cor;
-        ctx.textAlign = neg ? "right" : "left";
-        ctx.fillText(opts.textos[i], bar.x + (neg ? -6 : 6), bar.y);
-      });
+      ctx.textAlign = "left";
+      ctx.fillStyle = opts.cor;
+      meta.data.forEach((bar, i) => ctx.fillText(opts.textos[i], chartArea.right + 10, bar.y));
       ctx.restore();
     },
   };
@@ -587,7 +583,8 @@
     const corDe = (x) => (x.avaliacao === "bom" ? cor("--bom") : x.avaliacao === "ruim" ? cor("--ruim") : cor("--neutro"));
     const textos = r.map((x) => fmt(resumoFmt(ind), x.valor) + (x.parcial ? "*" : ""));
     const min = Math.min(0, ...valores), max = Math.max(0, ...valores);
-    const folga = (max - min) * 0.32 || 1;
+    const folga = (max - min) * 0.04 || 1;
+    const larguraTexto = Math.max(...textos.map((t) => t.length)) * 7.2 + 16;
     canvas.parentElement.style.height = `${Math.max(150, ids.length * 26 + 36)}px`;
 
     return new Chart(canvas, {
@@ -602,10 +599,10 @@
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: false,
-        layout: { padding: { right: 8 } },
+        layout: { padding: { right: larguraTexto } },
         scales: {
           x: log
-            ? { type: "logarithmic", display: false, max: Math.max(...valores) * 25 }
+            ? { type: "logarithmic", display: false, max: Math.max(...valores) * 1.2 }
             : { display: false, min: min < 0 ? min - folga : 0, max: max + folga },
           y: { grid: { display: false }, border: { display: false },
                ticks: { color: cor("--ink-2"), font: { size: 12 }, autoSkip: false } },
