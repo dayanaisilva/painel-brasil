@@ -3,8 +3,8 @@ ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
 salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
 dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23,
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
-populacao,IBGE — população residente (via Ipeadata),indisponível,,série desatualizada: último dado em 2024-01-01
-pib_per_capita_nominal,IBGE — PIB per capita em R$ correntes (via Ipeadata),indisponível,,série desatualizada: último dado em 2024-01-01
+populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",atualizado,2026-07-01,
+pib_per_capita_nominal,IBGE — PIB per capita em R$ correntes (via Ipeadata),atualizado,2024-01-01,
 cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01,
 gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01,
 queimadas,INPE/BDQueimadas,atualizado,2025-01-01,
@@ -17,4 +17,9 @@ gasto_saude,"OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD
 gasto_educacao,"UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP",atualizado,2022-01-01,
 analfabetismo,"UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE",atualizado,2024-01-01,
 ensino_superior,"UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP",atualizado,2024-01-01,
-inep_superior,INEP — Censo da Educação Superior,indisponível,,
+desemprego,IBGE — PNAD Contínua (mensalizada pelo Ipea),atualizado,2026-08-01,
+homicidios,Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea,atualizado,2024-01-01,
+bolsa_familia,"Ministério do Desenvolvimento Social (MDS), via Ipeadata",atualizado,2025-01-01,
+leitos_sus,"Ministério da Saúde (CNES/DATASUS), via Ipeadata",atualizado,2025-01-01,
+desmatamento,INPE — PRODES Amazônia Legal (via Ipeadata),indisponível,,nenhuma série candidata no Ipeadata
+inep_superior,INEP — Censo da Educação Superior,atualizado,2024,
