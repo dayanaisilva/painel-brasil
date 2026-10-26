@@ -5,12 +5,13 @@
   const ABREV = { sarney: "S", collor: "C", itamar: "I", fhc1: "F1", fhc2: "F2", lula1: "L1", lula2: "L2",
                   dilma1: "D1", dilma2: "D2", temer: "T", bolsonaro: "B", lula3: "L3" };
   const TEMAS = [
-    ["economia", "Economia", ["pib_crescimento", "pib_per_capita", "dolar"]],
+    ["economia", "Economia e emprego", ["pib_crescimento", "pib_per_capita", "desemprego", "dolar"]],
     ["custo", "Custo de vida e renda", ["ipca", "salario_minimo", "cesta_sp", "gasolina", "gasolina_litros"]],
-    ["fome", "Fome, pobreza e desigualdade", ["fome", "pobreza", "gini"]],
-    ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "gasto_saude"]],
+    ["fome", "Fome, pobreza e desigualdade", ["fome", "pobreza", "gini", "bolsa_familia"]],
+    ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "leitos_sus", "gasto_saude"]],
     ["educacao", "Educação", ["analfabetismo", "ensino_superior", "universidades_federais", "municipios_federais", "gasto_educacao"]],
-    ["ambiente", "Meio ambiente", ["queimadas"]],
+    ["seguranca", "Segurança", ["homicidios"]],
+    ["ambiente", "Meio ambiente", ["desmatamento", "queimadas"]],
   ];
   const ORDEM = TEMAS.flatMap((t) => t[2]);
   const CURTO = {
@@ -22,6 +23,7 @@
     gasolina: ["Gasolina", "R$/l de hoje"],
     gasolina_litros: ["Gasolina por salário", "litros/salário mínimo"],
     queimadas: ["Queimadas", "focos/ano"],
+    desmatamento: ["Desmatamento Amazônia", "km²/ano"],
     dolar: ["Dólar", "média R$"],
     fome: ["Fome (FAO)", "variação %/ano"],
     pobreza: ["Extrema pobreza", "variação %/ano"],
@@ -29,6 +31,10 @@
     mortalidade_infantil: ["Mortalidade infantil", "variação %/ano"],
     expectativa_vida: ["Expectativa de vida", "anos, variação/ano"],
     gasto_saude: ["Gasto em saúde", "% do PIB"],
+    desemprego: ["Desemprego", "média, % (desde 2012)"],
+    homicidios: ["Homicídios", "por 100 mil hab."],
+    bolsa_familia: ["Bolsa Família", "benefícios, média"],
+    leitos_sus: ["Leitos SUS", "por 10 mil hab."],
     analfabetismo: ["Analfabetismo", "variação %/ano"],
     universidades_federais: ["Universidades federais", "novas no governo"],
     municipios_federais: ["Cidades com ensino federal", "novas no governo"],
@@ -197,7 +203,8 @@
         const valor = `${fmt(resumoFmt(ind), r.valor)}${ast(r)}`;
         const item = (lado) => `<li><span class="it-nome">${esc(CURTO[id][0])}</span>
             <span class="it-valor">${valor}</span>
-            <span class="it-pos">${r.posicao === 1 && lado === "bom" ? "melhor de todos" : r.posicao === r.total && lado === "ruim" ? "pior de todos" : lado === "bom" ? `${r.posicao}º melhor de ${r.total}` : `${r.total - r.posicao + 1}º pior de ${r.total}`}</span></li>`;
+            <span class="it-pos">${posTexto(ind, r, lado)}</span>
+            ${trajeto(ind, r) ? `<span class="it-traj">${trajeto(ind, r)}</span>` : ""}</li>`;
         if (r.avaliacao === "bom") fortes.push(item("bom"));
         if (r.avaliacao === "ruim") fracos.push(item("ruim"));
         const x = r.total > 1 ? ((r.posicao - 1) / (r.total - 1)) * 100 : 50;
@@ -217,6 +224,26 @@
         ${ctx[g.id] ? `<details class="contexto"><summary>Contexto do período</summary><ul>${ctx[g.id].map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}`;
       box.append(card);
     }
+  }
+
+  // Texto da posição, sem ambiguidade em empates e com o sentido real da mudança.
+  function posTexto(ind, r, lado) {
+    const empatados = Object.values(ind.resumo).filter((x) => (lado === "bom" ? x.posicao === r.posicao : x.posicao_pior === r.posicao_pior)).length;
+    let t;
+    if (lado === "bom") t = r.posicao === 1 ? (empatados > 1 ? `empatado no melhor resultado (${empatados} governos)` : "melhor resultado de todos") : `${r.posicao}º melhor de ${r.total}`;
+    else t = r.posicao_pior === 1 ? (empatados > 1 ? `empatado no pior resultado (${empatados} governos)` : "pior resultado de todos") : `${r.posicao_pior}º pior de ${r.total}`;
+    if (lado === "ruim" && r.sentido === "melhorou") t += " · melhorou, mas menos que os outros";
+    if (lado === "bom" && r.sentido === "piorou") t += " · piorou, mas menos que os outros";
+    return t;
+  }
+
+  // "de X para Y": como o indicador começou e terminou dentro do governo.
+  function trajeto(ind, r) {
+    const f = ind.formato;
+    if (r.de != null && r.para != null) return `${fmt(f, r.de)} → ${fmt(f, r.para)}${r.periodo ? ` (${esc(r.periodo)})` : ""}`;
+    const fr = resumoFmt(ind); // médias: início e fim estão na mesma unidade do resumo
+    if (r.inicio_val != null && r.fim_val != null) return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}`;
+    return "";
   }
 
   /* ---------- tabela comparativa ---------- */
@@ -265,8 +292,8 @@
     const c = el("article", { class: "ind", id: `ind-${id}` });
     const m = ind.melhor && ind.resumo[ind.melhor], p = ind.pior && ind.resumo[ind.pior];
     const destaque = m && p ? `<div class="hero">
-        <div class="hero-item bom"><span class="hero-rot">▲ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span></div>
-        <div class="hero-item ruim"><span class="hero-rot">▼ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span></div>
+        <div class="hero-item bom"><span class="hero-rot">▲ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span>${trajeto(ind, m) ? `<span class="hero-traj">${trajeto(ind, m)}</span>` : ""}</div>
+        <div class="hero-item ruim"><span class="hero-rot">▼ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span>${trajeto(ind, p) ? `<span class="hero-traj">${trajeto(ind, p)}</span>` : ""}${p.sentido === "melhorou" ? '<span class="hero-traj">melhorou no período, mas menos que os outros governos</span>' : ""}</div>
       </div>` : "";
     c.innerHTML = `
       <p class="ind-kicker">${esc(ind.titulo)} · <span>${esc(ind.unidade)}</span></p>
@@ -529,10 +556,11 @@
               title: (it) => nomeGov(ids[it[0].dataIndex]),
               label: (it) => {
                 const x = r[it.dataIndex];
-                const dp = x.de != null ? ` (de ${fmt(ind.formato, x.de)} para ${fmt(ind.formato, x.para)})` : "";
-                const base = `${fmt(resumoFmt(ind), x.valor)}${dp} · ${x.periodo ?? ""}`;
-                const av = x.avaliacao === "bom" ? " · ponto forte" : x.avaliacao === "ruim" ? " · ponto fraco" : "";
-                return base + av + (x.parcial ? " · parcial" : "");
+                const linhas = [fmt(resumoFmt(ind), x.valor) + (x.parcial ? " (parcial)" : "")];
+                const t = trajeto(ind, x);
+                if (t) linhas.push(t);
+                if (x.avaliacao) linhas.push((x.avaliacao === "bom" ? "▲ " : "▼ ") + posTexto(ind, x, x.avaliacao));
+                return linhas;
               },
             },
           },

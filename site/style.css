@@ -219,3 +219,5 @@ td.gov a { text-decoration: none; }
 .calc-card small { font-size: 12px; color: var(--ink-3); }
 .calc-nota { grid-column: 1 / -1; font-size: 13px; color: var(--ink-3); margin: 0; max-width: 75ch; }
 @media (max-width: 520px) { .calc { grid-template-columns: 1fr 1fr; } .calc label:first-child { grid-column: 1 / -1; } }
+.it-traj { grid-column: 1 / -1; font: 400 11.5px var(--mono); color: var(--ink-3); }
+.hero-traj { font-size: 12px; color: var(--ink-2); }

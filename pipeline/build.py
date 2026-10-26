@@ -142,6 +142,20 @@ def gasolina():
     return df
 
 
+def populacao_ibge():
+    """População do IBGE: série histórica (DEPIS_POP); anos seguintes estendidos pelo crescimento
+    da projeção oficial do IBGE (DEPIS_POPP). Só até o ano corrente."""
+    hist = anual(fontes.ipea_serie("DEPIS_POP")).groupby("ano").valor.mean()
+    try:
+        proj = anual(fontes.ipea_serie("DEPIS_POPP")).groupby("ano").valor.mean()
+        for a in range(int(hist.index.max()) + 1, date.today().year + 1):
+            if a in proj.index and (a - 1) in proj.index:
+                hist[a] = hist[a - 1] * proj[a] / proj[a - 1]
+    except Exception as e:  # noqa: BLE001
+        log.warning("projeção de população indisponível: %s", e)
+    return pd.DataFrame({"data": pd.to_datetime([f"{int(a)}-07-01" for a in hist.index]), "valor": hist.values})
+
+
 def queimadas():
     cache = RAW / "queimadas.csv"
     antigos = {}
@@ -227,7 +241,11 @@ def resumo_media_ponderada(df_anual):
         s, w, anos = acc[g["id"]]
         possivel = sum(pesos_do_ano(a).get(g["id"], 0) for a in range(int(g["inicio"][:4]), min(int(g["fim"][:4]), ultimo) + 1))
         if w > 0 and possivel and w / possivel >= COBERTURA_MINIMA:
-            out[g["id"]] = {"valor": s / w, "periodo": f"{min(anos)}–{max(anos)}", "parcial": g["id"] == "lula3"}
+            v = dict(zip(df_anual.ano.astype(int), df_anual.valor))
+            dentro = sorted(a for a in set(anos) if pesos_do_ano(a).get(g["id"], 0) >= 0.5)
+            extra = {"inicio_val": float(v[dentro[0]]), "fim_val": float(v[dentro[-1]]),
+                     "inicio_ano": dentro[0], "fim_ano": dentro[-1]} if len(dentro) >= 2 else {}
+            out[g["id"]] = {"valor": s / w, "periodo": f"{min(anos)}–{max(anos)}", "parcial": g["id"] == "lula3", **extra}
     return out
 
 
@@ -258,8 +276,11 @@ def resumo_media_mensal(dm):
     for g in GOVERNOS:
         m = dm[dm.governo == g["id"]]
         if not m.empty and cobertura_mensal(dm, g["id"]) >= COBERTURA_MINIMA:
+            m = m.sort_values("data")
             out[g["id"]] = {"valor": m.valor.mean(), "periodo": f"{m.data.min():%m/%Y} → {m.data.max():%m/%Y}",
-                            "parcial": g["id"] == "lula3"}
+                            "parcial": g["id"] == "lula3",
+                            "inicio_val": float(m.valor.head(3).mean()), "fim_val": float(m.valor.tail(3).mean()),
+                            "inicio_ano": f"{m.data.min():%m/%Y}", "fim_ano": f"{m.data.max():%m/%Y}"}
     return out
 
 
@@ -296,10 +317,16 @@ def ranquear(ind):
         melhores = sum(1 for y in v.values() if y > x)
         piores = sum(1 for y in v.values() if y < x)
         r = res[gid]
-        r["posicao"], r["total"] = melhores + 1, n
+        r["posicao"], r["posicao_pior"], r["total"] = melhores + 1, piores + 1, n
         r["avaliacao"] = "bom" if melhores < k else ("ruim" if piores < k else None)
     ind["melhor"] = max(v, key=v.get)
     ind["pior"] = min(v, key=v.get)
+    # Para métricas de variação, diz se o indicador melhorou ou piorou no governo (independente do ranking):
+    # um governo pode ficar entre os piores do ranking mesmo tendo melhorado, só que menos que os outros.
+    if ind.get("resumo_formato") in ("delta", "delta_pct", "pct") or ind.get("tipo_variacao"):
+        for r in res.values():
+            x = sinal * r["valor"]
+            r["sentido"] = "melhorou" if x > 1e-9 else ("piorou" if x < -1e-9 else "estável")
 
 
 def ano_base_fim(g, ultimo_ano):
@@ -369,10 +396,10 @@ def main():
         (["câmbio", "comercial", "venda"], None, ["média", "r$ / us$"], faixa(3, 10), ("real", "efetiva", "fim")),
         inicio=1994), "BCB/SGS 1 (PTAX venda)")
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)", max_atraso_dias=800)
-    pop = coletar("populacao", lambda: fontes.ipea_serie("DEPIS_POP"), "IBGE — população residente (via Ipeadata)",
-                  max_atraso_dias=800)
+    pop = coletar("populacao", populacao_ibge, "IBGE — população residente, estimativas e projeção (via Ipeadata)",
+                  max_atraso_dias=365 * 3)
     pibpc_nom = coletar("pib_per_capita_nominal", lambda: fontes.ipea_serie("GAC_PIBCAPN"),
-                        "IBGE — PIB per capita em R$ correntes (via Ipeadata)", max_atraso_dias=800)
+                        "IBGE — PIB per capita em R$ correntes (via Ipeadata)", max_atraso_dias=365 * 3)
     cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
                                           faixa(300, 3000), ("variação", "horas", "%")),
                     "DIEESE via Ipeadata")
@@ -448,7 +475,7 @@ def main():
         a = pd.DataFrame({"data": pd.to_datetime([f"{y}-01-01" for y in por_ano.index]), "valor": por_ano.values})
         ind["ipca"] = dict(
             tema="custo",
-            titulo="Inflação (IPCA)", unidade="% no ano, escala logarítmica", formato="pct", grafico="barra",
+            titulo="Inflação (IPCA)", unidade="% no ano, escala logarítmica", formato="pct_simples", grafico="barra",
             freq="anual", escala="log", direcao="menor", pergunta="Os preços subiram muito?",
             descricao=(f"IPCA acumulado em cada ano. Até 1994 a inflação passou de 1.000% ao ano, por isso o eixo é "
                        f"logarítmico: cada linha do eixo vale 10 vezes a anterior. {ano_atual} vai só até o último mês divulgado."),
@@ -538,8 +565,9 @@ def main():
             tema="ambiente",
             titulo="Focos de queimada", unidade="focos no ano", formato="inteiro", grafico="barra", freq="anual",
             direcao="menor", pergunta="O país queimou mais?",
-            descricao=(f"Focos de calor detectados pelo satélite de referência do INPE em todo o Brasil. "
-                       f"A série comparável começa em 2003. {ano_atual} está incompleto e fica fora das médias."),
+            descricao=(f"Focos de calor detectados pelo satélite de referência do INPE em todo o Brasil. Variam muito com o clima: "
+                       f"anos de seca forte, como 2007, 2010 e 2024, disparam os focos. A série comparável começa em 2003. "
+                       f"{ano_atual} está incompleto e fica fora das médias. Veja também o desmatamento, que mede outra coisa: floresta derrubada."),
             resumo_rotulo="focos por ano, em média", resumo=resumo_media_ponderada(fechados),
             serie=serie_json(a, "%Y"), fonte="INPE — Programa Queimadas (satélite de referência)",
             fonte_url="https://terrabrasilis.dpi.inpe.br/queimadas/portal/")
@@ -637,6 +665,65 @@ def main():
             fontes.ipea_buscar(*termos, periodicidade=None)
         except Exception as e:  # noqa: BLE001
             log.warning("descoberta %s: %s", termos, e)
+
+    # ---------------- Emprego, segurança e programas sociais (IBGE, DATASUS, MDS via Ipeadata) ----------------
+    oficiais = [
+        # id, código Ipeadata, título, pergunta, unidade, tema, direção, freq, descrição, fonte
+        ("desemprego", "PNADC12_TDESOCM12", "Desemprego", "Faltou emprego?", "% da força de trabalho", "economia", "menor", "mensal",
+         "Taxa de desocupação da PNAD Contínua (IBGE), que começa em 2012. Pesquisas anteriores usavam outra metodologia e "
+         "cobriam só regiões metropolitanas, por isso não entram na comparação.",
+         "IBGE — PNAD Contínua (mensalizada pelo Ipea)"),
+        ("homicidios", "AVIOL12_THOMIC", "Homicídios", "A violência aumentou?", "por 100 mil habitantes", "seguranca", "menor", "anual",
+         "Taxa de homicídios por 100 mil habitantes, a partir das declarações de óbito do Ministério da Saúde (SIM/DATASUS), "
+         "compilada no Atlas da Violência (Ipea).",
+         "Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea"),
+        ("bolsa_familia", "FAM_PBF", "Bolsa Família", "Quantas famílias recebiam transferência de renda?",
+         "benefícios pagos em dezembro", "fome", None, "anual",
+         "Número de benefícios do Bolsa Família pagos em dezembro de cada ano (MDS). O programa começou em out/2003, "
+         "foi substituído pelo Auxílio Brasil em nov/2021 e voltou a se chamar Bolsa Família em 2023. Sem ranking: é tamanho do programa, não resultado.",
+         "Ministério do Desenvolvimento Social (MDS), via Ipeadata"),
+        ("leitos_sus", "SIS_NMLTINTSUS1000HUF", "Leitos do SUS", "Quantos leitos de internação o SUS oferecia?",
+         "leitos por 10 mil habitantes", "saude", None, "anual",
+         "Leitos de internação disponíveis ao SUS por 10 mil habitantes (CNES/DATASUS). Sem ranking: menos leitos pode "
+         "refletir mais atendimento ambulatorial, e não necessariamente pior atendimento.",
+         "Ministério da Saúde (CNES/DATASUS), via Ipeadata"),
+    ]
+    for id_, cod, titulo, pergunta, unidade, tema, direcao, freq, descricao, fonte in oficiais:
+        bruto = coletar(id_, (lambda c=cod: fontes.ipea_serie(c)), fonte, max_atraso_dias=120 if freq == "mensal" else 365 * 4)
+        if bruto is None:
+            continue
+        base = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao, descricao=descricao,
+                    fonte=fonte, fonte_url="https://www.ipeadata.gov.br/", freq=freq)
+        if freq == "mensal":
+            dm = mensal(bruto)
+            dm = dm[dm.data.dt.year >= ANO_INICIAL]
+            ind[id_] = dict(base, formato="pct_simples", grafico="linha", resumo=resumo_media_mensal(dm),
+                            resumo_rotulo="média no governo", serie=serie_json(dm, "%Y-%m"))
+        else:
+            a = anual(bruto)
+            a = a[a.ano >= ANO_INICIAL]
+            ind[id_] = dict(base, formato="inteiro" if id_ == "bolsa_familia" else "decimal", grafico="linha_anual",
+                            resumo=resumo_media_ponderada(a), resumo_rotulo="média no governo",
+                            serie=serie_anual_completa(a))
+
+    def desmatamento():
+        cands = fontes.ipea_buscar("desmat", periodicidade="Anual")
+        def valido(df):
+            d = df[df.data.dt.year >= 2004]
+            return len(d) >= 15 and d.valor.between(2000, 40000).all() and df.data.max().year >= date.today().year - 3
+        return fontes.ipea_validada(cands, ["amazônia legal", "prodes", "área", "km"], valido, "desmatamento")
+
+    desm = coletar("desmatamento", desmatamento, "INPE — PRODES Amazônia Legal (via Ipeadata)", max_atraso_dias=365 * 3)
+    if desm is not None:
+        a = anual(desm)
+        a = a[a.ano >= ANO_INICIAL]
+        ind["desmatamento"] = dict(
+            tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="A Amazônia foi mais desmatada?",
+            unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
+            descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
+                       "PRODES/INPE. O ano PRODES vai de agosto a julho: a taxa de 2023 cobre ago/2022 a jul/2023."),
+            resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
+            fonte="INPE — PRODES, via Ipeadata", fonte_url="https://terrabrasilis.dpi.inpe.br/")
 
     inep = coletar_inep()
     if inep is not None and not inep.empty:

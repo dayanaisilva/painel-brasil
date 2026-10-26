@@ -142,6 +142,12 @@ def ipea_buscar(*termos: str, fonte: str | None = None, periodicidade: str | Non
 def ipea_serie(codigo: str) -> pd.DataFrame:
     r = _get(f"{IPEA}/ValoresSerie(SERCODIGO='{codigo}')")
     v = pd.DataFrame(_json(r)["value"])
+    # Séries regionais trazem todas as UFs e municípios: fica só o total Brasil.
+    if "NIVNOME" in v and v["NIVNOME"].fillna("").str.strip().ne("").any():
+        br = v[v["NIVNOME"].fillna("").str.strip().str.lower() == "brasil"]
+        if br.empty:
+            raise ValueError(f"Ipeadata {codigo}: série sem total Brasil (níveis: {v['NIVNOME'].unique()[:6]})")
+        v = br
     df = pd.DataFrame({"data": pd.to_datetime(v["VALDATA"].str[:10]),
                        "valor": pd.to_numeric(v["VALVALOR"], errors="coerce")}).dropna()
     df = df.sort_values("data").reset_index(drop=True)
@@ -374,6 +380,30 @@ def _ler_csv_zip(z, nome: str, usecols_pred) -> pd.DataFrame:
         return pd.read_csv(f, sep=sep, encoding="latin-1", usecols=usar, dtype=str, low_memory=False)
 
 
+_INEP_SESSAO = None
+
+
+def _sessao_inep():
+    """O servidor do INEP não envia o certificado intermediário. Em vez de desligar a verificação
+    TLS, buscamos o intermediário pela própria URL indicada no certificado (AIA) e somamos ao
+    pacote de autoridades confiáveis."""
+    global _INEP_SESSAO
+    if _INEP_SESSAO is None:
+        import tempfile
+
+        import certifi
+        from aia import AIASession
+
+        cadata = AIASession().cadata_from_url("https://download.inep.gov.br/")
+        arq = tempfile.NamedTemporaryFile("w", suffix=".pem", delete=False)
+        arq.write(open(certifi.where()).read() + "\n" + cadata)
+        arq.close()
+        _INEP_SESSAO = requests.Session()
+        _INEP_SESSAO.verify = arq.name
+        _INEP_SESSAO.headers["User-Agent"] = S.headers["User-Agent"]
+    return _INEP_SESSAO
+
+
 def inep_ano(ano: int, diag: list) -> dict:
     """Conta, no Censo da Educação Superior de `ano`:
     - universidades federais (categoria pública federal, organização acadêmica universidade);
@@ -386,7 +416,7 @@ def inep_ano(ano: int, diag: list) -> dict:
     for modelo in INEP_URLS:
         url = modelo.format(ano=ano)
         try:
-            with RemoteZip(url, timeout=120) as z:
+            with RemoteZip(url, session=_sessao_inep(), timeout=120) as z:
                 nomes = z.namelist()
                 diag.append({"ano": ano, "url": url, "arquivos": " | ".join(n for n in nomes if n.lower().endswith((".csv", ".txt")))[:900]})
                 ies = next((n for n in nomes if re.search(r"(^|/)(MICRODADOS_ED_SUP_IES|DM_IES|IES)[^/]*\.(csv|txt)$", n, re.I)), None)
