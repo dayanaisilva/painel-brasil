@@ -4,19 +4,20 @@ salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
 dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-26,
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
 populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",atualizado,2026-07-01,
+populacao_contas,"IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)",indisponível,,"SIDRA 6784 sem variável '^Produto Interno Bruto a pre[çc]os correntes': ['PIB - valores correntes', 'PIB - preços do ano anterior', 'PIB - variação em volume', 'PIB - deflator - variação anual', 'Popu"
 pib_per_capita_nominal,IBGE — PIB per capita em R$ correntes (via Ipeadata),atualizado,2024-01-01,
 cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01,
 gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01,
 queimadas,INPE/BDQueimadas,atualizado,2025-01-01,
 fome,"FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)",atualizado,2024-01-01,
 pobreza,"Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE",atualizado,2024-01-01,
-gini,"Ipea, a partir da PNAD e PNAD Contínua/IBGE",atualizado,2025-01-01,
+gini,"Ipea, série PNADS_GINI (Ipeadata), a partir da PNAD e PNAD Contínua/IBGE",atualizado,2025-01-01,
 mortalidade_infantil,"ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE",atualizado,2024-01-01,
 expectativa_vida,IBGE — Tábuas Completas de Mortalidade (via Ipeadata),indisponível,,nenhuma série do Ipeadata passou na validação para expectativa_vida
 expectativa_vida_bm,"ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)",atualizado,2024-01-01,
 gasto_saude,"OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)",atualizado,2023-01-01,
 gasto_educacao,"UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP",atualizado,2022-01-01,
-analfabetismo,IBGE — PNAD e PNAD Contínua (via Ipeadata),indisponível,,"analfabetismo IBGE fora do esperado: 2019=6.1, 2024=5.3"
+analfabetismo,"IBGE — PNAD Contínua, série PNADCA_TXA15MUF (via Ipeadata)",indisponível,,"analfabetismo IBGE fora do esperado: 2019=6.1, 2024=5.3"
 analfabetismo_bm,"UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE",atualizado,2024-01-01,
 ensino_superior,"UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP",atualizado,2024-01-01,
 desemprego,IBGE — PNAD Contínua (taxa trimestral oficial),atualizado,2026-04-01,
