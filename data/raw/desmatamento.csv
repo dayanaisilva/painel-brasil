@@ -1,0 +1,6 @@
+data,valor,tipo,nota_ano,url
+2020-01-01,10851.0,consolidada,2021,https://www.gov.br/inpe/pt-br/assuntos/divulgacao-de-dados-prodes.pdf
+2021-01-01,13038.0,consolidada,2021,http://mtc-m21d.sid.inpe.br/col/sid.inpe.br/mtc-m21d/2023/12.29.14.19/doc/NotaTecnica_consolidado_PRODES_2021_rev.pdf
+2023-01-01,9064.0,consolidada,2024,https://data.inpe.br/wp-content/uploads/2024/11/NT_Amz_tx_Prodes2024_T.pdf
+2024-01-01,6518.0,consolidada,2025,https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf
+2025-01-01,5731.0,consolidada,2025,https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf
