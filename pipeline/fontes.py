@@ -528,16 +528,33 @@ def _km(t: str) -> float:
 def _baixar_pdf(urls: list[str]) -> tuple[bytes, str]:
     """Tenta cada endereço oficial; no gov.br (Plone), também o link direto de download do arquivo."""
     erros = []
+    nav = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+           "Accept": "application/pdf,text/html;q=0.9,*/*;q=0.8", "Accept-Language": "pt-BR,pt;q=0.9"}
     for u in urls:
-        for v in ([u, u + "/@@download/file"] if "gov.br" in u else [u]):
-            try:
-                r = _get(v, tentativas=2)
-                if r.content[:5].startswith(b"%PDF"):
-                    return r.content, u
-                erros.append(f"{v}: não é PDF ({r.headers.get('content-type')})")
-            except Exception as e:  # noqa: BLE001
-                erros.append(f"{v}: {str(e)[:120]}")
-    raise ValueError(" | ".join(erros)[:400])
+        u = u.rstrip("/")
+        tentativas = [u, u + "/@@download/file", u + "/view"] if "gov.br" in u else [u]
+        for v in tentativas:
+            for cab in ({}, nav):
+                try:
+                    r = S.get(v, timeout=TIMEOUT, headers=cab)
+                    if r.content[:5].startswith(b"%PDF"):
+                        return r.content, u
+                    # página HTML do portal: procura o link do arquivo dentro dela
+                    if "html" in (r.headers.get("content-type") or ""):
+                        nome = "debug_" + re.sub(r"\W+", "_", v[-60:]) + ".html"
+                        (DESCOBERTA / "inpe_notas").mkdir(parents=True, exist_ok=True)
+                        (DESCOBERTA / "inpe_notas" / nome).write_text(r.text[:20000], encoding="utf-8")
+                        base = u.rsplit("/", 1)[-1]
+                        for href in re.findall(r'href="([^"]+)"', r.text):
+                            if base in href and ("download" in href or href.endswith(".pdf")) and href.rstrip("/") != v:
+                                from urllib.parse import urljoin
+                                r2 = S.get(urljoin(v, href), timeout=TIMEOUT, headers=nav)
+                                if r2.content[:5].startswith(b"%PDF"):
+                                    return r2.content, u
+                    erros.append(f"{v} [{'nav' if cab else 'padrão'}]: HTTP {r.status_code} {r.headers.get('content-type')}")
+                except Exception as e:  # noqa: BLE001
+                    erros.append(f"{v}: {str(e)[:120]}")
+    raise ValueError(" | ".join(erros)[:600])
 
 
 def _ler_nota(ano: int, urls: list[str]) -> tuple[dict, str, str]:
@@ -549,7 +566,8 @@ def _ler_nota(ano: int, urls: list[str]) -> tuple[dict, str, str]:
         texto = "\n".join((pg.extract_text() or "") for pg in pdf.pages)
     corrido = re.sub(r"\s+", " ", texto)
     achados = {}
-    atual = re.search(rf"para {ano} (?:é|foi) de ({_NUM}) ?km", corrido)
+    atual = (re.search(rf"(?:para|em) {ano} (?:é|foi) de ({_NUM}) ?km", corrido)
+             or re.search(rf"31 de julho de {ano} (?:é|foi) de ({_NUM}) ?km", corrido))
     if atual:
         achados[ano] = _km(atual.group(1))
     ant = re.search(rf"pro?des(?: em)? {ano - 1},? que foi de ({_NUM}) ?km", corrido, re.I)
