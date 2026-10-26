@@ -1,0 +1,6 @@
+consulta,erro
+e-mec instituições,403 Client Error: Forbidden for url: https://dadosabertos.mec.gov.br/api/3/action/package_search?q=e-mec+institui%C3%A7%C3%B5es&rows=20
+rede federal,403 Client Error: Forbidden for url: https://dadosabertos.mec.gov.br/api/3/action/package_search?q=rede+federal&rows=20
+plataforma nilo peçanha,403 Client Error: Forbidden for url: https://dadosabertos.mec.gov.br/api/3/action/package_search?q=plataforma+nilo+pe%C3%A7anha&rows=20
+censo da educação superior,403 Client Error: Forbidden for url: https://dadosabertos.mec.gov.br/api/3/action/package_search?q=censo+da+educa%C3%A7%C3%A3o+superior&rows=20
+universidades federais,403 Client Error: Forbidden for url: https://dadosabertos.mec.gov.br/api/3/action/package_search?q=universidades+federais&rows=20

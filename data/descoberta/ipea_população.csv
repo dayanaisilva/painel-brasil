@@ -1,0 +1,22 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+DISOC_PEATIVA,População economicamente ativa (PEA) - INATIVA,IPEA,Anual,Pessoa,I
+DEPIS_POP,População,IBGE/Pop,Anual,Habitante,A
+ESTIMA_PO,População residente - 1º de julho - estimativas,IBGE,Anual,Habitante,
+HIST_IMIGRAN,População - imigrantes - INATIVA,Outras fontes,Anual,Pessoa,I
+POP_PROJE,População residente - 1º de julho - projeção,IBGE,Anual,Habitante,
+UNDATA_POPTOT,População: residente total (países),UNdata,Anual,Mil pessoas,
+DEPIS_POPHP,População residente - homens - 1º de julho - projeção,IBGE/Pop,Anual,Habitante,A
+DEPIS_POPMP,População residente - mulheres - 1º de julho - projeção,IBGE/Pop,Anual,Habitante,A
+DEPIS_POPP,População residente - 1º de julho - projeção,IBGE/Pop,Anual,Habitante,A
+AVIOL12_VIOLPOP,População residente - Estimativa/TCU (ajustada),IPEA,Anual,Unidade,
+ADH12_POP18M,População de 18 anos ou mais de idade  (IBGE - Pnad Contínua/A),IPEA/Atlas do Desenvolvimento Humano,Anual,Mil pessoas,
+ADH12_POP25M,População de 25 anos ou mais de idade  (IBGE - Pnad Contínua/A),IBGE/PNAD Contínua,Anual,Mil pessoas,
+ADH12_POP65M,População de 65 anos ou mais de idade  (IBGE - Pnad Contínua/A),IBGE/PNAD Contínua,Anual,Mil pessoas,
+ADH12_POPTOT,População total  (IBGE - Pnad Contínua/A),IBGE/PNAD Contínua,Anual,Mil pessoas,
+DEPIS_POPP_HOM,População residente (homens) - 1º de julho - projeção,IBGE/Pop,Anual,Habitante,
+DEPIS_POPP_MUL,População residente (mulheres) - 1º de julho - projeção,IBGE/Pop,Anual,Habitante,
+PNADCA_TXETOTUF_BRA,Taxa de escolarização da população - Brancos,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXETOTUF_NEG,Taxa de escolarização da população - Pardos/Pretos,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXETOTUF_HOM,Taxa de escolarização da população - homem ,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXETOTUF_MUL,Taxa de escolarização da população - mulher ,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXETOTUF,Taxa de escolarização da população,IBGE/PNAD Contínua,Anual,(%),

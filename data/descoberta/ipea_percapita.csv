@@ -1,0 +1,15 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+GAC_PIBCAPN,PIB per capita,IPEA,Anual,R$,A
+GAC_PIBCAPUSN,PIB per capita,IPEA,Anual,US$,A
+SGS_PIBCAPBR,PIB per capita em R$ correntes (SGS-BCB),Bacen Outras/SGS,Anual,R$,A
+SGS_PIBCAPUS,PIB per capita em US$ correntes (SGS-BCB),Bacen Outras/SGS,Anual,US$,A
+WDI_PIBPPCCAPBRA,Brasil - PIB - paridade do poder de compra (PPC) - per capita,Banco Mundial/WDI,Anual,US$,A
+WDI_PIBPPCCAPRBRA,Brasil - PIB - paridade do poder de compra (PPC) - per capita,Banco Mundial/WDI,Anual,US$ de 2017,A
+PNADS_GINI,Coeficiente de Gini da renda domiciliar per capita de todas as fontes,IPEA,Anual,-,A
+PNADS_PALMA,Razão de Palma da renda domiciliar per capita de todas as fontes,IPEA,Anual,-,A
+PNADS_RENDAMEDIA,Média da renda domiciliar per capita de todas as fontes,IPEA,Anual,R$ (último ano),A
+PIBPCE,PIB Estadual per capita - preços de mercado (preços de 2010),IBGE,Anual,"R$ (mil), a preços do ano 2010",
+SIS_RDPC40,Rendimento domiciliar per capita (Distribuição) - 40% mais pobres (SIS/IBGE),SIS-IBGE,Anual,(%),
+SIS_RDPC90,Rendimento domiciliar per capita (Distribuição) - 10% mais ricos (SIS/IBGE),SIS-IBGE,Anual,(%),
+SIS_RDPCMEDIANO,Rendimento domiciliar per capita mediano (SIS/IBGE),SIS-IBGE,Anual,R$ médio do ano,
+SIS_RDPCMEDIO,Rendimento domiciliar per capita médio (SIS/IBGE),SIS-IBGE,Anual,R$ médio do ano,

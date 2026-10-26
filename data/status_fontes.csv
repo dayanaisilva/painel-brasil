@@ -1,9 +1,18 @@
-indicador,fonte,status,ultima_obs
-ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01
-salario_minimo,BCB/SGS 1619,atualizado,2026-10-01
-dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23
-pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01
-pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01
-cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01
-gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01
-queimadas,INPE/BDQueimadas,atualizado,2025-01-01
+indicador,fonte,status,ultima_obs,erro
+ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
+salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
+dolar,Ipeadata (fallback do SGS),cópia anterior,2026-10-23,nova coleta menor que a anterior (1140 vs 6734 obs)
+pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
+pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01,
+cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01,
+gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01,
+queimadas,INPE/BDQueimadas,atualizado,2025-01-01,
+fome,"FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)",atualizado,2024-01-01,
+pobreza,"Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE",atualizado,2024-01-01,
+gini,"Banco Mundial (SI.POV.GINI), a partir da PNAD/IBGE",atualizado,2024-01-01,
+mortalidade_infantil,"ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE",atualizado,2024-01-01,
+expectativa_vida,"ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)",atualizado,2024-01-01,
+gasto_saude,"OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)",atualizado,2023-01-01,
+gasto_educacao,"UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP",atualizado,2022-01-01,
+analfabetismo,"UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE",atualizado,2024-01-01,
+ensino_superior,"UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP",atualizado,2024-01-01,
