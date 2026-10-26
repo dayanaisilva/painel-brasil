@@ -51,7 +51,7 @@
     dolar: null,
     ipca: ["menor inflação média", "maior inflação média", "Inflação média por ano durante o governo."],
     salario_minimo: ["maior ganho de poder de compra do mínimo", "menor ganho (ou perda) de poder de compra do mínimo", "Quanto o poder de compra do salário mínimo mudou do começo ao fim do governo."],
-    cesta_sp: ["menor peso da cesta básica no salário", "maior peso da cesta básica no salário", "Em média, quanto do salário mínimo a cesta básica de SP consumia."],
+    cesta_sp: ["cesta básica consumia a menor parte do salário mínimo", "cesta básica consumia a maior parte do salário mínimo", "Em média, quanto do salário mínimo a cesta básica de SP consumia."],
     gasolina: ["gasolina mais barata, em valores de hoje", "gasolina mais cara, em valores de hoje", "Preço médio do litro no governo, corrigido para reais de hoje."],
     gasolina_litros: ["mais litros por salário mínimo", "menos litros por salário mínimo", "Em média, quantos litros de gasolina um salário mínimo comprava."],
     fome: null,

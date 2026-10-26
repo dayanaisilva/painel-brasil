@@ -428,7 +428,7 @@ def main():
         ind["pib_crescimento"] = dict(
             tema="economia",
             titulo="Crescimento do PIB", unidade="% ao ano", formato="pct", grafico="barra", freq="anual",
-            direcao="maior", pergunta="A economia cresceu?",
+            direcao="maior", pergunta="Quanto a economia cresceu por ano?",
             descricao="Variação real do Produto Interno Bruto em relação ao ano anterior. Barras abaixo de zero são anos de recessão.",
             resumo_rotulo="crescimento médio por ano", resumo=resumo_media_ponderada(a),
             serie=serie_json(a, "%Y"), fonte=FONTE_PIB["txt"], fonte_url="https://www3.bcb.gov.br/sgspub/")
@@ -491,7 +491,7 @@ def main():
             tema="economia",
             titulo="PIB per capita", unidade=unidade_pc,
             formato="moeda_int" if nivel is not None else "pct", grafico="barra", freq="anual",
-            direcao="maior", pergunta="A riqueza por pessoa aumentou?",
+            direcao="maior", pergunta="Quanto cresceu a riqueza produzida por pessoa (PIB per capita)?",
             descricao=("PIB dividido pela população, sem efeito da inflação: o valor de cada ano está em reais do ano mais recente. "
                        "Crescimento por pessoa = (1 + crescimento real do PIB) ÷ (1 + crescimento da população) − 1. "
                        f"População: {base_pop}. O nível em reais parte do PIB per capita publicado pelo IBGE no último ano da tabela."),
@@ -510,7 +510,7 @@ def main():
         ind["ipca"] = dict(
             tema="custo",
             titulo="Inflação (IPCA)", unidade="% no ano, escala logarítmica", formato="pct_simples", grafico="barra",
-            freq="anual", escala="log", direcao="menor", pergunta="Os preços subiram muito?",
+            freq="anual", escala="log", direcao="menor", pergunta="Quanto os preços subiram por ano?",
             descricao=(f"IPCA acumulado em cada ano. Até 1994 a inflação passou de 1.000% ao ano, por isso o eixo é "
                        f"logarítmico: cada linha do eixo vale 10 vezes a anterior. {ano_atual} vai só até o último mês divulgado."),
             resumo_rotulo="inflação média por ano", resumo=ipca_acumulado(m),
@@ -523,7 +523,7 @@ def main():
         ind["salario_minimo"] = dict(
             tema="custo",
             titulo="Salário mínimo real", unidade=f"R$ de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
-            direcao="maior", pergunta="O salário mínimo compra mais?",
+            direcao="maior", pergunta="O salário mínimo passou a comprar mais ou menos?",
             descricao=(f"Salário mínimo convertido para reais e corrigido pelo IPCA até {ref_mes}. "
                        "Mostra o poder de compra: quanto o mínimo de cada época valeria hoje."),
             resumo_rotulo="ganho real no período", resumo_formato="pct", resumo=resumo_variacao(r),
@@ -541,9 +541,9 @@ def main():
         ind["cesta_sp"] = dict(
             tema="custo",
             titulo="Cesta básica (São Paulo)", unidade="% do salário mínimo", formato="pct_simples",
-            grafico="linha", freq="mensal", direcao="menor", pergunta="A comida pesa no bolso?",
-            descricao="Quanto do salário mínimo bruto a cesta básica de São Paulo consome. Acima de 100%, o mínimo não pagava a cesta.",
-            resumo_rotulo="peso médio da cesta", resumo=resumo_media_mensal(j),
+            grafico="linha", freq="mensal", direcao="menor", pergunta="Que parte do salário mínimo ia para a cesta básica em São Paulo?",
+            descricao=("Preço da cesta básica do DIEESE em São Paulo (13 alimentos, nas quantidades para um adulto passar um mês, definidas pelo Decreto-Lei 399/1938) dividido pelo salário mínimo bruto. Exemplo: 50% quer dizer que a cesta custava metade do mínimo. Quanto menor, mais sobra do salário. Acima de 100%, o mínimo não pagava a cesta."),
+            resumo_rotulo="do salário mínimo gasto com a cesta, em média", resumo=resumo_media_mensal(j),
             serie=serie_json(j, "%Y-%m"),
             fonte="DIEESE — Pesquisa Nacional da Cesta Básica, via Ipeadata; salário mínimo do BCB",
             fonte_url="https://www.dieese.org.br/cesta/")
@@ -555,7 +555,7 @@ def main():
         ind["gasolina"] = dict(
             tema="custo",
             titulo="Gasolina", unidade=f"R$/litro de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
-            direcao="menor", pergunta="Abastecer ficou mais caro?",
+            direcao="menor", pergunta="Quanto custava o litro da gasolina, já descontada a inflação?",
             descricao=(f"Preço médio da gasolina comum nos postos, corrigido pelo IPCA para reais de {ref_mes}. "
                        "Passe o mouse para ver também o preço que se pagava na época. A pesquisa nacional de preços da ANP começa em jul/2001; "
                        "antes disso o preço era tabelado pelo governo e não há série oficial de preço médio nos postos."),
@@ -598,7 +598,7 @@ def main():
         ind["queimadas"] = dict(
             tema="ambiente",
             titulo="Focos de queimada", unidade="focos no ano", formato="inteiro", grafico="barra", freq="anual",
-            direcao="menor", pergunta="O país queimou mais?",
+            direcao="menor", pergunta="Quantos focos de queimada os satélites registraram por ano?",
             descricao=(f"Focos de calor detectados pelo satélite de referência do INPE em todo o Brasil. Variam muito com o clima: "
                        f"anos de seca forte, como 2007, 2010 e 2024, disparam os focos. A série comparável começa em 2003. "
                        f"{ano_atual} está incompleto e fica fora das médias. Veja também o desmatamento, que mede outra coisa: floresta derrubada."),
@@ -619,33 +619,33 @@ def main():
          "O resumo conta, entre os anos do gráfico que caem em cada governo, quantos ficaram acima de 2,5%. Como cada ponto é média "
          "de três anos, isso não é uma medição separada de cada ano do governo.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
-        ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Quantos viviam na extrema pobreza?", "% da população",
+        ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Que parte da população vivia na extrema pobreza?", "% da população",
          "fome", "menor", "ritmo_rel",
          "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial: US$ 3,00 por pessoa por dia, "
          "em paridade de poder de compra (PPC) de 2021, na definição atual do indicador SI.POV.DDAY. Calculada com a PNAD/IBGE. "
          "O ranking mede a variação percentual por ano em cada governo.",
          "Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE"),
-        ("gini", "SI.POV.GINI", "Desigualdade (Gini)", "A desigualdade de renda caiu?", "índice de Gini (0 a 100)",
+        ("gini", "SI.POV.GINI", "Desigualdade (Gini)", "A desigualdade de renda caiu ou subiu?", "índice de Gini (0 a 100)",
          "fome", "menor", "ritmo",
          "Índice de Gini da renda domiciliar per capita: 0 seria todos com a mesma renda, 100 seria uma pessoa com toda a renda. Calculado pelo Ipea com a PNAD/IBGE.",
          "Banco Mundial (SI.POV.GINI), a partir da PNAD/IBGE"),
-        ("mortalidade_infantil", "SP.DYN.IMRT.IN", "Mortalidade infantil", "Morriam menos bebês?", "mortes por mil nascidos vivos",
+        ("mortalidade_infantil", "SP.DYN.IMRT.IN", "Mortalidade infantil", "Quantos bebês morriam antes de completar 1 ano?", "mortes por mil nascidos vivos",
          "saude", "menor", "ritmo_rel",
          "Mortes antes de 1 ano de idade a cada mil nascidos vivos. Cai há décadas no Brasil, por isso o ranking mede a queda percentual por ano em cada governo, e não o nível.",
          "ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE"),
-        ("expectativa_vida", "SP.DYN.LE00.IN", "Expectativa de vida", "Os brasileiros passaram a viver mais?", "anos ao nascer",
+        ("expectativa_vida", "SP.DYN.LE00.IN", "Expectativa de vida", "Quantos anos um brasileiro deve viver, em média, ao nascer?", "anos ao nascer",
          "saude", "maior", "ritmo",
          "Anos que um recém-nascido deve viver nas condições do período. O ranking mede quanto ela subiu por ano em cada governo.",
          "ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)"),
-        ("gasto_saude", "SH.XPD.GHED.GD.ZS", "Gasto público em saúde", "Quanto o governo investiu em saúde?", "% do PIB",
+        ("gasto_saude", "SH.XPD.GHED.GD.ZS", "Gasto público em saúde", "Quanto do PIB o poder público (União, estados e municípios) gastou com saúde?", "% do PIB",
          "saude", None, "nivel",
          "Despesa pública com saúde (União, estados e municípios, incluindo o SUS) como parcela do PIB. Sem ranking: gasto é insumo, não resultado.",
          "OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)"),
-        ("gasto_educacao", "SE.XPD.TOTL.GD.ZS", "Gasto público em educação", "Quanto o governo investiu em educação?", "% do PIB",
+        ("gasto_educacao", "SE.XPD.TOTL.GD.ZS", "Gasto público em educação", "Quanto do PIB o poder público (União, estados e municípios) gastou com educação?", "% do PIB",
          "educacao", None, "nivel",
          "Despesa pública com educação (todas as esferas) como parcela do PIB. Há anos sem dado. Sem ranking: gasto é insumo, não resultado.",
          "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
-        ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "O analfabetismo caiu?", "% das pessoas com 15 anos ou mais",
+        ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "Que parte das pessoas com 15 anos ou mais não sabia ler e escrever?", "% das pessoas com 15 anos ou mais",
          "educacao", "menor", "ritmo_rel",
          "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever, segundo a PNAD Contínua (IBGE), que começa em 2016. "
          "O ranking mede a queda percentual por ano em cada governo e só aparece quando há pelo menos três governos com dado.",
@@ -743,12 +743,12 @@ def main():
     # ---------------- Emprego, segurança e programas sociais (IBGE, DATASUS, MDS via Ipeadata) ----------------
     oficiais = [
         # id, código Ipeadata, título, pergunta, unidade, tema, direção, freq, descrição, fonte
-        ("desemprego", "PAN4_TDESOC4", "Desemprego", "Faltou emprego?", "% da força de trabalho", "economia", "menor", "trimestral",
+        ("desemprego", "PAN4_TDESOC4", "Desemprego", "Qual era a taxa de desemprego?", "% da força de trabalho", "economia", "menor", "trimestral",
          "Taxa de desocupação trimestral oficial da PNAD Contínua (IBGE), que começa em 2012. A média de cada ano bate com a "
          "taxa anual divulgada pelo IBGE. Pesquisas anteriores usavam outra metodologia e cobriam só regiões metropolitanas, "
          "por isso não entram na comparação.",
          "IBGE — PNAD Contínua (taxa trimestral oficial)"),
-        ("homicidios", "AVIOL12_THOMIC", "Homicídios", "A violência aumentou?", "por 100 mil habitantes", "seguranca", "menor", "anual",
+        ("homicidios", "AVIOL12_THOMIC", "Homicídios", "Quantos assassinatos havia para cada 100 mil habitantes?", "por 100 mil habitantes", "seguranca", "menor", "anual",
          "Taxa de homicídios por 100 mil habitantes, a partir das declarações de óbito do Ministério da Saúde (SIM/DATASUS), "
          "compilada no Atlas da Violência (Ipea).",
          "Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea"),
@@ -808,7 +808,7 @@ def main():
         a = a[a.ano >= ANO_INICIAL]
         notas = [{"ano": int(r.ano), "valor": float(r.valor), "tipo": r.tipo, "url": r.url} for r in a.itertuples()]
         ind["desmatamento"] = dict(
-            tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="A Amazônia foi mais desmatada?",
+            tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="Quanta floresta foi derrubada por ano na Amazônia?",
             unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
             descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
                        "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. O site mostra só os "
