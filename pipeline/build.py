@@ -722,16 +722,13 @@ def main():
                             serie=serie_anual_completa(a))
 
     def desmatamento():
-        cands = fontes.ipea_buscar("desmat", periodicidade="Anual")
-        def valido(df):
-            d = df[df.data.dt.year >= 2004]
-            return len(d) >= 15 and d.valor.between(2000, 40000).all() and df.data.max().year >= date.today().year - 3
-        return fontes.ipea_validada(cands, ["amazônia legal", "prodes", "área", "km"], valido, "desmatamento")
+        df = fontes.prodes_taxas()
+        v = dict(zip(df.data.dt.year, df.valor))
+        # checagem com valores publicados pelo INPE (2004 foi o pico da série recente, ~27,8 mil km²)
+        if not (20000 <= v.get(2004, 0) <= 35000) or df.data.max().year < date.today().year - 2:
+            raise ValueError(f"série PRODES fora do esperado (2004={v.get(2004)}, último={df.data.max().year})")
+        return df
 
-    try:
-        fontes.prodes_taxas_descobrir()
-    except Exception as e:  # noqa: BLE001
-        log.warning("descoberta PRODES: %s", e)
     desm = coletar("desmatamento", desmatamento, "INPE — PRODES Amazônia Legal (via Ipeadata)", max_atraso_dias=365 * 3)
     if desm is not None:
         a = anual(desm)
@@ -740,9 +737,11 @@ def main():
             tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="A Amazônia foi mais desmatada?",
             unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
             descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
-                       "PRODES/INPE. O ano PRODES vai de agosto a julho: a taxa de 2023 cobre ago/2022 a jul/2023."),
+                       "PRODES/INPE. O ano PRODES vai de agosto a julho: a taxa de 2023 cobre ago/2022 a jul/2023. Os valores de 1993 e 1994 "
+                       "são uma média dos dois anos, como o INPE publica."),
             resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
-            fonte="INPE — PRODES, via Ipeadata", fonte_url="https://terrabrasilis.dpi.inpe.br/")
+            fonte="INPE — PRODES (TerraBrasilis)",
+            fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
 
     inep = coletar_inep()
     if inep is not None and not inep.empty:

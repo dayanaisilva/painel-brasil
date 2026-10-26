@@ -426,10 +426,14 @@ def inep_ano(ano: int, diag: list) -> dict:
                                ("CURSO" in base(n) or base(n).startswith("GRADUACAO_PRESENCIAL")) and "ALUNO" not in base(n)), None)
                 out = {"ano": ano, "url": url}
                 if ies:
+                    with z.open(ies) as fh:
+                        diag.append({"ano": ano, "url": url, "arquivos": "IES cabeçalho: " + fh.readline().decode("latin-1")[:700]})
                     d = _ler_csv_zip(z, ies, lambda c: "CATEGORIA" in c or "ORGANIZACAO" in c or c in ("CO_IES",))
                     d.columns = [_norm(c) for c in d.columns]
-                    cat = next(c for c in d.columns if "CATEGORIA" in c)
-                    org = next(c for c in d.columns if "ORGANIZACAO" in c)
+                    cat = next((c for c in d.columns if "CATEGORIA" in c), None)
+                    org = next((c for c in d.columns if "ORGANIZACAO" in c), None)
+                    if cat is None or org is None:
+                        raise ValueError(f"IES sem colunas de categoria/organização: {list(d.columns)[:20]}")
                     diag.append({"ano": ano, "url": url, "arquivos": f"IES colunas: {list(d.columns)} | cat={d[cat].value_counts().head(6).to_dict()} | org={d[org].value_counts().head(6).to_dict()}"[:900]})
                     cv = d[cat].fillna("").str.strip().str.upper()
                     fed = d[(cv == "1") | cv.str.contains("FEDERAL")]
@@ -444,7 +448,9 @@ def inep_ano(ano: int, diag: list) -> dict:
                     c = _ler_csv_zip(z, cursos, lambda c: "CATEGORIA" in c or c.startswith("CO_MUNICIPIO") or "MODALIDADE" in c)
                     diag.append({"ano": ano, "url": url, "arquivos": f"CURSOS colunas: {list(c.columns)[:12]}"})
                     c.columns = [_norm(x) for x in c.columns]
-                    cat = next(x for x in c.columns if "CATEGORIA" in x)
+                    cat = next((x for x in c.columns if "CATEGORIA" in x), None)
+                    if cat is None:
+                        raise ValueError(f"cursos sem coluna de categoria: {list(c.columns)[:20]}")
                     mun = next((x for x in c.columns if x.startswith("CO_MUNICIPIO")), None)
                     mod = next((x for x in c.columns if "MODALIDADE" in x), None)
                     cv = c[cat].fillna("").str.strip().str.upper()
@@ -456,7 +462,7 @@ def inep_ano(ano: int, diag: list) -> dict:
                 return out
         except Exception as e:  # noqa: BLE001
             ultimo_erro = e
-            diag.append({"ano": ano, "url": url, "arquivos": f"ERRO: {str(e)[:300]}"})
+            diag.append({"ano": ano, "url": url, "arquivos": f"ERRO: {type(e).__name__}: {str(e)[:300]}"})
     raise ValueError(f"INEP {ano}: {ultimo_erro}")
 
 
@@ -488,3 +494,57 @@ def prodes_taxas_descobrir() -> None:
             linhas.append({"url": pg, "tipo": "erro", "info": str(e)[:200]})
     DESCOBERTA.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(linhas).to_csv(DESCOBERTA / "prodes_taxas.csv", index=False)
+
+
+def prodes_taxas() -> pd.DataFrame:
+    """Taxa anual oficial de desmatamento PRODES na Amazônia Legal (km²), como publicada no painel
+    TerraBrasilis do INPE. Tenta a API do painel e, se falhar, a camada WFS do GeoServer do INPE."""
+    linhas, erros = [], []
+    for host in ("https://terrabrasilis.dpi.inpe.br", "http://terrabrasilis2.dpi.inpe.br"):
+        for app in ("prodes_legal_amazon", "prodes_amazon", "prodes_amazon_", "legal_amazon"):
+            try:
+                r = S.get(f"{host}/dashboard/api/v1/redis-cli/data/rates", timeout=60,
+                          headers={"App-Identifier": app, "Content-Type": "application/json"})
+                r.raise_for_status()
+                dados = _json(r)
+                if isinstance(dados, dict):
+                    dados = dados.get("data") or dados.get("value") or next(iter(dados.values()), [])
+                if isinstance(dados, str):
+                    import json as _j
+                    dados = _j.loads(dados)
+                linhas = [d for d in dados if isinstance(d, dict) and "rate" in d and "year" in d]
+                if linhas:
+                    log.info("PRODES via %s App-Identifier=%s: %d linhas", host, app, len(linhas))
+                    break
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"{host} {app}: {str(e)[:120]}")
+        if linhas:
+            break
+    if not linhas:
+        # GeoServer: procura uma camada de taxas e baixa em JSON
+        try:
+            cap = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+                       params={"service": "WFS", "version": "2.0.0", "request": "GetCapabilities"}).text
+            camadas = [c for c in re.findall(r"<Name>([^<]+)</Name>", cap) if "rate" in c.lower() and "prodes" in c.lower()]
+            erros.append(f"camadas WFS com 'rate': {camadas[:10]}")
+            for c in camadas:
+                r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+                         params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
+                                 "outputFormat": "application/json"})
+                feats = [f.get("properties", {}) for f in _json(r).get("features", [])]
+                linhas = [p for p in feats if "rate" in p and "year" in p]
+                if linhas:
+                    break
+        except Exception as e:  # noqa: BLE001
+            erros.append(f"WFS: {str(e)[:150]}")
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"erro": erros}).to_csv(DESCOBERTA / "prodes_erros.csv", index=False)
+    if not linhas:
+        raise ValueError("PRODES indisponível: " + " | ".join(erros)[:300])
+    df = pd.DataFrame(linhas)
+    if "state" in df:
+        tot = df[df["state"].astype(str).str.upper().isin(["AMZ", "AMAZÔNIA LEGAL", "AMAZONIA LEGAL", "LEGAL AMAZON"])]
+        df = tot if not tot.empty else df.groupby("year", as_index=False)["rate"].sum()
+    df = df.groupby("year", as_index=False)["rate"].max()
+    return pd.DataFrame({"data": pd.to_datetime(df["year"].astype(int).astype(str) + "-01-01"),
+                         "valor": pd.to_numeric(df["rate"], errors="coerce")}).dropna().sort_values("data")
