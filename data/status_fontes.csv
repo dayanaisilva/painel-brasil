@@ -1,9 +1,9 @@
-indicador,fonte,status,ultima_obs
-ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01
-salario_minimo,BCB/SGS 1619,atualizado,2026-10-01
-dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23
-pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01
-pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01
-cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01
-gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01
-queimadas,INPE/BDQueimadas,atualizado,2025-01-01
+indicador,fonte,status,ultima_obs,erro
+ipca,BCB/SGS 433 (IBGE),cópia anterior,2026-09-01,"SGS 433: falha em 2 janela(s). 2000-2009: resposta não-JSON (HTTP 200, text/html; charset=utf-8): '<?xml version=""1.0"" encoding=""pt-br""?>\r\n<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN""\r\"
+salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
+dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23,
+pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
+pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01,
+cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01,
+gasolina,ANP — Levantamento de Preços,atualizado,2026-09-01,
+queimadas,INPE/BDQueimadas,atualizado,2025-01-01,
