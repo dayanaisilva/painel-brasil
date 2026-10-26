@@ -7,4 +7,4 @@ nota,url,achados
 2024 consolidada,https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf,{2024: 6518.0}
 2025 estimativa,https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf,"{2025: 5796.0, 2024: 6518.0}"
 2025 consolidada,https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf,"{2025: 5731.0, 2024: 6518.0}"
-apresentação PRODES 2026,https://www.gov.br/mma/pt-br/noticias-defeso-eleitoral/apresentacao-coletiva-prodes-2026_inpe.pdf,ERRO: ValueError: https://www.gov.br/mma/pt-br/noticias-defeso-eleitoral/apresentacao-coletiva-prodes-2026_inpe.pdf [padrão]: HTTP 200 text/html;charset=utf-8 | https://www.gov.br/mma/pt-br/noticias-defeso-eleitoral/apresentacao-coletiva-prodes-2026_inpe.pdf [nav]: HT
+apresentação PRODES 2026,https://www.gov.br/mma/pt-br/noticias-defeso-eleitoral/apresentacao-coletiva-prodes-2026_inpe.pdf,"39 anos, 1988–2026"
