@@ -4,7 +4,7 @@ Indicadores econômicos e ambientais do Brasil desde a redemocratização, compa
 
 Cada indicador tem uma direção declarada (maior é melhor, menor é melhor ou sem ranking). Em cada um, o quarto melhor dos governos recebe ▲ ponto forte e o quarto pior ▼ ponto fraco, com a mesma régua para todos.
 
-**Site:** https://dayanaisilva.github.io/painel-brasil/
+**Site:** https://tirateimabr.com.br
 
 ## O que tem
 
