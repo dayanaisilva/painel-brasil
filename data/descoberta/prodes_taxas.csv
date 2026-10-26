@@ -1,0 +1,163 @@
+url,tipo,info
+https://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes,pagina,"HTTP 200, 22406 bytes"
+https://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes,tabelas,"`Import html5lib` failed.  Use pip, conda, or your preferred package management tool to install the html5lib package."
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.app.jquery-cachekey-9f8182cd1b54afc20b7b05eb38379ca5.js,js,api.
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.app.jquery-cachekey-9f8182cd1b54afc20b7b05eb38379ca5.js,js,apirila
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"
+    });
+
+    When using ajaxForm, the ajaxSubmit function will be invoked for you
+    at the appropriate time.
+*/
+
+/**
+ * Feature detection
+ */
+var feature = {};
+feature.fileapi = $("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,") == mp);
+
+    var fileAPI = feature.fileapi && feature.formdata;
+    log("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));el.load(function(){pb.spinner.hide();api.load()})}} else{api.load()}
+return false};pb.fi_focus=function(jqo){if(!jqo.find("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));if(!content.length){content=pb.create_content_div(pbo);content.overlay(pbo.config)}
+api=content.overlay();if(content.find("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));return content};pb.image_click=function(event){var ethis,content,api,img,el,pbo;ethis=$(this);pbo=ethis.data("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,");content.append(el)}
+if(api.getConf().fixed){el.css("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,");return api?api:(conf=$.extend(!0,{},$.tools.tooltip.conf,conf),"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"){target=target(el,responseText,pbo)}
+location.replace(target);break;default:if(el.children()){ajax_parent.empty().append(el)} else{api.close()}
+break}
+$(document).trigger("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,")})}
+if($.fn.ploneTabInit){el.ploneTabInit()}
+pb.fi_focus(ajax_parent);pb.add_ajax_load(myform);myform.ajaxForm(options);if(closeselector){el.find(closeselector).click(function(event){api.close();retu"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,")})}
+if($.fn.ploneTabInit){ele.ploneTabInit()}
+api.onClose=function(){content.remove()};$(document).trigger("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,", value: form.clk_y});
+            }
+            continue;
+        }
+
+        v = $.fieldValue(el, true);
+        if (v && v.constructor == Array) {
+            if (elements) {
+                element"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,",[this,myform,api,pb,ajax_parent,noform])}
+pb.spinner.hide()};options.error=options.success;pb.add_ajax_load(form);form.ajaxForm(options)};pb.ajax_click=function(event){var ethis=$(this),pbo,content,a"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,",[this,myform,api,pb,ajax_parent])} else{if(success){if(typeof noform==="
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();break;case 
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();pb.spinner.show();location.replace(location.href);break;case 
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();pb.spinner.show();target=pbo.redirect;if(typeof target===
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"==typeof conf.position&&(conf.position=conf.position.split(/,?\s/)),this.each(function(){api=new Tooltip($(this),conf),$(this).data("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"},addEffect:function(name,loadFn,hideFn){effects[name]=[loadFn,hideFn]}};var effects={toggle:[function(done){var conf=this.getConf(),tip=this.getTip(),o=conf.opacity;1>o&&tip.css({opacity:o}),tip.show"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,//gdata.youtube.com/feeds/api/videos/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,http://vimeo.com/api/v2/video/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,https://api.dailymotion.com/video/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.affix.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.alert.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.button.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.carousel.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.collapse.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown.data-api touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.modal.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.tab.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,focus.typeahead.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,keydown.dropdown.data-api touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,scroll.affix.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,scroll.scroll-spy.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes,pagina,"HTTP 200, 22406 bytes"
+http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes,tabelas,"`Import html5lib` failed.  Use pip, conda, or your preferred package management tool to install the html5lib package."
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.app.jquery-cachekey-9f8182cd1b54afc20b7b05eb38379ca5.js,js,api.
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.app.jquery-cachekey-9f8182cd1b54afc20b7b05eb38379ca5.js,js,apirila
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"
+    });
+
+    When using ajaxForm, the ajaxSubmit function will be invoked for you
+    at the appropriate time.
+*/
+
+/**
+ * Feature detection
+ */
+var feature = {};
+feature.fileapi = $("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,") == mp);
+
+    var fileAPI = feature.fileapi && feature.formdata;
+    log("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));el.load(function(){pb.spinner.hide();api.load()})}} else{api.load()}
+return false};pb.fi_focus=function(jqo){if(!jqo.find("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));if(!content.length){content=pb.create_content_div(pbo);content.overlay(pbo.config)}
+api=content.overlay();if(content.find("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"));return content};pb.image_click=function(event){var ethis,content,api,img,el,pbo;ethis=$(this);pbo=ethis.data("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,");content.append(el)}
+if(api.getConf().fixed){el.css("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,");return api?api:(conf=$.extend(!0,{},$.tools.tooltip.conf,conf),"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"){target=target(el,responseText,pbo)}
+location.replace(target);break;default:if(el.children()){ajax_parent.empty().append(el)} else{api.close()}
+break}
+$(document).trigger("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,")})}
+if($.fn.ploneTabInit){el.ploneTabInit()}
+pb.fi_focus(ajax_parent);pb.add_ajax_load(myform);myform.ajaxForm(options);if(closeselector){el.find(closeselector).click(function(event){api.close();retu"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,")})}
+if($.fn.ploneTabInit){ele.ploneTabInit()}
+api.onClose=function(){content.remove()};$(document).trigger("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,", value: form.clk_y});
+            }
+            continue;
+        }
+
+        v = $.fieldValue(el, true);
+        if (v && v.constructor == Array) {
+            if (elements) {
+                element"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,",[this,myform,api,pb,ajax_parent,noform])}
+pb.spinner.hide()};options.error=options.success;pb.add_ajax_load(form);form.ajaxForm(options)};pb.ajax_click=function(event){var ethis=$(this),pbo,content,a"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,",[this,myform,api,pb,ajax_parent])} else{if(success){if(typeof noform==="
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();break;case 
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();pb.spinner.show();location.replace(location.href);break;case 
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,:api.close();pb.spinner.show();target=pbo.redirect;if(typeof target===
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"==typeof conf.position&&(conf.position=conf.position.split(/,?\s/)),this.each(function(){api=new Tooltip($(this),conf),$(this).data("
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/register_function-cachekey-e433893310a8248d0ee1357f8432842a.js,js,"},addEffect:function(name,loadFn,hideFn){effects[name]=[loadFn,hideFn]}};var effects={toggle:[function(done){var conf=this.getConf(),tip=this.getTip(),o=conf.opacity;1>o&&tip.css({opacity:o}),tip.show"
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,//gdata.youtube.com/feeds/api/videos/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,http://vimeo.com/api/v2/video/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.contenttreecontenttree-cachekey-3360e5a941e1682e9d0b0694fc69c5a7.js,js,https://api.dailymotion.com/video/
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.affix.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.alert.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.button.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.carousel.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.collapse.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.dropdown.data-api touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.modal.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,click.tab.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,focus.typeahead.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,keydown.dropdown.data-api touchstart.dropdown.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,scroll.affix.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,scroll.scroll-spy.data-api
+http://www.obt.inpe.br/OBT/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-8fdc48e8caff9cbb2d63a5793c703605.js,js,touchstart.dropdown.data-api
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates,pagina,"HTTP 200, 3098 bytes"
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates,tabelas,"`Import html5lib` failed.  Use pip, conda, or your preferred package management tool to install the html5lib package."
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery/jquery-3.3.1.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery/jquery-3.3.1.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/map/bootstrap.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/map/bootstrap.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/map/popper.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/map/popper.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery-ui/jquery-ui.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery-ui/jquery-ui.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery-ui/jquery.loading.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/jquery-ui/jquery.loading.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/lodash/lodash-4.7.10.min.js,js,/oauth-api/getoauthjs?
+https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/assets/js/lodash/lodash-4.7.10.min.js,js,https://fonts.googleapis.com/icon?family=Material+Icons
