@@ -614,7 +614,8 @@ def main():
          "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
         ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "O analfabetismo caiu?", "% das pessoas com 15 anos ou mais",
          "educacao", "menor", "ritmo_rel",
-         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e PNAD Contínua/IBGE). O ranking mede a queda percentual por ano em cada governo.",
+         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever, segundo a PNAD Contínua (IBGE), que começa em 2016. "
+         "O ranking mede a queda percentual por ano em cada governo e só aparece quando há pelo menos três governos com dado.",
          "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
         ("ensino_superior", "SE.TER.ENRR", "Acesso ao ensino superior", "Mais gente chegou à faculdade?", "taxa bruta de matrícula, %",
          "educacao", "maior", "ritmo",
@@ -628,11 +629,12 @@ def main():
         return df
 
     def analfabetismo_ibge():
-        cands = fontes.ipea_buscar("analfabet", periodicidade="Anual")
-        def valido(df):
-            v = dict(zip(df.data.dt.year, df.valor))
-            return 4.5 <= v.get(2024, 0) <= 6.0 and 6.0 <= v.get(2019, 0) <= 7.2 and df.data.dt.year.min() <= 1995
-        return fontes.ipea_validada(cands, ["15 anos", "pnad"], valido, "analfabetismo")
+        # Série oficial do IBGE (PNAD Contínua). Começa em 2016; a PNAD anual anterior tem outra metodologia.
+        df = fontes.ipea_serie("PNADCA_TXA15MUF")
+        v = dict(zip(df.data.dt.year, df.valor))
+        if not (5.0 <= v.get(2024, 0) <= 5.6 and 6.3 <= v.get(2019, 0) <= 6.9):
+            raise ValueError(f"analfabetismo IBGE fora do esperado: 2019={v.get(2019)}, 2024={v.get(2024)}")
+        return df
 
     def expectativa_ibge():
         cands = pd.concat([fontes.ipea_buscar("esperança de vida", periodicidade="Anual"),
@@ -728,7 +730,7 @@ def main():
     ]
     for id_, cod, titulo, pergunta, unidade, tema, direcao, freq, descricao, fonte in oficiais:
         bruto = coletar(id_, (lambda c=cod: fontes.ipea_serie(c)), fonte,
-                        max_atraso_dias=120 if freq == "mensal" else 200 if freq == "trimestral" else 365 * 4)
+                        max_atraso_dias=120 if freq == "mensal" else 300 if freq == "trimestral" else 365 * 4)
         if bruto is None:
             continue
         base = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao, descricao=descricao,
@@ -879,6 +881,8 @@ AVISOS = {
     "salario_minimo": "Na hiperinflação (até 1994) o valor real do mínimo oscilava muito de um mês para o outro; o site compara médias de 12 meses para reduzir essa distorção.",
     "desemprego": "A série oficial comparável (PNAD Contínua) só existe desde 2012. Governos anteriores ficam sem dado, o que não quer dizer que o desemprego fosse baixo ou alto.",
     "bolsa_familia": "Entre nov/2021 e fev/2023 o programa se chamou Auxílio Brasil, com regras e valores diferentes. Mais benefícios pode indicar mais cobertura ou mais pobreza; o número sozinho não diz qual.",
+    "analfabetismo": "A série oficial comparável do IBGE (PNAD Contínua) começa em 2016. Antes disso o IBGE usava a PNAD anual, com outra metodologia, por isso os governos anteriores não entram na comparação.",
+    "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
     "fome": "Cada ano é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório. Abaixo de 2,5% a FAO não divulga o valor exato.",
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "homicidios": "Os números podem diferir um pouco da edição mais recente do Atlas da Violência, que revisa população e mortes a cada ano.",

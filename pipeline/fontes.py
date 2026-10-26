@@ -539,10 +539,22 @@ def prodes_taxas() -> pd.DataFrame:
             alvo = [n for n in prodes_cam if "legal" in n.lower() and "yearly_deforestation" in n.lower()
                     and "nf" not in n.lower() and "smaller" not in n.lower()]
             for c in alvo:
-                r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
-                         params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
-                                 "propertyName": "year,area_km", "outputFormat": "csv"})
-                t = pd.read_csv(io.StringIO(r.text))
+                # O GeoServer devolve no máximo um lote por pedido: pagina até acabar.
+                partes, inicio, lote = [], 0, 50000
+                while True:
+                    r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+                             params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
+                                     "propertyName": "year,area_km", "outputFormat": "csv", "sortBy": "year",
+                                     "count": lote, "startIndex": inicio})
+                    t = pd.read_csv(io.StringIO(r.text))
+                    partes.append(t)
+                    if len(t) == 0 or inicio > 5_000_000:
+                        break
+                    inicio += len(t)
+                    if len(t) < lote:
+                        break
+                t = pd.concat(partes)
+                erros.append(f"{c}: {len(t)} polígonos lidos")
                 t.columns = [x.lower() for x in t.columns]
                 if {"year", "area_km"} <= set(t.columns):
                     g = t.groupby("year", as_index=False)["area_km"].sum()
