@@ -756,16 +756,19 @@ def main():
     def desmatamento():
         df = fontes.prodes_taxas()
         v = dict(zip(df.data.dt.year, df.valor))
-        # checagem com valores publicados pelo INPE (2004 foi o pico da série recente, ~27,8 mil km²)
-        if not (20000 <= v.get(2004, 0) <= 35000) or df.data.max().year < date.today().year - 2:
-            raise ValueError(f"série PRODES fora do esperado (2004={v.get(2004)}, último={df.data.max().year})")
+        incremento = "incremento" in open(fontes.DESCOBERTA / "prodes_erros.csv").read()
+        FONTE_USADA["desmatamento"] = ("INPE — PRODES, incremento anual mapeado (TerraBrasilis)" if incremento
+                                       else "INPE — PRODES, taxa anual (TerraBrasilis)")
+        # checagem com valores publicados pelo INPE: taxa 2021 foi 13.038 km²; o incremento mapeado fica pouco abaixo
+        if not (9000 <= v.get(2021, 0) <= 14500) or df.data.max().year < date.today().year - 2:
+            raise ValueError(f"série PRODES fora do esperado (2021={v.get(2021)}, último={df.data.max().year})")
         return df
 
     try:
         fontes.prodes_taxas_descobrir()
     except Exception as e:  # noqa: BLE001
         log.warning("descoberta PRODES: %s", e)
-    desm = coletar("desmatamento", desmatamento, "INPE — PRODES Amazônia Legal (via Ipeadata)", max_atraso_dias=365 * 3)
+    desm = coletar("desmatamento", desmatamento, "INPE — PRODES (TerraBrasilis)", max_atraso_dias=365 * 3)
     if desm is not None:
         a = anual(desm)
         a = a[a.ano >= ANO_INICIAL]
@@ -773,10 +776,11 @@ def main():
             tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="A Amazônia foi mais desmatada?",
             unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
             descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
-                       "PRODES/INPE. O ano PRODES vai de agosto a julho: a taxa de 2023 cobre ago/2022 a jul/2023. Os valores de 1993 e 1994 "
-                       "são uma média dos dois anos, como o INPE publica."),
+                       "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. Quando a taxa oficial não está "
+                       "disponível para download, o site usa a área efetivamente mapeada pelo PRODES no ano (incremento), que fica "
+                       "um pouco abaixo da taxa oficial porque a taxa estima também áreas cobertas por nuvens. A fonte exata aparece abaixo."),
             resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
-            fonte="INPE — PRODES (TerraBrasilis)",
+            fonte=FONTE_USADA.get("desmatamento", "INPE — PRODES (TerraBrasilis)"),
             fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
 
     inep = coletar_inep()

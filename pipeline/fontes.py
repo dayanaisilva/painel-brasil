@@ -529,6 +529,29 @@ def prodes_taxas() -> pd.DataFrame:
         if linhas:
             break
     if not linhas:
+        # Plano B: incremento anual mapeado pelo PRODES (camada vetorial oficial), só atributos, sem geometria.
+        try:
+            cap = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+                       params={"service": "WFS", "version": "2.0.0", "request": "GetCapabilities"}).text
+            nomes = re.findall(r"<(?:wfs:)?Name>([^<]+)</(?:wfs:)?Name>", cap)
+            prodes_cam = [n for n in nomes if "prodes" in n.lower()]
+            pd.DataFrame({"camada": prodes_cam}).to_csv(DESCOBERTA / "prodes_camadas_wfs.csv", index=False)
+            alvo = [n for n in prodes_cam if "legal" in n.lower() and "yearly_deforestation" in n.lower()
+                    and "nf" not in n.lower() and "smaller" not in n.lower()]
+            for c in alvo:
+                r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+                         params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
+                                 "propertyName": "year,area_km", "outputFormat": "csv"})
+                t = pd.read_csv(io.StringIO(r.text))
+                t.columns = [x.lower() for x in t.columns]
+                if {"year", "area_km"} <= set(t.columns):
+                    g = t.groupby("year", as_index=False)["area_km"].sum()
+                    linhas = [{"year": int(y), "rate": float(a), "fonte": f"incremento mapeado ({c})"} for y, a in zip(g.year, g.area_km)]
+                    erros.append(f"usado incremento mapeado da camada {c}")
+                    break
+        except Exception as e:  # noqa: BLE001
+            erros.append(f"WFS incremento: {str(e)[:150]}")
+    if not linhas:
         # GeoServer: procura uma camada de taxas e baixa em JSON
         try:
             cap = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
