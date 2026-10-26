@@ -86,8 +86,9 @@ def pib_crescimento():
         return fontes.sgs(SGS["pib_crescimento"], SGS_INICIO)
     except Exception as e:  # noqa: BLE001
         log.warning("SGS 7326 falhou (%s); usando Banco Mundial", e)
-        FONTE_PIB["txt"] = "Banco Mundial (NY.GDP.MKTP.KD.ZG), a partir de dados do IBGE"
-        return fontes.banco_mundial("NY.GDP.MKTP.KD.ZG")
+        df = fontes.banco_mundial("NY.GDP.MKTP.KD.ZG")
+        FONTE_PIB["txt"] = "Banco Mundial (NY.GDP.MKTP.KD.ZG), a partir de dados do IBGE"  # só depois de dar certo
+        return df
 
 
 def ipea_auto(chave, termos, fonte, preferir, valido, excluir=()):
@@ -786,15 +787,16 @@ def main():
     inep = coletar_inep()
     if inep is not None and not inep.empty:
         for col, titulo, pergunta, unidade, descricao in [
-            ("universidades_federais", "Universidades federais", "Quantas universidades federais foram criadas?",
-             "universidades federais em funcionamento",
-             "Número de universidades federais no Censo da Educação Superior (INEP), ano a ano. O resumo mostra quantas "
-             "passaram a existir entre o ano anterior à posse e o último ano do governo. Sem ranking: é expansão da rede, "
-             "não resultado de aprendizagem. Governos mais longos tendem a somar mais."),
-            ("municipios_federais", "Interiorização do ensino superior federal", "O ensino federal chegou a mais cidades?",
+            ("universidades_federais", "Universidades federais em funcionamento", "Quantas universidades federais funcionavam?",
+             "universidades federais no Censo",
+             "Número de universidades federais que aparecem no Censo da Educação Superior (INEP) em cada ano. O Censo registra "
+             "quando a universidade passa a funcionar como instituição própria, o que pode acontecer anos depois da lei que a cria. "
+             "Sem ranking."),
+            ("municipios_federais", "Cidades com curso superior federal", "O ensino superior federal chegou a mais cidades?",
              "municípios com curso presencial federal",
-             "Municípios onde universidades e institutos federais oferecem curso superior presencial (Censo da Educação "
-             "Superior/INEP). Mostra a chegada de campi federais a novas cidades. Sem ranking."),
+             "Municípios onde universidades e institutos federais oferecem curso de graduação presencial, segundo o Censo da "
+             "Educação Superior (INEP). Um campus aparece no Censo quando começa a oferecer cursos, o que pode ser depois do "
+             "governo que decidiu criá-lo. Sem ranking."),
         ]:
             if col not in inep or inep[col].isna().all():
                 continue
@@ -808,11 +810,14 @@ def main():
                                     "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3"}
             ind[col] = dict(tema="educacao", titulo=titulo, pergunta=pergunta, unidade=unidade, direcao=None,
                             formato="inteiro", grafico="barra", freq="anual", descricao=descricao,
-                            resumo=res, resumo_rotulo="aumento no governo", resumo_formato="inteiro_delta",
+                            resumo=res, resumo_rotulo="a mais no fim do governo do que no início", resumo_formato="inteiro_delta",
+                            aviso=AVISOS.get(col),
                             serie=serie_anual_completa(a), fonte="INEP — Censo da Educação Superior (microdados)",
                             fonte_url="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior")
 
-    for v in ind.values():
+    for k, v in ind.items():
+        if k in AVISOS and not v.get("aviso"):
+            v["aviso"] = AVISOS[k]
         ranquear(v)
 
     # ---------------- saídas ----------------
@@ -866,6 +871,27 @@ def main():
     pd.DataFrame(STATUS).to_csv(RAIZ / "data" / "status_fontes.csv", index=False)
     log.info("Status das fontes:\n%s", pd.DataFrame(STATUS).to_string(index=False))
     log.info("Indicadores gerados: %s", list(ind))
+
+
+AVISOS = {
+    "pib_crescimento": "Crescimento num governo depende muito do cenário externo e do ponto de partida: recessões herdadas e crises mundiais (2008, pandemia) pesam no resultado.",
+    "ipca": "Até 1994 o Brasil vivia hiperinflação, por isso Sarney, Collor e Itamar ficam muito acima. Isso reflete o período, não só decisões de cada governo.",
+    "salario_minimo": "Na hiperinflação (até 1994) o valor real do mínimo oscilava muito de um mês para o outro; o site compara médias de 12 meses para reduzir essa distorção.",
+    "desemprego": "A série oficial comparável (PNAD Contínua) só existe desde 2012. Governos anteriores ficam sem dado, o que não quer dizer que o desemprego fosse baixo ou alto.",
+    "bolsa_familia": "Entre nov/2021 e fev/2023 o programa se chamou Auxílio Brasil, com regras e valores diferentes. Mais benefícios pode indicar mais cobertura ou mais pobreza; o número sozinho não diz qual.",
+    "fome": "Cada ano é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório. Abaixo de 2,5% a FAO não divulga o valor exato.",
+    "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
+    "homicidios": "Os números podem diferir um pouco da edição mais recente do Atlas da Violência, que revisa população e mortes a cada ano.",
+
+    "universidades_federais": (
+        "A contagem mostra quando a universidade passou a funcionar, não quem a criou. Exemplo: as 5 universidades que "
+        "aparecem no Censo em 2020 (UFCat, UFJ, UFR, UFAPE e UFDPar) foram criadas por leis sancionadas em 2018, no governo "
+        "Temer, a partir de campi de universidades que já existiam; passaram a funcionar no governo Bolsonaro. A única lei de "
+        "criação sancionada por Bolsonaro foi a da UFNT (Lei 13.856/2019), também a partir de campus existente."),
+    "municipios_federais": (
+        "Mostra quando o curso começou a funcionar, não quando o campus foi decidido ou construído. Obras e autorizações "
+        "costumam atravessar mais de um governo."),
+}
 
 
 def coletar_inep():

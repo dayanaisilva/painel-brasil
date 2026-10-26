@@ -25,10 +25,10 @@
   <div class="wrap topo-linha">
     <span class="marca">Tira-Teima <span class="marca-anos">1985–2026</span></span>
     <nav class="menu" aria-label="Seções">
-      <a href="#calculadora">Calculadora</a>
-      <a href="#governos">Governos</a>
       <a href="#comparativo">Comparar</a>
-      <a href="#indicadores">Indicadores</a>
+      <a href="#governos">Governos</a>
+      <a href="#indicadores">Temas</a>
+      <a href="#calculadora">Calculadora</a>
       <a href="#metodologia">Metodologia</a>
     </nav>
     <button class="tema" type="button" id="tema" aria-label="Alternar tema claro e escuro">◐</button>
@@ -43,24 +43,13 @@
     <aside class="aviso" role="note">
       <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Cada período traz o seu contexto logo abaixo dos números.
     </aside>
+    <nav class="entradas" aria-label="Comece por aqui">
+      <a href="#comparativo"><b>Comparar dois governos</b><span>Escolha dois períodos e veja indicador por indicador.</span></a>
+      <a href="#governos"><b>Ver um governo</b><span>Onde cada governo ficou entre os melhores e os piores.</span></a>
+      <a href="#indicadores"><b>Ver um tema</b><span>Economia, renda, fome, saúde, educação, segurança e ambiente.</span></a>
+      <a href="#calculadora"><b>Corrigir um preço antigo</b><span>Quanto valia "R$ 0,50 em 1995" de verdade.</span></a>
+    </nav>
     <div class="linha-tempo" id="linha-tempo" aria-label="Linha do tempo dos governos"></div>
-  </section>
-
-  <section class="wrap bloco" id="calculadora">
-    <h2>Quanto valia de verdade?</h2>
-    <p class="sub">"A gasolina custava R$ 0,50." Pode ser verdade, mas R$ 0,50 de 1995 não é R$ 0,50 de hoje. Digite um preço e o mês: a conta mostra o valor corrigido pela inflação e quanto ele pesava no salário mínimo da época.</p>
-    <form class="calc" id="calc" onsubmit="return false">
-      <label>Valor <span class="calc-moeda" id="calc-moeda"></span><input id="calc-valor" inputmode="decimal" autocomplete="off"></label>
-      <label>Mês<select id="calc-mes"></select></label>
-      <label>Ano<select id="calc-ano"></select></label>
-    </form>
-    <div class="calc-res" id="calc-res" aria-live="polite"></div>
-  </section>
-
-  <section class="wrap bloco" id="governos">
-    <h2>Pontos fortes e fracos de cada governo</h2>
-    <p class="sub">Em cada indicador, os governos são ordenados do melhor para o pior resultado. Quem fica no quarto de cima ganha <span class="tag tag-bom">✓ ponto forte</span>, quem fica no quarto de baixo ganha <span class="tag tag-ruim">✕ ponto fraco</span>. A régua é a mesma para todos e está explicada na <a href="#metodologia">metodologia</a>.</p>
-    <div class="cards-gov" id="cards-gov"></div>
   </section>
 
   <section class="wrap bloco" id="comparativo">
@@ -81,10 +70,27 @@
     </div>
   </section>
 
+  <section class="wrap bloco" id="governos">
+    <h2>Governo a governo</h2>
+    <p class="sub">Em cada indicador com ranking, os governos são ordenados do melhor para o pior resultado, com o critério escrito ao lado. Os 3 primeiros recebem <span class="tag tag-bom">✓</span> e os 3 últimos recebem <span class="tag tag-ruim">✕</span> (com menos governos, o corte é um quarto da lista). ✓ e ✕ não querem dizer que o número subiu ou desceu: dizem só se o resultado ficou entre os melhores ou os piores. A régua é a mesma para todos e está na <a href="#metodologia">metodologia</a>.</p>
+    <div class="cards-gov" id="cards-gov"></div>
+  </section>
+
   <section class="wrap bloco" id="indicadores">
-    <h2>Indicadores</h2>
+    <h2>Temas</h2>
     <nav class="chips" id="chips" aria-label="Ir para indicador"></nav>
     <div id="lista-indicadores"></div>
+  </section>
+
+  <section class="wrap bloco" id="calculadora">
+    <h2>Quanto valia de verdade?</h2>
+    <p class="sub">"A gasolina custava R$ 0,50." Pode ser verdade, mas R$ 0,50 de 1995 não é R$ 0,50 de hoje. Digite um preço e o mês: a conta mostra o valor corrigido pela inflação e quanto ele pesava no salário mínimo da época.</p>
+    <form class="calc" id="calc" onsubmit="return false">
+      <label>Valor <span class="calc-moeda" id="calc-moeda"></span><input id="calc-valor" inputmode="decimal" autocomplete="off"></label>
+      <label>Mês<select id="calc-mes"></select></label>
+      <label>Ano<select id="calc-ano"></select></label>
+    </form>
+    <div class="calc-res" id="calc-res" aria-live="polite"></div>
   </section>
 
   <section class="wrap bloco texto" id="metodologia">

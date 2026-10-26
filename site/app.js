@@ -42,6 +42,33 @@
     gasto_educacao: ["Gasto em educação", "% do PIB"],
   };
 
+  // Critério do ranking em palavras e o que o número-resumo significa. Evita que a pessoa leia
+  // "✓" como "subiu" ou confunda média com variação.
+  const CRIT = {
+    pib_crescimento: ["maior crescimento médio do PIB", "menor crescimento médio do PIB", "Média do crescimento anual do PIB durante o governo."],
+    pib_per_capita: ["maior crescimento médio da riqueza por pessoa", "menor crescimento médio da riqueza por pessoa", "Média do crescimento anual do PIB por pessoa durante o governo."],
+    desemprego: ["menor desemprego médio", "maior desemprego médio", "Média da taxa de desemprego durante o governo."],
+    dolar: null,
+    ipca: ["menor inflação média", "maior inflação média", "Inflação média por ano durante o governo."],
+    salario_minimo: ["maior ganho de poder de compra do mínimo", "menor ganho (ou perda) de poder de compra do mínimo", "Quanto o poder de compra do salário mínimo mudou do começo ao fim do governo."],
+    cesta_sp: ["menor peso da cesta básica no salário", "maior peso da cesta básica no salário", "Em média, quanto do salário mínimo a cesta básica de SP consumia."],
+    gasolina: ["gasolina mais barata, em valores de hoje", "gasolina mais cara, em valores de hoje", "Preço médio do litro no governo, corrigido para reais de hoje."],
+    gasolina_litros: ["mais litros por salário mínimo", "menos litros por salário mínimo", "Em média, quantos litros de gasolina um salário mínimo comprava."],
+    fome: null,
+    pobreza: ["queda mais rápida da extrema pobreza", "queda mais lenta (ou alta) da extrema pobreza", "Quanto a extrema pobreza caiu (−) ou subiu (+) por ano, em %."],
+    gini: ["queda mais rápida da desigualdade", "queda mais lenta (ou alta) da desigualdade", "Quanto o índice de Gini caiu (−) ou subiu (+) por ano, em pontos."],
+    bolsa_familia: null,
+    mortalidade_infantil: ["queda mais rápida da mortalidade infantil", "queda mais lenta (ou alta) da mortalidade infantil", "Quanto a mortalidade infantil caiu (−) ou subiu (+) por ano, em %."],
+    expectativa_vida: ["maior aumento da expectativa de vida", "menor aumento (ou queda) da expectativa de vida", "Quantos anos de vida esperada foram ganhos (+) ou perdidos (−) por ano."],
+    leitos_sus: null, gasto_saude: null, gasto_educacao: null, universidades_federais: null, municipios_federais: null,
+    analfabetismo: ["queda mais rápida do analfabetismo", "queda mais lenta do analfabetismo", "Quanto o analfabetismo caiu (−) por ano, em %."],
+    ensino_superior: ["maior aumento do acesso à faculdade", "menor aumento do acesso à faculdade", "Quantos pontos a taxa de matrícula no ensino superior subiu por ano."],
+    homicidios: ["menor taxa média de homicídios", "maior taxa média de homicídios", "Média da taxa de homicídios por 100 mil habitantes no governo."],
+    desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média da área desmatada por ano na Amazônia durante o governo."],
+    queimadas: ["menos focos de queimada por ano", "mais focos de queimada por ano", "Média de focos de queimada por ano durante o governo."],
+  };
+  const explica = (id, ind) => (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
+
   const nf = (min, max) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: min, maximumFractionDigits: max });
   const F = {
     pct: (v) => (v > 0 ? "+" : "") + nf(Math.abs(v) >= 100 ? 0 : 1, Math.abs(v) >= 100 ? 0 : 1).format(v) + "%",
@@ -218,10 +245,10 @@
       card.innerHTML = `
         <header><h3>${esc(g.nome)}</h3><p>${esc(g.presidente)} · ${dataBR(g.inicio)} – ${fim}</p></header>
         <div class="listas">
-          <div><h4 class="h-bom">✓ Pontos fortes</h4>${fortes.length ? `<ul>${fortes.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os melhores.</p>'}</div>
-          <div><h4 class="h-ruim">✕ Pontos fracos</h4>${fracos.length ? `<ul>${fracos.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os piores.</p>'}</div>
+          <div><h4 class="h-bom">✓ Entre os melhores resultados</h4>${fortes.length ? `<ul>${fortes.join("")}</ul>` : '<p class="vazio">Em nenhum indicador ficou entre os melhores.</p>'}</div>
+          <div><h4 class="h-ruim">✕ Entre os piores resultados</h4>${fracos.length ? `<ul>${fracos.join("")}</ul>` : '<p class="vazio">Em nenhum indicador ficou entre os piores.</p>'}</div>
         </div>
-        ${trilhas.length ? `<div class="trilhas" aria-label="Posição em cada indicador"><div class="tr-eixo"><span>melhor</span><span>pior</span></div>${trilhas.join("")}</div>` : ""}
+        <p class="card-nota">Comparado em ${trilhas.length} indicadores com dado para este período. Nos demais ficou no meio da tabela.</p>
         ${ctx[g.id] ? `<details class="contexto"><summary>Contexto do período</summary><ul>${ctx[g.id].map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}`;
       box.append(card);
     }
@@ -229,12 +256,13 @@
 
   // Texto da posição, sem ambiguidade em empates e com o sentido real da mudança.
   function posTexto(ind, r, lado) {
-    const empatados = Object.values(ind.resumo).filter((x) => (lado === "bom" ? x.posicao === r.posicao : x.posicao_pior === r.posicao_pior)).length;
-    let t;
-    if (lado === "bom") t = r.posicao === 1 ? (empatados > 1 ? `empatado no melhor resultado (${empatados} governos)` : "melhor resultado de todos") : `${r.posicao}º melhor de ${r.total}`;
-    else t = r.posicao_pior === 1 ? (empatados > 1 ? `empatado no pior resultado (${empatados} governos)` : "pior resultado de todos") : `${r.posicao_pior}º pior de ${r.total}`;
-    if (lado === "ruim" && r.sentido === "melhorou") t += " · melhorou, mas menos que os outros";
-    if (lado === "bom" && r.sentido === "piorou") t += " · piorou, mas menos que os outros";
+    const id = Object.keys(D.indicadores).find((k) => D.indicadores[k] === ind);
+    const c = CRIT[id];
+    const empatados = Object.values(ind.resumo).filter((x) => x.posicao === r.posicao).length;
+    const lugar = empatados > 1 ? `empatado em ${r.posicao}º de ${r.total}` : `${r.posicao}º de ${r.total}`;
+    let t = c ? `${lugar} (1º = ${c[0]})` : lugar;
+    if (lado === "ruim" && r.sentido === "melhorou") t += " · o indicador melhorou, só que menos que nos outros governos";
+    if (lado === "bom" && r.sentido === "piorou") t += " · o indicador piorou, só que menos que nos outros governos";
     return t;
   }
 
@@ -287,7 +315,7 @@
             return `<td class="du-val${win ? " du-win" : ""}">${win ? '<span class="du-ic">✓</span>' : ""}<b>${fmt(resumoFmt(ind), r.valor)}${ast(r)}</b>${trajeto(ind, r) ? `<small>${trajeto(ind, r)}</small>` : ""}</td>`;
           };
           const nota = !ind.direcao ? '<small class="du-sem">sem ranking</small>' : ra && rb && !ganhador ? '<small class="du-sem">empate</small>' : "";
-          return `<tr>${cel(ra, "A")}<th scope="row"><a href="#ind-${id}">${esc(ind.pergunta || ind.titulo)}</a><small>${esc(ind.resumo_rotulo)}</small>${nota}</th>${cel(rb, "B")}</tr>`;
+          return `<tr>${cel(ra, "A")}<th scope="row"><a href="#ind-${id}">${esc(ind.pergunta || ind.titulo)}</a><small>${esc(explica(id, ind))}${CRIT[id] ? ` ✓ = ${esc(CRIT[id][0])}` : ""}</small>${nota}</th>${cel(rb, "B")}</tr>`;
         });
         if (linhas.length) h += `<tr class="du-tema"><td colspan="3">${esc(nomeTema)}</td></tr>${linhas.join("")}`;
       }
@@ -355,20 +383,22 @@
     const c = el("article", { class: "ind", id: `ind-${id}` });
     const m = ind.melhor && ind.resumo[ind.melhor], p = ind.pior && ind.resumo[ind.pior];
     const destaque = m && p ? `<div class="hero">
-        <div class="hero-item bom"><span class="hero-rot">✓ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span>${trajeto(ind, m) ? `<span class="hero-traj">${trajeto(ind, m)}</span>` : ""}</div>
-        <div class="hero-item ruim"><span class="hero-rot">✕ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span>${trajeto(ind, p) ? `<span class="hero-traj">${trajeto(ind, p)}</span>` : ""}${p.sentido === "melhorou" ? '<span class="hero-traj">melhorou no período, mas menos que os outros governos</span>' : ""}</div>
+        <div class="hero-item bom"><span class="hero-rot">✓ Melhor resultado · ${esc(CRIT[id] ? CRIT[id][0] : "")}</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span>${trajeto(ind, m) ? `<span class="hero-traj">${trajeto(ind, m)}</span>` : ""}</div>
+        <div class="hero-item ruim"><span class="hero-rot">✕ Pior resultado · ${esc(CRIT[id] ? CRIT[id][1] : "")}</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span>${trajeto(ind, p) ? `<span class="hero-traj">${trajeto(ind, p)}</span>` : ""}${p.sentido === "melhorou" ? '<span class="hero-traj">melhorou no período, mas menos que os outros governos</span>' : ""}</div>
       </div>` : "";
     c.innerHTML = `
       <p class="ind-kicker">${esc(ind.titulo)} · <span>${esc(ind.unidade)}</span></p>
       <h3>${esc(ind.pergunta || ind.titulo)}</h3>
       <p class="ind-desc">${esc(ind.descricao)}</p>
+      <p class="ind-explica"><b>Como comparamos os governos:</b> ${esc(explica(id, ind))} ${CRIT[id] ? `Melhor resultado = ${esc(CRIT[id][0])}.` : "Este indicador não tem ranking."}</p>
+      ${ind.aviso ? `<p class="ind-aviso" role="note"><b>Antes de tirar conclusões:</b> ${esc(ind.aviso)}</p>` : ""}
       ${destaque}
       ${faixaMapaFome(ind)}
       <div class="ind-graficos">
-        <figure class="fig-serie"><figcaption>Ao longo do tempo</figcaption>
+        <figure class="fig-serie"><figcaption>Ano a ano</figcaption>
           <div class="grafico"><canvas class="c-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
           <p class="legenda-marcos">${legendaMarcos(ind.serie.map((p) => p.x), ind.serie[0]?.x.length === 4)}</p></figure>
-        <figure class="fig-rank"><figcaption>${ind.direcao ? `Ranking por governo: ${esc(ind.resumo_rotulo)}` : `Por governo: ${esc(ind.resumo_rotulo)}`}</figcaption>
+        <figure class="fig-rank"><figcaption>${ind.direcao ? `Do melhor para o pior (1º = ${esc(CRIT[id] ? CRIT[id][0] : "melhor")})` : `Por governo, em ordem cronológica (sem ranking)`}</figcaption>
           <div class="grafico grafico-rank"><canvas class="c-rank" role="img" aria-label="${esc(ind.titulo)} por governo"></canvas></div></figure>
       </div>
       <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a></p>`;
