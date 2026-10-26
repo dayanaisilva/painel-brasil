@@ -1,9 +1,9 @@
-indicador,fonte,status,ultima_obs,erro
-ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
-salario_minimo,BCB/SGS 1619,atualizado,2026-12-01,
-dolar,BCB/SGS 3698,atualizado,2019-12-01,
-pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
-pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01,
-cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01,
-gasolina,ANP via Ipeadata,indisponível,,nenhuma série candidata no Ipeadata
-queimadas,INPE/BDQueimadas,atualizado,2025-01-01,
+indicador,fonte,status,ultima_obs
+ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01
+salario_minimo,BCB/SGS 1619,atualizado,2026-10-01
+dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23
+pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01
+pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01
+cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01
+gasolina,ANP — Levantamento de Preços,atualizado,2012-12-01
+queimadas,INPE/BDQueimadas,atualizado,2025-01-01
