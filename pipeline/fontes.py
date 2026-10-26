@@ -419,9 +419,11 @@ def inep_ano(ano: int, diag: list) -> dict:
             with RemoteZip(url, session=_sessao_inep(), timeout=120) as z:
                 nomes = z.namelist()
                 diag.append({"ano": ano, "url": url, "arquivos": " | ".join(n for n in nomes if n.lower().endswith((".csv", ".txt")))[:900]})
-                ies = next((n for n in nomes if re.search(r"(^|/)(MICRODADOS_ED_SUP_IES|DM_IES|IES)[^/]*\.(csv|txt)$", n, re.I)), None)
-                cursos = next((n for n in nomes if re.search(r"(CADASTRO_CURSOS|DM_CURSO|CURSO)[^/]*\.(csv|txt)$", n, re.I)
-                               and "ALUNO" not in n.upper()), None)
+                base = lambda n: n.rsplit("/", 1)[-1].upper()  # noqa: E731
+                ies = next((n for n in nomes if base(n).endswith((".CSV", ".TXT")) and
+                            (re.search(r"(^|_)IES(_|\.)", base(n)) or base(n).startswith("INSTITUICAO"))), None)
+                cursos = next((n for n in nomes if base(n).endswith((".CSV", ".TXT")) and
+                               ("CURSO" in base(n) or base(n).startswith("GRADUACAO_PRESENCIAL")) and "ALUNO" not in base(n)), None)
                 out = {"ano": ano, "url": url}
                 if ies:
                     d = _ler_csv_zip(z, ies, lambda c: "CATEGORIA" in c or "ORGANIZACAO" in c or c in ("CO_IES",))
@@ -429,18 +431,24 @@ def inep_ano(ano: int, diag: list) -> dict:
                     cat = next(c for c in d.columns if "CATEGORIA" in c)
                     org = next(c for c in d.columns if "ORGANIZACAO" in c)
                     diag.append({"ano": ano, "url": url, "arquivos": f"IES colunas: {list(d.columns)} | cat={d[cat].value_counts().head(6).to_dict()} | org={d[org].value_counts().head(6).to_dict()}"[:900]})
-                    fed = d[d[cat].str.strip().isin(["1", "Pública Federal", "PUBLICA FEDERAL"])]
-                    o = fed[org].str.strip()
-                    out["universidades_federais"] = int(o.isin(["1", "Universidade", "UNIVERSIDADE"]).sum())
-                    out["institutos_federais"] = int(o.isin(["4", "5", "Instituto Federal de Educação, Ciência e Tecnologia",
-                                                            "Centro Federal de Educação Tecnológica"]).sum())
+                    cv = d[cat].fillna("").str.strip().str.upper()
+                    fed = d[(cv == "1") | cv.str.contains("FEDERAL")]
+                    o = fed[org].fillna("").str.strip().str.upper()
+                    n_univ = int(((o == "1") | o.str.contains("UNIVERSIDADE") & ~o.str.contains("CENTRO")).sum())
+                    # validação: o país teve entre 30 e 90 universidades federais em todo o período
+                    out["universidades_federais"] = n_univ if 30 <= n_univ <= 90 else None
+                    if out["universidades_federais"] is None:
+                        diag.append({"ano": ano, "url": url, "arquivos": f"contagem de universidades fora da faixa ({n_univ}); revisar códigos"})
+                    out["institutos_federais"] = int((o.isin(["4", "5"]) | o.str.contains("INSTITUTO FEDERAL") | o.str.contains("CENTRO FEDERAL")).sum())
                 if cursos:
-                    c = _ler_csv_zip(z, cursos, lambda c: "CATEGORIA" in c or c in ("CO_MUNICIPIO", "CO_MUNICIPIO_CURSO", "TP_MODALIDADE_ENSINO", "CO_MODALIDADE_ENSINO"))
+                    c = _ler_csv_zip(z, cursos, lambda c: "CATEGORIA" in c or c.startswith("CO_MUNICIPIO") or "MODALIDADE" in c)
+                    diag.append({"ano": ano, "url": url, "arquivos": f"CURSOS colunas: {list(c.columns)[:12]}"})
                     c.columns = [_norm(x) for x in c.columns]
                     cat = next(x for x in c.columns if "CATEGORIA" in x)
                     mun = next((x for x in c.columns if x.startswith("CO_MUNICIPIO")), None)
                     mod = next((x for x in c.columns if "MODALIDADE" in x), None)
-                    f = c[c[cat].str.strip().isin(["1", "Pública Federal", "PUBLICA FEDERAL"])]
+                    cv = c[cat].fillna("").str.strip().str.upper()
+                    f = c[(cv == "1") | cv.str.contains("FEDERAL")]
                     if mod:
                         f = f[f[mod].str.strip().isin(["1", "Presencial"])]
                     if mun:
@@ -450,3 +458,33 @@ def inep_ano(ano: int, diag: list) -> dict:
             ultimo_erro = e
             diag.append({"ano": ano, "url": url, "arquivos": f"ERRO: {str(e)[:300]}"})
     raise ValueError(f"INEP {ano}: {ultimo_erro}")
+
+
+def prodes_taxas_descobrir() -> None:
+    """Procura a tabela oficial de taxas anuais do PRODES (Amazônia Legal) e registra o que achar."""
+    linhas = []
+    paginas = ["https://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes",
+               "http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes",
+               "https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates"]
+    for pg in paginas:
+        try:
+            r = _get(pg, tentativas=1)
+            html = r.text
+            linhas.append({"url": pg, "tipo": "pagina", "info": f"HTTP {r.status_code}, {len(html)} bytes"})
+            try:
+                for i, t in enumerate(pd.read_html(io.StringIO(html))):
+                    linhas.append({"url": pg, "tipo": f"tabela {i}", "info": t.head(8).to_string()[:1500]})
+            except Exception as e:  # noqa: BLE001
+                linhas.append({"url": pg, "tipo": "tabelas", "info": str(e)[:200]})
+            for js in re.findall(r'src="([^"]+\.js)"', html)[:6]:
+                u = js if js.startswith("http") else pg.rsplit("/", 1)[0] + "/" + js.lstrip("./")
+                try:
+                    codigo = _get(u, tentativas=1).text
+                    for m in sorted(set(re.findall(r'["\'`]([^"\'`]*(?:api|rates|taxa)[^"\'`]{0,120})["\'`]', codigo)))[:40]:
+                        linhas.append({"url": u, "tipo": "js", "info": m[:200]})
+                except Exception as e:  # noqa: BLE001
+                    linhas.append({"url": u, "tipo": "js erro", "info": str(e)[:200]})
+        except Exception as e:  # noqa: BLE001
+            linhas.append({"url": pg, "tipo": "erro", "info": str(e)[:200]})
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(linhas).to_csv(DESCOBERTA / "prodes_taxas.csv", index=False)

@@ -713,6 +713,10 @@ def main():
             return len(d) >= 15 and d.valor.between(2000, 40000).all() and df.data.max().year >= date.today().year - 3
         return fontes.ipea_validada(cands, ["amazônia legal", "prodes", "área", "km"], valido, "desmatamento")
 
+    try:
+        fontes.prodes_taxas_descobrir()
+    except Exception as e:  # noqa: BLE001
+        log.warning("descoberta PRODES: %s", e)
     desm = coletar("desmatamento", desmatamento, "INPE — PRODES Amazônia Legal (via Ipeadata)", max_atraso_dias=365 * 3)
     if desm is not None:
         a = anual(desm)
@@ -815,7 +819,8 @@ def coletar_inep():
     Anos já contados ficam em data/raw/inep_superior.csv e não são baixados de novo."""
     arq = RAW / "inep_superior.csv"
     cache = pd.read_csv(arq) if arq.exists() else pd.DataFrame(columns=["ano"])
-    feitos = set(cache.ano.astype(int)) if len(cache) else set()
+    feitos = set(cache.dropna(subset=["universidades_federais", "municipios_federais"]).ano.astype(int)) \
+        if len(cache) and {"universidades_federais", "municipios_federais"} <= set(cache.columns) else set()
     diag, novos = [], []
     ultimo = date.today().year - 1
     for ano in range(1995, ultimo + 1):
