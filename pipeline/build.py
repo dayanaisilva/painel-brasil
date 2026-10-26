@@ -399,6 +399,8 @@ def main():
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)", max_atraso_dias=800)
     pop = coletar("populacao", populacao_ibge, "IBGE — população residente, estimativas e projeção (via Ipeadata)",
                   max_atraso_dias=365 * 3)
+    pop_contas = coletar("populacao_contas", fontes.ibge_populacao_contas,
+                         "IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)", max_atraso_dias=365 * 4)
     pibpc_nom = coletar("pib_per_capita_nominal", lambda: fontes.ipea_serie("GAC_PIBCAPN"),
                         "IBGE — PIB per capita em R$ correntes (via Ipeadata)", max_atraso_dias=365 * 3)
     cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
@@ -437,16 +439,42 @@ def main():
         p_ = p_.reindex(range(int(p_.index.min()), int(p_.index.max()) + 1))  # lacunas viram NaN, sem crescimento falso
         g_ = anual(pib).groupby("ano").valor.mean()
         cresc_pop = p_.pct_change() * 100
+        base_pop = "estimativas de população do IBGE (via Ipeadata)"
+        if pop_contas is not None:
+            # Usa a mesma população das Contas Nacionais do IBGE (a do PIB per capita oficial). Depois do último
+            # ano da tabela, segue o crescimento da projeção oficial do IBGE; antes do primeiro, as estimativas.
+            pc_ = anual(pop_contas).groupby("ano").valor.mean()
+            pc_ = pc_.reindex(range(int(pc_.index.min()), int(pc_.index.max()) + 1))
+            cresc_c = pc_.pct_change() * 100
+            try:
+                proj = anual(fontes.ipea_serie("DEPIS_POPP")).groupby("ano").valor.mean()
+                cresc_proj = proj.pct_change() * 100
+            except Exception as e:  # noqa: BLE001
+                log.warning("projeção indisponível: %s", e)
+                cresc_proj = pd.Series(dtype=float)
+            for a_ in cresc_pop.index.union(cresc_c.index).union(cresc_proj.index):
+                if a_ in cresc_c.index and not pd.isna(cresc_c[a_]):
+                    cresc_pop[a_] = cresc_c[a_]
+                elif a_ > pc_.index.max() and a_ in cresc_proj.index and not pd.isna(cresc_proj[a_]):
+                    cresc_pop[a_] = cresc_proj[a_]
+            cresc_pop = cresc_pop.sort_index()
+            base_pop = (f"população das Contas Nacionais do IBGE ({int(pc_.dropna().index.min())}–{int(pc_.dropna().index.max())}); "
+                        f"antes disso, estimativas do IBGE; depois, crescimento da projeção oficial do IBGE")
         anos_ok = [a for a in g_.index if a in cresc_pop.index and not pd.isna(cresc_pop[a])]
         pc = pd.DataFrame({"ano": anos_ok,
                            "valor": [((1 + g_[a] / 100) / (1 + cresc_pop[a] / 100) - 1) * 100 for a in anos_ok]})
         pc = pc[pc.ano >= ANO_INICIAL]
         serie_pc, unidade_pc = [], "% ao ano"
         nivel = None
-        if pibpc_nom is not None:
+        if pop_contas is not None and "pc_nominal" in pop_contas:
+            nom = anual(pop_contas).groupby("ano").pc_nominal.mean().dropna()  # PIB per capita oficial do IBGE
+        elif pibpc_nom is not None:
             nom = anual(pibpc_nom).groupby("ano").valor.mean()
             if nom.iloc[-1] < 1000:  # Ipeadata publica em R$ mil
                 nom = nom * 1000
+        else:
+            nom = None
+        if nom is not None:
             ult = int(min(nom.index.max(), pc.ano.max()))
             if ult in nom.index:
                 # nível em R$ do último ano: valor nominal do último ano, recuado pelo crescimento real per capita
@@ -454,6 +482,8 @@ def main():
                 cres = dict(zip(pc.ano, pc.valor))
                 for a in range(ult, ANO_INICIAL, -1):
                     fator[a - 1] = fator[a] / (1 + cres.get(a, float("nan")) / 100)
+                for a in range(ult + 1, int(pc.ano.max()) + 1):  # anos depois da tabela, em R$ do mesmo ano-base
+                    fator[a] = fator[a - 1] * (1 + cres.get(a, float("nan")) / 100)
                 nivel = pd.DataFrame({"data": pd.to_datetime([f"{a}-01-01" for a in sorted(fator)]),
                                       "valor": [nom[ult] * fator[a] for a in sorted(fator)]}).dropna()
                 unidade_pc = f"R$ de {ult} por pessoa"
@@ -463,7 +493,8 @@ def main():
             formato="moeda_int" if nivel is not None else "pct", grafico="barra", freq="anual",
             direcao="maior", pergunta="A riqueza por pessoa aumentou?",
             descricao=("PIB dividido pela população, sem efeito da inflação: o valor de cada ano está em reais do ano mais recente. "
-                       "Calculado com o crescimento real do PIB e a população estimada pelo IBGE."),
+                       "Crescimento por pessoa = (1 + crescimento real do PIB) ÷ (1 + crescimento da população) − 1. "
+                       f"População: {base_pop}. O nível em reais parte do PIB per capita publicado pelo IBGE no último ano da tabela."),
             resumo_rotulo="crescimento médio por ano", resumo_formato="pct",
             resumo=resumo_media_ponderada(pc),
             serie=serie_json(nivel[nivel.data.dt.year >= ANO_INICIAL], "%Y") if nivel is not None else serie_json(
@@ -585,11 +616,13 @@ def main():
          "(2021 = média de 2020 a 2022), como a FAO publica, e a FAO revisa a série inteira a cada relatório. O país entra no Mapa da Fome quando "
          "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
          "Sem ranking: como a FAO não mede abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
-         "O resumo mostra em quantos anos de cada governo o Brasil esteve no mapa.",
+         "O resumo conta, entre os anos do gráfico que caem em cada governo, quantos ficaram acima de 2,5%. Como cada ponto é média "
+         "de três anos, isso não é uma medição separada de cada ano do governo.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
         ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Quantos viviam na extrema pobreza?", "% da população",
          "fome", "menor", "ritmo_rel",
-         "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial (paridade de poder de compra), calculada com a PNAD/IBGE. "
+         "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial: US$ 3,00 por pessoa por dia, "
+         "em paridade de poder de compra (PPC) de 2021, na definição atual do indicador SI.POV.DDAY. Calculada com a PNAD/IBGE. "
          "O ranking mede a variação percentual por ano em cada governo.",
          "Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE"),
         ("gini", "SI.POV.GINI", "Desigualdade (Gini)", "A desigualdade de renda caiu?", "índice de Gini (0 a 100)",
@@ -617,9 +650,11 @@ def main():
          "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever, segundo a PNAD Contínua (IBGE), que começa em 2016. "
          "O ranking mede a queda percentual por ano em cada governo e só aparece quando há pelo menos três governos com dado.",
          "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
-        ("ensino_superior", "SE.TER.ENRR", "Acesso ao ensino superior", "Mais gente chegou à faculdade?", "taxa bruta de matrícula, %",
+        ("ensino_superior", "SE.TER.ENRR", "Taxa bruta de matrícula no ensino superior", "As matrículas no ensino superior cresceram?", "taxa bruta de matrícula, %",
          "educacao", "maior", "ritmo",
-         "Matrículas no ensino superior em relação à população na idade típica (taxa bruta, Censo da Educação Superior/INEP). O ranking mede quanto ela subiu por ano.",
+         "Total de matrículas no ensino superior, de alunos de qualquer idade, dividido pela população na faixa de idade típica "
+         "(os cinco anos depois do fim do ensino médio), segundo a UNESCO com dados do Censo da Educação Superior/INEP. "
+         "Não é a porcentagem de jovens na faculdade. O ranking mede quanto a taxa subiu por ano.",
          "UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP"),
     ]
     def gini_ipea():
@@ -646,10 +681,10 @@ def main():
 
     preferir_oficial = {"expectativa_vida": (expectativa_ibge, "IBGE — Tábuas Completas de Mortalidade (via Ipeadata)",
                                              "https://www.ipeadata.gov.br/"),
-                        "gini": (gini_ipea, "Ipea, a partir da PNAD e PNAD Contínua/IBGE",
-                                 "https://www.ipeadata.gov.br/"),
-                        "analfabetismo": (analfabetismo_ibge, "IBGE — PNAD e PNAD Contínua (via Ipeadata)",
-                                          "https://www.ipeadata.gov.br/")}
+                        "gini": (gini_ipea, "Ipea, série PNADS_GINI (Ipeadata), a partir da PNAD e PNAD Contínua/IBGE",
+                                 "https://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='PNADS_GINI')"),
+                        "analfabetismo": (analfabetismo_ibge, "IBGE — PNAD Contínua, série PNADCA_TXA15MUF (via Ipeadata)",
+                                          "https://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='PNADCA_TXA15MUF')")}
     for id_, cod, titulo, pergunta, unidade, tema, direcao, metodo, descricao, fonte in sociais:
         fonte_url = WB.format(cod)
         if id_ in preferir_oficial:
@@ -686,7 +721,7 @@ def main():
                                     "inicio_val": float(a[a.ano == min(anos_g)].valor.iloc[0]),
                                     "fim_val": float(a[a.ano == max(anos_g)].valor.iloc[0]),
                                     "inicio_ano": min(anos_g), "fim_ano": max(anos_g)}
-            d.update(resumo=res, resumo_rotulo="anos no Mapa da Fome", resumo_formato="anos_mapa")
+            d.update(resumo=res, resumo_rotulo="pontos FAO acima de 2,5%", resumo_formato="anos_mapa")
         elif metodo == "ritmo_rel":
             d.update(resumo=resumo_ritmo(a, relativo=True), resumo_rotulo="variação % por ano no governo",
                      resumo_formato="delta_pct")
@@ -879,11 +914,21 @@ AVISOS = {
     "bolsa_familia": "Entre nov/2021 e fev/2023 o programa se chamou Auxílio Brasil, com regras e valores diferentes. Mais benefícios pode indicar mais cobertura ou mais pobreza; o número sozinho não diz qual.",
     "analfabetismo": "A série oficial comparável do IBGE (PNAD Contínua) começa em 2016. Antes disso o IBGE usava a PNAD anual, com outra metodologia, por isso os governos anteriores não entram na comparação.",
     "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
-    "fome": "Cada ano é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório. Abaixo de 2,5% a FAO não divulga o valor exato.",
+    "fome": ("Cada ponto é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório; abaixo de 2,5% a FAO "
+             "não divulga o valor exato. Médias de três anos atravessam governos: a saída do Mapa anunciada no relatório de 2025 "
+             "(SOFI 2025) se refere à média de 2022 a 2024, que inclui o último ano do governo Bolsonaro e os dois primeiros do Lula 3. "
+             "O ano de divulgação do relatório também não é o ano medido."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "desmatamento": ("Só entram os anos cujo valor o INPE escreve em texto nas notas técnicas oficiais (cada nota traz o ano "
                      "e o anterior); a série completa desde 1988 só aparece em gráfico nas notas. Por isso a comparação cobre "
                      "poucos governos. O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior."),
+    "gini": ("O IBGE divulga, para a PNAD Contínua, Gini de 0,545 em 2018, 0,518 em 2022 e 0,506 em 2024. A série do Ipea "
+             "usada aqui (PNADS_GINI), escolhida porque volta até antes de 2012, dá 54,5, 51,7 e 50,4 nos mesmos anos: "
+             "diferenças de até 0,2 ponto entre os cálculos das duas instituições."),
+    "pobreza": ("O Banco Mundial revisa a linha de pobreza quando muda a base de PPC; cada revisão recalcula a série inteira. "
+                "Os valores aqui são da edição atual e não devem ser comparados com números de edições antigas."),
+    "ensino_superior": ("Taxa bruta: quem tem mais de 24 anos e está matriculado também entra na conta. Por isso ela não diz "
+                        "quantos jovens estão na faculdade."),
     "homicidios": "Os números podem diferir um pouco da edição mais recente do Atlas da Violência, que revisa população e mortes a cada ano.",
 
     "universidades_federais": (

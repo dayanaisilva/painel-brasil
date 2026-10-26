@@ -198,7 +198,7 @@ td.gov a { text-decoration: none; }
 .mapa-fome { margin: 0 0 18px; }
 .mf-tit { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-2); margin: 0 0 6px; }
 .mf-anos { display: flex; flex-wrap: wrap; gap: 3px; }
-.mf-ano { display: inline-flex; flex-direction: column; align-items: center; width: 30px; padding: 3px 0; border-radius: 4px; font: 500 10px var(--mono); color: var(--ink-2); }
+.mf-ano { display: inline-flex; flex-direction: column; align-items: center; width: 40px; padding: 3px 0; border-radius: 4px; font: 500 10px var(--mono); color: var(--ink-2); }
 .mf-ano b { font-size: 11px; line-height: 1.2; }
 .mf-ano.no { background: var(--ruim-bg); }
 .mf-ano.no b { color: var(--ruim); }
@@ -282,3 +282,5 @@ table.duelo { table-layout: fixed; }
 .notas summary { cursor: pointer; color: var(--ink); font-weight: 600; }
 .notas ul { margin: 8px 0 0; padding-left: 18px; }
 .notas li { margin: 2px 0; }
+.baixar-csv { font: inherit; font-size: 12px; color: var(--ink); background: none; border: 1px solid var(--ink-3); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+.baixar-csv:hover { border-color: var(--ink); }

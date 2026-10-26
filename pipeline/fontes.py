@@ -577,3 +577,46 @@ def prodes_taxas() -> pd.DataFrame:
     df = pd.DataFrame(sorted(melhor.values(), key=lambda d: d["ano"])).drop(columns="_p")
     df.insert(0, "data", pd.to_datetime(df.ano.astype(str) + "-01-01"))
     return df.drop(columns="ano")
+
+
+# --------------------------------------------------------------------------- #
+# IBGE — SIDRA (API de tabelas)
+# --------------------------------------------------------------------------- #
+def sidra(tabela: int, nivel: str = "n1/all", var: str = "all", per: str = "all") -> pd.DataFrame:
+    """Tabela do SIDRA com colunas: variavel, unidade, ano, valor. Grava a tabela inteira em descoberta."""
+    r = _get(f"https://apisidra.ibge.gov.br/values/t/{tabela}/{nivel}/v/{var}/p/{per}", tentativas=3)
+    linhas = _json(r)
+    cab, dados = linhas[0], linhas[1:]
+    chave = {nome: k for k, nome in cab.items()}
+    k_var = next(k for k, n in cab.items() if n.startswith("Variável") and k.endswith("N"))
+    k_per = next(k for k, n in cab.items() if n.startswith(("Ano", "Trimestre", "Mês")) and k.endswith("N"))
+    df = pd.DataFrame({"variavel": [d[k_var] for d in dados], "unidade": [d.get(chave.get("Unidade de Medida", "MN"), "") for d in dados],
+                       "ano": [d[k_per] for d in dados],
+                       "valor": pd.to_numeric([d["V"] for d in dados], errors="coerce")})
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    df.to_csv(DESCOBERTA / f"sidra_{tabela}.csv", index=False)
+    return df
+
+
+def ibge_populacao_contas() -> pd.DataFrame:
+    """População residente que o IBGE usa nas Contas Nacionais para o PIB per capita (SIDRA 6784).
+    Confere: PIB corrente / população tem de bater com o PIB per capita publicado na mesma tabela."""
+    t = sidra(6784)
+    t = t[t.ano.str.fullmatch(r"\d{4}")]
+    def var(padrao):
+        nomes = [v for v in t.variavel.unique() if re.search(padrao, v, re.I)]
+        if not nomes:
+            raise ValueError(f"SIDRA 6784 sem variável '{padrao}': {list(t.variavel.unique())[:8]}")
+        return t[t.variavel == nomes[0]].set_index("ano").valor, t[t.variavel == nomes[0]].unidade.iloc[0]
+    pop, _ = var(r"^Popula")
+    pib, u_pib = var(r"^Produto Interno Bruto a pre[çc]os correntes")
+    pc, _ = var(r"per capita")
+    mult = 1e6 if "milh" in u_pib.lower() else (1e3 if "mil" in u_pib.lower() else 1)
+    unid_pop = t[t.variavel.str.match(r"^Popula", case=False)].unidade.iloc[0].lower()
+    pop = pop * (1e3 if "mil" in unid_pop else 1)
+    comum = pop.index.intersection(pib.index).intersection(pc.index)
+    desvio = ((pib[comum] * mult / pop[comum]) / pc[comum] - 1).abs().max()
+    if not desvio < 0.01:
+        raise ValueError(f"SIDRA 6784: PIB/população não bate com o per capita (desvio {desvio:.3f})")
+    return pd.DataFrame({"data": pd.to_datetime([f"{a}-07-01" for a in comum]), "valor": pop[comum].values,
+                         "pc_nominal": pc[comum].values}).dropna()

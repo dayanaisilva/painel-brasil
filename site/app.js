@@ -25,7 +25,7 @@
     queimadas: ["Queimadas", "focos/ano"],
     desmatamento: ["Desmatamento Amazônia", "km²/ano"],
     dolar: ["Dólar", "média R$"],
-    fome: ["Mapa da Fome", "anos no mapa"],
+    fome: ["Mapa da Fome", "pontos acima de 2,5%"],
     pobreza: ["Extrema pobreza", "variação %/ano"],
     gini: ["Desigualdade", "Gini, variação/ano"],
     mortalidade_infantil: ["Mortalidade infantil", "variação %/ano"],
@@ -38,7 +38,7 @@
     analfabetismo: ["Analfabetismo", "variação %/ano"],
     universidades_federais: ["Universidades federais", "novas no governo"],
     municipios_federais: ["Cidades com ensino federal", "novas no governo"],
-    ensino_superior: ["Ensino superior", "variação/ano"],
+    ensino_superior: ["Matrícula no ensino superior (taxa bruta)", "variação/ano"],
     gasto_educacao: ["Gasto em educação", "% do PIB"],
   };
 
@@ -62,7 +62,7 @@
     expectativa_vida: ["maior aumento da expectativa de vida", "menor aumento (ou queda) da expectativa de vida", "Quantos anos de vida esperada foram ganhos (+) ou perdidos (−) por ano."],
     leitos_sus: null, gasto_saude: null, gasto_educacao: null, universidades_federais: null, municipios_federais: null,
     analfabetismo: ["queda mais rápida do analfabetismo", "queda mais lenta do analfabetismo", "Quanto o analfabetismo caiu (−) por ano, em %."],
-    ensino_superior: ["maior aumento do acesso à faculdade", "menor aumento do acesso à faculdade", "Quantos pontos a taxa de matrícula no ensino superior subiu por ano."],
+    ensino_superior: ["maior aumento da taxa bruta de matrícula", "menor aumento da taxa bruta de matrícula", "Quantos pontos a taxa bruta de matrícula no ensino superior subiu por ano."],
     homicidios: ["menor taxa média de homicídios", "maior taxa média de homicídios", "Média da taxa de homicídios por 100 mil habitantes no governo."],
     desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média da área desmatada por ano na Amazônia durante o governo."],
     queimadas: ["menos focos de queimada por ano", "mais focos de queimada por ano", "Média de focos de queimada por ano durante o governo."],
@@ -81,7 +81,7 @@
     delta_pct: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1, 1).format(Math.abs(v)) + "% ao ano",
     inteiro_delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(0, 0).format(Math.abs(Math.round(v))),
     moeda_int: (v) => "R$ " + nf(0, 0).format(v),
-    anos_mapa: (v) => `${v} ${v === 1 ? "ano" : "anos"} no mapa`,
+    anos_mapa: (v) => `${v} ${v === 1 ? "ponto" : "pontos"} acima de 2,5%`,
   };
   const fmt = (tipo, v) => (v == null || Number.isNaN(v) ? "—" : (F[tipo] || F.pct_simples)(v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -323,7 +323,7 @@
       document.getElementById("duelo").innerHTML = A === B ? '<p class="vazio">Escolha dois governos diferentes.</p>' : `
         <div class="du-placar"><div><b>${placarA}</b><span>indicadores em que ${esc(nA)} foi melhor</span></div>
           <div><b>${placarB}</b><span>indicadores em que ${esc(nB)} foi melhor</span></div></div>
-        <p class="du-aviso">O placar só conta os indicadores em que os dois têm dado e há ranking. Contar vitórias não diz quais indicadores pesam mais. Leia cada linha.</p>
+        <p class="du-aviso">O placar só conta os indicadores em que os dois têm dado e há ranking. Contar vitórias não diz quais indicadores pesam mais, e o resumo de cada governo é um cálculo do site com regras declaradas, não uma conclusão das fontes. Leia cada linha.</p>
         <div class="tabela-rolagem"><table class="duelo"><thead><tr><th>${esc(nA)}</th><th></th><th>${esc(nB)}</th></tr></thead><tbody>${h}</tbody></table></div>`;
     };
     sa.addEventListener("change", desenhar); sb.addEventListener("change", desenhar);
@@ -401,13 +401,31 @@
         <figure class="fig-rank"><figcaption>${ind.direcao ? `Do melhor para o pior (1º = ${esc(CRIT[id] ? CRIT[id][0] : "melhor")})` : `Por governo, em ordem cronológica (sem ranking)`}</figcaption>
           <div class="grafico grafico-rank"><canvas class="c-rank" role="img" aria-label="${esc(ind.titulo)} por governo"></canvas></div></figure>
       </div>
-      <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a></p>
+      <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a> · <button type="button" class="baixar-csv" data-id="${esc(id)}">Baixar dados e cálculo (CSV)</button></p>
       ${ind.notas ? `<details class="notas"><summary>Valor de cada ano e a nota técnica do INPE de onde ele saiu</summary><ul>${
         ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">nota técnica (PDF)</a></li>`).join("")
       }</ul></details>` : ""}`;
     c._ind = ind;
     return c;
   }
+
+  /* ---------- download CSV: série + resumo por governo ---------- */
+  function csvIndicador(id, ind) {
+    const q = (v) => (v === null || v === undefined ? "" : /[",;\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+    const L = [["# " + ind.titulo + " — " + ind.unidade], ["# fonte: " + ind.fonte + " (" + ind.fonte_url + ")"], ["# regra: " + explica(id, ind)], [],
+      ["periodo", "valor"], ...ind.serie.map((p) => [p.x, p.y]), [],
+      ["governo", "periodo_com_dado", ind.resumo_rotulo || "resumo", "valor_inicio", "ano_inicio", "valor_fim", "ano_fim", "posicao"]];
+    for (const [g, r] of Object.entries(ind.resumo || {}))
+      L.push([nomeGov(g), r.periodo, r.valor, r.inicio_val, r.inicio_ano, r.fim_val, r.fim_ano, r.posicao]);
+    if (ind.notas) { L.push([], ["ano", "km2", "tipo", "nota_tecnica"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
+    const blob = new Blob(["\ufeff" + L.map((l) => l.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `tira-teima_${id}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".baixar-csv"); if (!b) return;
+    const card = b.closest(".ind"); if (card && card._ind) csvIndicador(b.dataset.id, card._ind);
+  });
 
   /* ---------- gráficos ---------- */
   function redesenhar() {
@@ -490,8 +508,8 @@
     const anos = Object.entries(ind.mapa_fome).filter(([a]) => +a >= 2000);
     if (!anos.length) return "";
     return `<div class="mapa-fome" aria-label="Anos em que o Brasil estava no Mapa da Fome">
-      <p class="mf-tit">Brasil no Mapa da Fome (cada ano = média de três anos centrada nele)</p>
-      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${+a - 1}–${+a + 1}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${a.slice(2)}</span>`).join("")}</div>
+      <p class="mf-tit">Brasil no Mapa da Fome (cada ponto = média de três anos centrada nele; o rótulo mostra o triênio)</p>
+      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${+a - 1}–${+a + 1}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${String(+a - 1).slice(2)}–${String(+a + 1).slice(2)}</span>`).join("")}</div>
       <p class="mf-leg"><span class="mf-ano no"><b>✕</b></span> no mapa (acima de 2,5%) <span class="mf-ano fora"><b>✓</b></span> fora do mapa</p></div>`;
   }
 
