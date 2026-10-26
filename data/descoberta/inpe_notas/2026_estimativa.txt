@@ -1,0 +1,142 @@
+Estimativa de desmatamento na Amazônia Legal para 2026 é
+2
+de 3.335 km
+1. Apresentação dos resultados
+O Instituto Nacional de Pesquisas Espaciais (INPE), unidade vinculada ao Ministério
+da Ciência, Tecnologia e Inovação (MCTI), concluiu a estimativa da taxa de
+desmatamento na Amazônia Legal Brasileira (ALB). O valor estimado do desmatamento
+no período de 01 de agosto de 2025 a 31 de julho de 2026 foi de 3.335 km². Esse valor
+representa uma redução de 41,81% em relação à taxa de desmatamento consolidada
+pelo Prodes 2025, que foi de 5.731 km² para os nove estados da ALB. Esta estimativa é
+resultado do sistema de Monitoramento Anual da Supressão da Vegetação Nativa -
+Prodes, do Programa BiomasBR (Almeida et al., 2022; Almeida et al., 2025).
+O mapeamento do Prodes de 2026 foi realizado prioritariamente com imagens de
+satélite Sentinel-2, obtidas pelo sensor MSI1. Nos casos de presença de nuvens e
+sombras, também foram utilizadas imagens Sentinel-1, obtidas pelo sensor SAR. Foram
+identificadas as áreas desmatadas maiores que 1 hectare. Porém, visando manter a
+compatibilidade com a série histórica iniciada em 1988, apenas os polígonos maiores
+que 6,25 hectares são contabilizados para cálculo da taxa de desmatamento. O Prodes
+considera como desmatamento a remoção completa da cobertura florestal primária por
+corte raso, que inclui as classes desmatamento por corte raso com solo exposto, com
+vegetação, mineração e floresta inundada; e também o desmatamento que corresponde
+ao estágio final de uma degradação progressiva da floresta, em que há a perda completa
+do dossel, independentemente da futura utilização destas áreas.
+Para gerar a estimativa da taxa de desmatamento Prodes 2026, dos 516 tiles Brazil
+Data Cube (BDC) que recobrem a Amazônia Legal, o INPE analisou um subconjunto de
+271 tiles prioritários, conforme apresentado na Figura 1.
+Para a escolha dos 271 tiles prioritários foram considerados três critérios:
+1) corresponder à região onde foram registrados pelo menos 90% do
+desmatamento no período anterior do Prodes (agosto/2024 a julho/2025);
+2) corresponder às regiões onde foram registrados pelo menos 90% dos avisos de
+desmatamento do Monitoramento Diário da Supressão e Degradação da Vegetação
+Nativa (Deter) detectados no intervalo do ano Prodes 2026 (agosto/2025 a julho/2026);
+3) cobrir os 80 municípios da Amazônia Legal prioritários para fiscalização e os
+outros 17 municípios monitorados, listados na Portaria MMA nº 1.717, de 19 de junho
+de 2026.
+1 As imagens Sentinel são fornecidas pela Agência Espacial Europeia (European Space Agency -
+ESA), no âmbito do programa Copernicus. Porém, os produtos utilizados foram pré-processados
+e disponibilizados pelo projeto Brazil Data Cube (DBC), iniciativa brasileira em dados prontos
+para análise (analysis-ready data), desenvolvido pelo INPE.
+Figura 1 – Localização dos 271 tiles BDC selecionados para a estimativa Prodes 2026.
+A Tabela 1 apresenta a distribuição da estimativa da taxa de desmatamento para o
+ano de 2026 nos estados da ALB. Pará, Mato Grosso e Amazonas correspondem a 75%
+do desmatamento estimado na ALB para o ano. Isso fica espacialmente explícito na
+Figura 2, que apresenta o mapa de ocorrências de desmatamento.
+Tabela 1 – Distribuição da estimativa de desmatamento Prodes 2026 por estados da ALB.
+Prodes 2026 Contribuição
+Estado
+(km2) (%)
+Acre 252 7,56%
+Amazonas 525 15,74%
+Amapá 8 0,24%
+Maranhão 128 3,84%
+Mato Grosso 849 25,46%
+Pará 1.130 33,88%
+Rondônia 149 4,47%
+Roraima 286 8,58%
+Tocantins 8 0,24%
+ALB 3.335 100%
+Figura 2 – Mapa das ocorrências de desmatamento identificadas no Prodes 2026, nos 271
+tiles prioritários da ALB.
+A Tabela 2 apresenta as variações da taxa para cada estado, entre os anos Prodes
+de 2025 (valor consolidado) e 2026 (valor estimado). Oito dos nove estados da Amazônia
+Legal tiveram redução do desmatamento entre 2025 e 2026, sendo os valores mais
+acentuados observados no estado do Tocantins (-73,33 %), Amapá (-52,94 %) e Mato
+Grosso (-46,7 %), Amazonas (-46,37 %) e Pará (-45,25 %). O estado de Roraima foi o
+único que apresentou aumento do desmatamento (0,35 %).
+Tabela 2 – Valores absolutos e variação percentual da estimativa de desmatamento Prodes
+2026 por estados da ALB.
+Prodes 2025 Prodes 2026
+Estado Consolidado Estimativa Variação (%)
+516 tiles (km²) 271 tiles (km²)
+Acre 324 252 -22,22%
+Amazonas 979 525 -46,37%
+Amapá 17 8 -52,94%
+Maranhão 210 128 -39,05%
+Mato Grosso 1.593 849 -46,7%
+Pará 2.064 1.130 -45,25%
+Rondônia 229 149 -34,93%
+Roraima 285 286 0,35%
+Tocantins 30 8 -73,33%
+ALB 5.731 3.335 -41,81%
+As Figuras 3 e 4 mostram, respectivamente, a série histórica do Prodes para a ALB
+(em km²), considerando em 2026 o valor da estimativa apresentada nesta nota, e a
+variação percentual de um ano para o outro, para toda a série de taxas do Prodes. A
+Figura 3 evidencia que, em 2026, foi registrada a menor taxa de desmatamento desde o
+início do monitoramento Prodes, em 1988. A Figura 4 mostra que, entre 2025 e 2026,
+ocorreu a segunda maior redução percentual do desmatamento entre dois anos
+consecutivos da série histórica, correspondente a 41,81%.
+Figura 3 – Taxa anual de desmatamento desde 1988 na ALB. Em preto, a estimativa para
+2026.
+Figura 4 – Variação relativa anual das taxas do Prodes na ALB. Em preto, a estimativa para 2026.
+2. Confiabilidade da taxa
+Para explicitar a confiabilidade da taxa obtida, o valor da estimativa do
+desmatamento foi simulado para 3000 amostras geradas com 90% dos tiles selecionados
+aleatoriamente dentre os 271 tiles prioritários. A Figura 5 ilustra os resultados, descritos
+na Tabela 3, dos valores de estimativa, desvio padrão, média e mediana de taxa de
+desmatamento por estado da ALB. Os resultados das medianas e das médias se
+mostraram bastante próximos das estimativas dos estados baseadas nos 271 tiles. A
+proximidade dos valores de tendência central mostrou uma boa capacidade preditiva, e
+a amplitude dos desvios padrão mostrou que a quantidade amostrada foi adequada.
+Figura 5 – Valores máximo, mediana, estimado, média e mínimo da taxa de desmatamento
+estimada para a Amazônia Legal Brasileira (5a) e por estado (5b) para 2026. Simulação da
+estimativa utilizando 3000 amostras geradas com 90% de tiles, selecionados aleatoriamente
+dentre os 271 tiles prioritários, distribuídos por estado.
+(5a)
+(5b)
+Tabela 3 – Estatísticas da taxa de desmatamento 2026 (km²), geradas na simulação.
+Estimativa Desvio Padrão Média Mediana
+Estado
+271 tiles 90% dos tiles 90% dos tiles 90% dos tiles
+Acre 252 10,91 252 252
+Amazonas 525 16,71 526 523
+Amapá 8 2,39 7 8
+Maranhão 128 10,57 128 128
+Mato Grosso 849 47,64 851 847
+Pará 1130 34,81 1131 1129
+Rondônia 149 4,62 149 149
+Roraima 286 22,89 285 286
+Tocantins 8 10,71 11 8
+A confiança nessa estimativa pode também ser observada pela grande quantidade
+de tiles usados para seu cálculo. Com o uso das imagens Sentinel que intersectam os 271
+tiles, foi possível cobrir a região que abrange 97,68% das ocorrências de desmatamento
+ocorridas no Prodes em 2025, 97,09% das supressões detectadas pelo Deter entre
+agosto de 2025 e julho de 2026 (ano Prodes 2026) e 95,57% das queimadas detectadas
+pelo Deter entre agosto de 2025 e julho de 2026. Como o desmatamento é um evento
+com forte correlação espacial, a expectativa de ocorrência de muitos focos de
+desmatamento fora dessa área é pequena.
+3. Considerações finais
+O INPE enfatiza que os valores apresentados nesta nota são uma estimativa da
+taxa de desmatamento para o mapeamento Prodes 2026. A taxa consolidada será
+apresentada no primeiro semestre de 2026, quando for completado o processamento
+de todos os 516 tiles que recobrem a ALB.
+4. Referências bibliográficas:
+ALMEIDA, C. A. et al. Metodologia utilizada nos sistemas Prodes e Deter – 2ª ed. São
+José dos Campos: INPE, 2024. Disponível em: http://mtc-
+m21d.sid.inpe.br/col/sid.inpe.br/mtc-
+m21d/2022/08.25.11.46/doc/thisInformationItemHomePage.html.
+ALMEIDA, C. A. et al. Monitoramento oficial da vegetação nativa brasileira por
+imagens de satélite: o programa BiomasBR e os sistemas Prodes, Deter e TerraClass.
+Cadernos de Astronomia, v. 6, n. 1, p. 23–38, 2025. Disponível em:
+https://dialnet.unirioja.es/servlet/articulo?codigo=10261629.
+São José dos Campos, 16 de outubro de 2026.
