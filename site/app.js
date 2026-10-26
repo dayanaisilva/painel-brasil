@@ -218,8 +218,8 @@
       card.innerHTML = `
         <header><h3>${esc(g.nome)}</h3><p>${esc(g.presidente)} · ${dataBR(g.inicio)} – ${fim}</p></header>
         <div class="listas">
-          <div><h4 class="h-bom">▲ Pontos fortes</h4>${fortes.length ? `<ul>${fortes.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os melhores.</p>'}</div>
-          <div><h4 class="h-ruim">▼ Pontos fracos</h4>${fracos.length ? `<ul>${fracos.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os piores.</p>'}</div>
+          <div><h4 class="h-bom">✓ Pontos fortes</h4>${fortes.length ? `<ul>${fortes.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os melhores.</p>'}</div>
+          <div><h4 class="h-ruim">✕ Pontos fracos</h4>${fracos.length ? `<ul>${fracos.join("")}</ul>` : '<p class="vazio">Nenhum indicador entre os piores.</p>'}</div>
         </div>
         ${trilhas.length ? `<div class="trilhas" aria-label="Posição em cada indicador"><div class="tr-eixo"><span>melhor</span><span>pior</span></div>${trilhas.join("")}</div>` : ""}
         ${ctx[g.id] ? `<details class="contexto"><summary>Contexto do período</summary><ul>${ctx[g.id].map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}`;
@@ -241,9 +241,17 @@
   // "de X para Y": como o indicador começou e terminou dentro do governo.
   function trajeto(ind, r) {
     const f = ind.formato;
-    if (r.de != null && r.para != null) return `${fmt(f, r.de)} → ${fmt(f, r.para)}${r.periodo ? ` (${esc(r.periodo)})` : ""}`;
+    const mudou = (a, b) => {
+      if (!(a > 0) || !(b > 0)) return "";
+      const p = (b / a - 1) * 100;
+      if (Math.abs(p) < 0.5) return " · ficou estável";
+      return ` · ${p > 0 ? "subiu" : "caiu"} ${nf(0, 0).format(Math.abs(p))}%`;
+    };
+    if (r.de != null && r.para != null) return `${fmt(f, r.de)} → ${fmt(f, r.para)}${r.periodo ? ` (${esc(r.periodo)})` : ""}${mudou(r.de, r.para)}`;
     const fr = ind.resumo_formato === "anos_mapa" ? f : resumoFmt(ind); // médias: início e fim na unidade do resumo
-    if (r.inicio_val != null && r.fim_val != null) return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}`;
+    const nivel = !ind.resumo_formato || ind.resumo_formato === "anos_mapa"; // só faz sentido dizer subiu/caiu para níveis
+    if (r.inicio_val != null && r.fim_val != null)
+      return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}${nivel ? mudou(r.inicio_val, r.fim_val) : ""}`;
     return "";
   }
 
@@ -276,7 +284,7 @@
           const cel = (r, lado) => {
             if (!r) return `<td class="du-val sem-dado">sem dado</td>`;
             const win = ganhador === lado;
-            return `<td class="du-val${win ? " du-win" : ""}">${win ? '<span class="du-ic">▲</span>' : ""}<b>${fmt(resumoFmt(ind), r.valor)}${ast(r)}</b>${trajeto(ind, r) ? `<small>${trajeto(ind, r)}</small>` : ""}</td>`;
+            return `<td class="du-val${win ? " du-win" : ""}">${win ? '<span class="du-ic">✓</span>' : ""}<b>${fmt(resumoFmt(ind), r.valor)}${ast(r)}</b>${trajeto(ind, r) ? `<small>${trajeto(ind, r)}</small>` : ""}</td>`;
           };
           const nota = !ind.direcao ? '<small class="du-sem">sem ranking</small>' : ra && rb && !ganhador ? '<small class="du-sem">empate</small>' : "";
           return `<tr>${cel(ra, "A")}<th scope="row"><a href="#ind-${id}">${esc(ind.pergunta || ind.titulo)}</a><small>${esc(ind.resumo_rotulo)}</small>${nota}</th>${cel(rb, "B")}</tr>`;
@@ -347,8 +355,8 @@
     const c = el("article", { class: "ind", id: `ind-${id}` });
     const m = ind.melhor && ind.resumo[ind.melhor], p = ind.pior && ind.resumo[ind.pior];
     const destaque = m && p ? `<div class="hero">
-        <div class="hero-item bom"><span class="hero-rot">▲ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span>${trajeto(ind, m) ? `<span class="hero-traj">${trajeto(ind, m)}</span>` : ""}</div>
-        <div class="hero-item ruim"><span class="hero-rot">▼ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span>${trajeto(ind, p) ? `<span class="hero-traj">${trajeto(ind, p)}</span>` : ""}${p.sentido === "melhorou" ? '<span class="hero-traj">melhorou no período, mas menos que os outros governos</span>' : ""}</div>
+        <div class="hero-item bom"><span class="hero-rot">✓ Melhor período</span><b>${esc(nomeGov(ind.melhor))}</b><span class="hero-val">${fmt(resumoFmt(ind), m.valor)}${ast(m)}</span>${trajeto(ind, m) ? `<span class="hero-traj">${trajeto(ind, m)}</span>` : ""}</div>
+        <div class="hero-item ruim"><span class="hero-rot">✕ Pior período</span><b>${esc(nomeGov(ind.pior))}</b><span class="hero-val">${fmt(resumoFmt(ind), p.valor)}${ast(p)}</span>${trajeto(ind, p) ? `<span class="hero-traj">${trajeto(ind, p)}</span>` : ""}${p.sentido === "melhorou" ? '<span class="hero-traj">melhorou no período, mas menos que os outros governos</span>' : ""}</div>
       </div>` : "";
     c.innerHTML = `
       <p class="ind-kicker">${esc(ind.titulo)} · <span>${esc(ind.unidade)}</span></p>
@@ -614,7 +622,7 @@
                 const linhas = [fmt(resumoFmt(ind), x.valor) + (x.parcial ? " (parcial)" : "")];
                 const t = trajeto(ind, x);
                 if (t) linhas.push(t);
-                if (x.avaliacao) linhas.push((x.avaliacao === "bom" ? "▲ " : "▼ ") + posTexto(ind, x, x.avaliacao));
+                if (x.avaliacao) linhas.push((x.avaliacao === "bom" ? "✓ " : "✕ ") + posTexto(ind, x, x.avaliacao));
                 return linhas;
               },
             },
