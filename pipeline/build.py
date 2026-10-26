@@ -122,6 +122,8 @@ def sgs_ou_ipea(chave, codigo, rotulo_sgs, valido, ipea_args):
 
 def gasolina():
     df = fontes.anp_gasolina()
+    if df.data.max() < pd.Timestamp.today() - pd.Timedelta(days=150):
+        raise ValueError(f"série da ANP parou em {df.data.max().date()}")
     if not (2 <= df.valor.iloc[-1] <= 15):
         raise ValueError(f"preço fora da faixa esperada: {df.valor.iloc[-1]}")
     return df

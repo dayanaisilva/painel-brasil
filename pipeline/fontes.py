@@ -270,11 +270,30 @@ def _anp_links() -> list[str]:
     return sorted(links)
 
 
-def _anp_planilha(conteudo: bytes) -> pd.DataFrame:
-    bruto = pd.read_excel(io.BytesIO(conteudo), header=None)
+def _anp_planilha(conteudo: bytes, diag: list | None = None, nome: str = "") -> pd.DataFrame:
+    abas = pd.read_excel(io.BytesIO(conteudo), header=None, sheet_name=None)
+    partes = []
+    for aba, bruto in abas.items():
+        if diag is not None:
+            for i in range(min(16, len(bruto))):
+                diag.append({"arquivo": nome, "aba": aba, "linha": i,
+                             "conteudo": " | ".join(map(str, bruto.iloc[i].tolist()))[:400]})
+        try:
+            partes.append(_anp_aba(bruto))
+        except Exception as e:  # noqa: BLE001
+            if diag is not None:
+                diag.append({"arquivo": nome, "aba": aba, "linha": -1, "conteudo": f"ERRO: {e!r}"[:400]})
+    partes = [p for p in partes if not p.empty]
+    if not partes:
+        raise ValueError("nenhuma aba com gasolina comum")
+    return pd.concat(partes)
+
+
+def _anp_aba(bruto: pd.DataFrame) -> pd.DataFrame:
     cab = next(i for i in range(min(30, len(bruto)))
-               if bruto.iloc[i].astype(str).str.upper().str.contains("PRODUTO").any())
-    df = pd.read_excel(io.BytesIO(conteudo), header=cab)
+               if bruto.iloc[i].astype(str).str.upper().str.strip().eq("PRODUTO").any())
+    df = bruto.iloc[cab + 1:].copy()
+    df.columns = [str(c).strip() for c in bruto.iloc[cab].tolist()]
     cols = {c: str(c).upper() for c in df.columns}
     c_mes = next(c for c, u in cols.items() if u.startswith("M") and ("ÊS" in u or "ES" in u))
     c_prod = next(c for c, u in cols.items() if "PRODUTO" in u)
@@ -286,13 +305,15 @@ def _anp_planilha(conteudo: bytes) -> pd.DataFrame:
 
 
 def anp_gasolina() -> pd.DataFrame:
-    partes, erros = [], []
+    partes, erros, diag = [], [], []
     for url in _anp_links():
         try:
-            partes.append(_anp_planilha(_get(url).content))
+            partes.append(_anp_planilha(_get(url).content, diag, url.rsplit("/", 1)[-1]))
             log.info("ANP %s: %d meses", url, len(partes[-1]))
         except Exception as e:  # noqa: BLE001
             erros.append(f"{url.rsplit('/', 1)[-1]}: {e}")
+    pd.DataFrame(diag).to_csv(DESCOBERTA / "anp_diagnostico.csv", index=False)
+    pd.DataFrame({"erro": erros}).to_csv(DESCOBERTA / "anp_erros.csv", index=False)
     if not partes:
         raise ValueError("ANP sem planilha válida. " + " | ".join(erros)[:300])
     df = pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
