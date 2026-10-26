@@ -633,7 +633,17 @@ def main():
             return 4.5 <= v.get(2024, 0) <= 6.0 and 6.0 <= v.get(2019, 0) <= 7.2 and df.data.dt.year.min() <= 1995
         return fontes.ipea_validada(cands, ["15 anos", "pnad"], valido, "analfabetismo")
 
-    preferir_oficial = {"gini": (gini_ipea, "Ipea, a partir da PNAD e PNAD Contínua/IBGE",
+    def expectativa_ibge():
+        cands = pd.concat([fontes.ipea_buscar("esperança de vida", periodicidade="Anual"),
+                           fontes.ipea_buscar("expectativa de vida", periodicidade="Anual")])
+        def valido(df):
+            v = dict(zip(df.data.dt.year, df.valor))
+            return 76.2 <= v.get(2024, 0) <= 77.0 and df.data.dt.year.min() <= 2000
+        return fontes.ipea_validada(cands, ["ao nascer", "ambos", "total"], valido, "expectativa_vida")
+
+    preferir_oficial = {"expectativa_vida": (expectativa_ibge, "IBGE — Tábuas Completas de Mortalidade (via Ipeadata)",
+                                             "https://www.ipeadata.gov.br/"),
+                        "gini": (gini_ipea, "Ipea, a partir da PNAD e PNAD Contínua/IBGE",
                                  "https://www.ipeadata.gov.br/"),
                         "analfabetismo": (analfabetismo_ibge, "IBGE — PNAD e PNAD Contínua (via Ipeadata)",
                                           "https://www.ipeadata.gov.br/")}
