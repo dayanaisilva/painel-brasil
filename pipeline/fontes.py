@@ -550,9 +550,7 @@ def prodes_taxas() -> pd.DataFrame:
                     partes.append(t)
                     if len(t) == 0 or inicio > 5_000_000:
                         break
-                    inicio += len(t)
-                    if len(t) < lote:
-                        break
+                    inicio += len(t)  # o servidor pode limitar o lote abaixo do pedido: só para quando vier vazio
                 t = pd.concat(partes)
                 erros.append(f"{c}: {len(t)} polígonos lidos")
                 t.columns = [x.lower() for x in t.columns]
