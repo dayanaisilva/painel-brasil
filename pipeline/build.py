@@ -444,6 +444,8 @@ def main():
         nivel = None
         if pibpc_nom is not None:
             nom = anual(pibpc_nom).groupby("ano").valor.mean()
+            if nom.iloc[-1] < 1000:  # Ipeadata publica em R$ mil
+                nom = nom * 1000
             ult = int(min(nom.index.max(), pc.ano.max()))
             if ult in nom.index:
                 # nível em R$ do último ano: valor nominal do último ano, recuado pelo crescimento real per capita
@@ -577,10 +579,11 @@ def main():
     sociais = [
         # id, código, título, pergunta, unidade, tema, direção, método, descrição, fonte
         ("fome", "SN.ITK.DEFC.ZS", "Mapa da Fome", "O Brasil estava no Mapa da Fome?", "% da população subalimentada",
-         "fome", "menor", "ritmo_rel",
+         "fome", None, "anos_mapa",
          "Prevalência de subalimentação calculada pela FAO (média de três anos). O país entra no Mapa da Fome quando "
          "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
-         "O ranking mede quanto a subalimentação caiu ou subiu por ano em cada governo.",
+         "Sem ranking: como a FAO não mede abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
+         "O resumo mostra em quantos anos de cada governo o Brasil esteve no mapa.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
         ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Quantos viviam na extrema pobreza?", "% da população",
          "fome", "menor", "ritmo_rel",
@@ -648,6 +651,18 @@ def main():
             d["formato"] = "decimal"
         if metodo == "ritmo":
             d.update(resumo=resumo_ritmo(a), resumo_rotulo="variação por ano no governo", resumo_formato="delta")
+        elif metodo == "anos_mapa":
+            res = {}
+            for g in GOVERNOS:
+                anos_g = [int(r.ano) for r in a.itertuples() if pesos_do_ano(int(r.ano)).get(g["id"], 0) >= 0.5]
+                if anos_g:
+                    no = [y for y in anos_g if float(a[a.ano == y].valor.iloc[0]) > 2.5]
+                    res[g["id"]] = {"valor": len(no), "total_anos": len(anos_g), "periodo": f"{min(anos_g)}–{max(anos_g)}",
+                                    "parcial": g["id"] == "lula3",
+                                    "inicio_val": float(a[a.ano == min(anos_g)].valor.iloc[0]),
+                                    "fim_val": float(a[a.ano == max(anos_g)].valor.iloc[0]),
+                                    "inicio_ano": min(anos_g), "fim_ano": max(anos_g)}
+            d.update(resumo=res, resumo_rotulo="anos no Mapa da Fome", resumo_formato="anos_mapa")
         elif metodo == "ritmo_rel":
             d.update(resumo=resumo_ritmo(a, relativo=True), resumo_rotulo="variação % por ano no governo",
                      resumo_formato="delta_pct")

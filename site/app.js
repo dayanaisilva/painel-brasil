@@ -25,7 +25,7 @@
     queimadas: ["Queimadas", "focos/ano"],
     desmatamento: ["Desmatamento Amazônia", "km²/ano"],
     dolar: ["Dólar", "média R$"],
-    fome: ["Fome (FAO)", "variação %/ano"],
+    fome: ["Mapa da Fome", "anos no mapa"],
     pobreza: ["Extrema pobreza", "variação %/ano"],
     gini: ["Desigualdade", "Gini, variação/ano"],
     mortalidade_infantil: ["Mortalidade infantil", "variação %/ano"],
@@ -54,6 +54,7 @@
     delta_pct: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1, 1).format(Math.abs(v)) + "% ao ano",
     inteiro_delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(0, 0).format(Math.abs(Math.round(v))),
     moeda_int: (v) => "R$ " + nf(0, 0).format(v),
+    anos_mapa: (v) => `${v} ${v === 1 ? "ano" : "anos"} no mapa`,
   };
   const fmt = (tipo, v) => (v == null || Number.isNaN(v) ? "—" : (F[tipo] || F.pct_simples)(v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -241,7 +242,7 @@
   function trajeto(ind, r) {
     const f = ind.formato;
     if (r.de != null && r.para != null) return `${fmt(f, r.de)} → ${fmt(f, r.para)}${r.periodo ? ` (${esc(r.periodo)})` : ""}`;
-    const fr = resumoFmt(ind); // médias: início e fim estão na mesma unidade do resumo
+    const fr = ind.resumo_formato === "anos_mapa" ? f : resumoFmt(ind); // médias: início e fim na unidade do resumo
     if (r.inicio_val != null && r.fim_val != null) return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}`;
     return "";
   }
