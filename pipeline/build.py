@@ -33,7 +33,8 @@ log = logging.getLogger("build")
 # Códigos fixos das fontes. Os do Ipeadata ficam None até a primeira execução
 # confirmar a série certa no log (a busca automática escolhe e registra).
 SGS = {"ipca": 433, "salario_minimo": 1619, "dolar": 1, "pib_crescimento": 7326}
-IPEA = {"cesta_sp": None, "gasolina": None}
+# Série confirmada na primeira coleta (26/10/2026): "Cesta básica - município de São Paulo".
+IPEA = {"cesta_sp": "DIEESE12_CBSP12"}
 
 STATUS: list[dict] = []
 
