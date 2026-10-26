@@ -517,7 +517,10 @@ PRODES_NOTAS = [
     (2024, "consolidada", ["https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf"]),
     (2025, "estimativa", ["https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf"]),
     (2025, "consolidada", ["https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf"]),
+    (2026, "estimativa", ["https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2026/10/Nota_tecnica_EstimativaPRODES_AMZ_2026.pdf"]),
 ]
+# Link público para os anos que só a apresentação traz (o gov.br fica restrito no período eleitoral)
+PRODES_PAINEL = "https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates"
 _NUM = r"\d{1,2}\.\d{3}"
 
 
@@ -612,7 +615,8 @@ def prodes_taxas() -> pd.DataFrame:
         for a, v in achados.items():
             # ano anterior numa nota é sempre o valor consolidado; o ano da nota segue o tipo da nota
             t = "consolidada" if (a < ano or tipo == "consolidada") else "estimativa"
-            prioridade = (t == "consolidada", ano)  # consolidada vence; entre iguais, a nota mais nova
+            # consolidada vence; depois nota consolidada, link fora do gov.br (acessível ao público) e a nota mais nova
+            prioridade = (t == "consolidada", tipo == "consolidada", "gov.br" not in url, ano)
             if a not in melhor or prioridade > melhor[a]["_p"]:
                 melhor[a] = {"ano": a, "valor": v, "tipo": t, "nota_ano": ano, "url": url, "_p": prioridade}
     try:
@@ -623,7 +627,7 @@ def prodes_taxas() -> pd.DataFrame:
         for a, v in serie.items():
             if a not in melhor:
                 melhor[a] = {"ano": a, "valor": v, "tipo": "estimativa" if a == PRODES_SERIE_ULTIMO else "consolidada",
-                             "nota_ano": PRODES_SERIE_ULTIMO, "url": url_s, "_p": (False, 0)}
+                             "nota_ano": PRODES_SERIE_ULTIMO, "url": PRODES_PAINEL, "_p": (False, False, False, 0)}
         diag.append({"nota": "apresentação PRODES 2026", "url": url_s, "achados": f"{len(serie)} anos, 1988–{PRODES_SERIE_ULTIMO}"})
     except Exception as e:  # noqa: BLE001
         diag.append({"nota": "apresentação PRODES 2026", "url": PRODES_SERIE[0], "achados": f"ERRO: {type(e).__name__}: {str(e)[:250]}"})

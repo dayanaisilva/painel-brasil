@@ -403,8 +403,8 @@
       </div>
       <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a> · <button type="button" class="baixar-csv" data-id="${esc(id)}">Baixar dados e cálculo (CSV)</button></p>
       ${ind.notas ? `<details class="notas"><summary>Valor de cada ano e o documento do INPE de onde ele saiu</summary><ul>${
-        ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">${/apresentacao/.test(n.url) ? "apresentação oficial do INPE (PDF)" : "nota técnica do INPE (PDF)"}</a></li>`).join("")
-      }</ul></details>` : ""}`;
+        ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">${/terrabrasilis/.test(n.url) ? "painel PRODES do INPE (TerraBrasilis)" : "nota técnica do INPE (PDF)"}</a></li>`).join("")
+      }</ul>${ind.notas.some((n) => /terrabrasilis/.test(n.url)) ? `<p class="notas-obs">Os anos ligados ao painel foram transcritos da série histórica que o INPE apresentou na coletiva do PRODES 2026 (16/10/2026), cujo PDF está no portal gov.br e fica restrito durante o período eleitoral. A cada atualização, o site confere essa série com as notas técnicas nos anos em comum.</p>` : ""}</details>` : ""}`;
     c._ind = ind;
     return c;
   }
