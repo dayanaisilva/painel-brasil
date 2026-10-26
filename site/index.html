@@ -49,7 +49,7 @@
   <section class="wrap bloco" id="comparativo">
     <h2>Comparativo</h2>
     <p class="sub">A métrica-resumo de cada indicador em cada governo. <span class="nota-parcial">*</span> Lula 3 está em andamento: valores parciais. — sem dado para o período.</p>
-    <div class="legenda-tabela"><span class="tag tag-bom">▲ entre os melhores</span><span class="tag tag-ruim">▼ entre os piores</span><span class="tag tag-neutro">dólar: sem ranking</span></div>
+    <div class="legenda-tabela"><span class="tag tag-bom">▲ entre os melhores</span><span class="tag tag-ruim">▼ entre os piores</span><span class="tag tag-neutro">dólar e gastos públicos: sem ranking</span></div>
     <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela comparativa">
       <table class="comparativo" id="tabela-comparativo"></table>
     </div>
@@ -67,9 +67,10 @@
     <div id="tabela-governos"></div>
     <h3>A régua de pontos fortes e fracos</h3>
     <ul>
-      <li><strong>Maior é melhor:</strong> crescimento do PIB, crescimento do PIB per capita, ganho real do salário mínimo.</li>
-      <li><strong>Menor é melhor:</strong> inflação, peso da cesta básica no salário mínimo, preço real da gasolina, focos de queimada.</li>
-      <li><strong>Sem ranking:</strong> dólar. Câmbio alto ajuda exportadores e encarece importados e viagens; não é bom nem ruim por si só.</li>
+      <li><strong>Maior é melhor:</strong> crescimento do PIB, crescimento do PIB per capita, ganho real do salário mínimo, aumento da expectativa de vida, aumento do acesso ao ensino superior.</li>
+      <li><strong>Menor é melhor:</strong> inflação, peso da cesta básica no salário mínimo, preço real da gasolina, focos de queimada, subalimentação (Mapa da Fome), extrema pobreza, desigualdade (Gini), mortalidade infantil, analfabetismo.</li>
+      <li><strong>Sem ranking:</strong> dólar, gasto público em saúde e gasto público em educação. Câmbio alto ajuda exportadores e encarece importados; gasto é insumo, e o resultado aparece nos indicadores de saúde e educação.</li>
+      <li><strong>Ritmo, não nível:</strong> mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo: do ano anterior à posse até o último ano do mandato. Lacunas de até 2 anos são preenchidas por interpolação linear; lacunas maiores deixam o governo sem resultado.</li>
       <li>Entre os governos com dado no indicador, o quarto melhor (arredondado para cima) recebe ▲ ponto forte e o quarto pior recebe ▼ ponto fraco. Com 12 governos, são 3 de cada lado.</li>
       <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do seu período. Por isso Itamar não aparece no dólar (a série começa no Plano Real, em jul/1994) e os governos anteriores a 2003 não aparecem em queimadas.</li>
       <li>Lula 3 entra no ranking com os dados até agora, marcado com *.</li>
@@ -90,6 +91,7 @@
       <li>A cesta básica é a de São Paulo (DIEESE) e é comparada ao salário mínimo bruto, sem descontos.</li>
       <li>Focos de queimada vêm do satélite de referência do INPE, com série comparável desde 2003. Contagem de focos não é área queimada.</li>
       <li>A ANP não fez pesquisa de preços de combustíveis entre 18/8/2020 e 17/10/2020; esses meses ficam sem dado de gasolina.</li>
+      <li>Fome, pobreza, Gini, mortalidade, expectativa de vida e educação vêm de bases da ONU (FAO, OMS, UNESCO, IGME) publicadas pelo Banco Mundial e calculadas com dados do IBGE, INEP e Ministério da Saúde. São as séries usadas para comparar o Brasil com outros países, inclusive pelo próprio governo. A FAO publica médias de três anos; a série começa em 2001.</li>
       <li>A taxa oficial de desmatamento do PRODES/INPE não é publicada em formato de tabela para download automático, por isso ainda não entra no painel.</li>
       <li>Fontes oficiais revisam dados. A cada atualização o painel baixa a série inteira de novo.</li>
     </ul>
@@ -101,7 +103,7 @@
 
 <footer class="rodape">
   <div class="wrap">
-    <p>Atualizado em <span id="gerado-em">—</span>. Fontes: IBGE, Banco Central, Ipea, DIEESE, ANP e INPE.</p>
+    <p>Atualizado em <span id="gerado-em">—</span>. Fontes: IBGE, Banco Central, Ipea, DIEESE, ANP, INPE, INEP, Ministério da Saúde, FAO, OMS e UNESCO.</p>
     <p>Projeto independente, sem vínculo com partido, candidato ou governo.</p>
   </div>
 </footer>

@@ -325,3 +325,26 @@ def anp_gasolina() -> pd.DataFrame:
         raise ValueError("ANP sem planilha válida. " + " | ".join(erros)[:300])
     df = pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
     return df
+
+
+# --------------------------------------------------------------------------- #
+# MEC / INEP — portal de dados abertos (CKAN) — descoberta de conjuntos
+# --------------------------------------------------------------------------- #
+CKAN_MEC = "https://dadosabertos.mec.gov.br/api/3/action/package_search"
+
+
+def mec_descobrir(consultas=("e-mec instituições", "rede federal", "plataforma nilo peçanha",
+                             "censo da educação superior", "universidades federais")) -> None:
+    linhas = []
+    for q in consultas:
+        try:
+            r = _get(CKAN_MEC, params={"q": q, "rows": 20}, tentativas=2)
+            for pkg in _json(r)["result"]["results"]:
+                for res in pkg.get("resources", []):
+                    linhas.append({"consulta": q, "pacote": pkg.get("name"), "titulo": pkg.get("title"),
+                                   "recurso": res.get("name"), "formato": res.get("format"), "url": res.get("url"),
+                                   "atualizado": res.get("last_modified") or res.get("created")})
+        except Exception as e:  # noqa: BLE001
+            linhas.append({"consulta": q, "erro": str(e)[:200]})
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(linhas).to_csv(DESCOBERTA / "mec_ckan.csv", index=False)

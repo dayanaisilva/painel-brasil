@@ -4,7 +4,15 @@
 
   const ABREV = { sarney: "S", collor: "C", itamar: "I", fhc1: "F1", fhc2: "F2", lula1: "L1", lula2: "L2",
                   dilma1: "D1", dilma2: "D2", temer: "T", bolsonaro: "B", lula3: "L3" };
-  const ORDEM = ["pib_crescimento", "pib_per_capita", "ipca", "salario_minimo", "cesta_sp", "gasolina", "queimadas", "dolar"];
+  const TEMAS = [
+    ["economia", "Economia", ["pib_crescimento", "pib_per_capita", "dolar"]],
+    ["custo", "Custo de vida e renda", ["ipca", "salario_minimo", "cesta_sp", "gasolina"]],
+    ["fome", "Fome, pobreza e desigualdade", ["fome", "pobreza", "gini"]],
+    ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "gasto_saude"]],
+    ["educacao", "Educação", ["analfabetismo", "ensino_superior", "gasto_educacao"]],
+    ["ambiente", "Meio ambiente", ["queimadas"]],
+  ];
+  const ORDEM = TEMAS.flatMap((t) => t[2]);
   const CURTO = {
     pib_crescimento: ["PIB", "cresc. médio/ano"],
     pib_per_capita: ["PIB per capita", "cresc. médio/ano"],
@@ -14,6 +22,15 @@
     gasolina: ["Gasolina", "R$/l de hoje"],
     queimadas: ["Queimadas", "focos/ano"],
     dolar: ["Dólar", "média R$"],
+    fome: ["Fome (FAO)", "% subalimentada"],
+    pobreza: ["Extrema pobreza", "variação/ano"],
+    gini: ["Desigualdade", "Gini, variação/ano"],
+    mortalidade_infantil: ["Mortalidade infantil", "variação/ano"],
+    expectativa_vida: ["Expectativa de vida", "anos, variação/ano"],
+    gasto_saude: ["Gasto em saúde", "% do PIB"],
+    analfabetismo: ["Analfabetismo", "variação/ano"],
+    ensino_superior: ["Ensino superior", "variação/ano"],
+    gasto_educacao: ["Gasto em educação", "% do PIB"],
   };
 
   const nf = (min, max) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: min, maximumFractionDigits: max });
@@ -23,6 +40,8 @@
     moeda: (v) => "R$ " + nf(2, 2).format(v),
     moeda_usd: (v) => "US$ " + nf(0, 0).format(v),
     inteiro: (v) => nf(0, 0).format(Math.round(v)),
+    decimal: (v) => nf(1, 1).format(v),
+    delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(2, 2).format(Math.abs(v)) + "/ano",
   };
   const fmt = (tipo, v) => (v == null || Number.isNaN(v) ? "—" : (F[tipo] || F.pct_simples)(v));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -90,9 +109,12 @@
     tabelaStatus();
     const lista = document.getElementById("lista-indicadores");
     const chips = document.getElementById("chips");
-    for (const [id, ind] of indicadores()) {
-      chips.append(el("a", { href: `#ind-${id}` }, esc(ind.titulo)));
-      lista.append(cartaoIndicador(id, ind));
+    for (const [tema, nome, ids] of TEMAS) {
+      const presentes = ids.filter((id) => D.indicadores[id]);
+      if (!presentes.length) continue;
+      chips.append(el("a", { href: `#tema-${tema}`, class: "chip-tema" }, esc(nome)));
+      lista.append(el("h3", { class: "tema-titulo", id: `tema-${tema}` }, esc(nome)));
+      for (const id of presentes) lista.append(cartaoIndicador(id, D.indicadores[id]));
     }
     redesenhar();
   }
@@ -147,20 +169,23 @@
   /* ---------- tabela comparativa ---------- */
   function tabelaComparativo() {
     const t = document.getElementById("tabela-comparativo");
-    const ids = indicadores();
-    let h = "<thead><tr><th>Governo</th>";
-    for (const [id] of ids) h += `<th>${CURTO[id][0]}<small>${CURTO[id][1]}</small></th>`;
-    h += "</tr></thead><tbody>";
-    for (const g of GOV) {
-      h += `<tr><td class="gov"><a href="#gov-${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}–${g.id === "lula3" ? "hoje" : g.fim.slice(0, 4)}</small></td>`;
-      for (const [, ind] of ids) {
-        const r = ind.resumo[g.id];
-        if (!r) { h += '<td class="num sem-dado">—</td>'; continue; }
-        const cls = r.avaliacao === "bom" ? " cel-bom" : r.avaliacao === "ruim" ? " cel-ruim" : "";
-        const ic = r.avaliacao === "bom" ? '<span class="ic">▲</span>' : r.avaliacao === "ruim" ? '<span class="ic">▼</span>' : "";
-        h += `<td class="num${cls}">${ic}${fmt(resumoFmt(ind), r.valor)}${ast(r)}</td>`;
+    let h = `<thead><tr><th>Indicador</th>${GOV.map((g) => `<th><a href="#gov-${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}</small></th>`).join("")}</tr></thead><tbody>`;
+    for (const [, nomeTema, ids] of TEMAS) {
+      const presentes = ids.filter((id) => D.indicadores[id]);
+      if (!presentes.length) continue;
+      h += `<tr class="linha-tema"><th colspan="${GOV.length + 1}">${esc(nomeTema)}</th></tr>`;
+      for (const id of presentes) {
+        const ind = D.indicadores[id];
+        h += `<tr><td class="gov"><a href="#ind-${id}">${esc(CURTO[id][0])}</a><small>${esc(CURTO[id][1])}${ind.direcao ? "" : " · sem ranking"}</small></td>`;
+        for (const g of GOV) {
+          const r = ind.resumo[g.id];
+          if (!r) { h += '<td class="num sem-dado">—</td>'; continue; }
+          const cls = r.avaliacao === "bom" ? " cel-bom" : r.avaliacao === "ruim" ? " cel-ruim" : "";
+          const ic = r.avaliacao === "bom" ? '<span class="ic">▲</span>' : r.avaliacao === "ruim" ? '<span class="ic">▼</span>' : "";
+          h += `<td class="num${cls}">${ic}${fmt(resumoFmt(ind), r.valor)}${ast(r)}</td>`;
+        }
+        h += "</tr>";
       }
-      h += "</tr>";
     }
     t.innerHTML = h + "</tbody>";
   }
@@ -195,6 +220,7 @@
       <h3>${esc(ind.pergunta || ind.titulo)}</h3>
       <p class="ind-desc">${esc(ind.descricao)}</p>
       ${destaque}
+      ${faixaMapaFome(ind)}
       <div class="ind-graficos">
         <figure class="fig-serie"><figcaption>Ao longo do tempo</figcaption>
           <div class="grafico"><canvas class="c-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
@@ -271,6 +297,28 @@
     return out;
   }
 
+  function limite(ind) {
+    if (!ind.limite) return {};
+    return {
+      lim: {
+        type: "line", yMin: ind.limite.valor, yMax: ind.limite.valor, borderColor: cor("--ruim"), borderWidth: 1.5,
+        borderDash: [6, 4], drawTime: "afterDatasetsDraw",
+        label: { display: true, content: ind.limite.rotulo, position: "end", yAdjust: -10, backgroundColor: cor("--surface"),
+                 color: cor("--ruim-txt"), font: { family: "IBM Plex Sans", size: 10.5, weight: 600 }, padding: { x: 4, y: 2 } },
+      },
+    };
+  }
+
+  function faixaMapaFome(ind) {
+    if (!ind.mapa_fome) return "";
+    const anos = Object.entries(ind.mapa_fome).filter(([a]) => +a >= 2000);
+    if (!anos.length) return "";
+    return `<div class="mapa-fome" aria-label="Anos em que o Brasil estava no Mapa da Fome">
+      <p class="mf-tit">Brasil no Mapa da Fome, ano a ano</p>
+      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${a}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${a.slice(2)}</span>`).join("")}</div>
+      <p class="mf-leg"><span class="mf-ano no"><b>✕</b></span> no mapa (acima de 2,5%) <span class="mf-ano fora"><b>✓</b></span> fora do mapa</p></div>`;
+  }
+
   function legendaMarcos(labels, anual) {
     const ms = (D.marcos || []).filter((m) => labels.includes(anual ? m.data.slice(0, 4) : m.data));
     if (!ms.length) return "";
@@ -283,6 +331,7 @@
     const labels = ind.serie.map((p) => p.x);
     const valores = ind.serie.map((p) => p.y);
     const barra = ind.grafico === "barra";
+    const pontos = ind.grafico === "linha_anual";
     const log = ind.escala === "log";
     const anoAtual = String(new Date().getFullYear());
     const parcial = (x) => barra && x === anoAtual;
@@ -301,8 +350,9 @@
           backgroundColor: barra ? labels.map((x) => (parcial(x) ? suave : serie)) : serie,
           borderColor: serie, borderWidth: barra ? 0 : 2,
           borderRadius: barra ? 2 : 0, maxBarThickness: 18, categoryPercentage: 0.86, barPercentage: 0.92,
-          pointRadius: 0, pointHoverRadius: 5, pointHoverBorderWidth: 2,
-          pointHoverBackgroundColor: serie, pointHoverBorderColor: cor("--surface"), spanGaps: false,
+          pointRadius: pontos ? 3 : 0, pointBackgroundColor: serie, pointHoverRadius: 5, pointHoverBorderWidth: 2,
+          pointHoverBackgroundColor: serie, pointHoverBorderColor: cor("--surface"), spanGaps: pontos,
+          segment: pontos ? { borderDash: (c) => (c.p0.skip || c.p1.skip ? [4, 4] : undefined) } : undefined,
         }],
       },
       options: {
@@ -340,7 +390,7 @@
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { ...faixas(labels, largura), ...marcos(labels, largura, !anos) } },
+          annotation: { annotations: { ...faixas(labels, largura), ...marcos(labels, largura, !anos), ...limite(ind) } },
           tooltip: {
             ...tooltipBase(),
             callbacks: {
@@ -421,7 +471,8 @@
               title: (it) => nomeGov(ids[it[0].dataIndex]),
               label: (it) => {
                 const x = r[it.dataIndex];
-                const base = `${fmt(resumoFmt(ind), x.valor)} · ${x.periodo ?? ""}`;
+                const dp = x.de != null ? ` (de ${fmt(ind.formato, x.de)} para ${fmt(ind.formato, x.para)})` : "";
+                const base = `${fmt(resumoFmt(ind), x.valor)}${dp} · ${x.periodo ?? ""}`;
                 const av = x.avaliacao === "bom" ? " · ponto forte" : x.avaliacao === "ruim" ? " · ponto fraco" : "";
                 return base + av + (x.parcial ? " · parcial" : "");
               },

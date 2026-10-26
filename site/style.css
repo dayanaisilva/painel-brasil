@@ -153,8 +153,8 @@ td.gov a { text-decoration: none; }
 .it-pos { grid-column: 1 / -1; font-size: 12px; color: var(--ink-2); }
 .vazio { font-size: 13px; color: var(--ink-3); margin: 0; font-style: italic; }
 .trilhas { border-top: 1px solid var(--rule); padding-top: 10px; display: grid; gap: 5px; }
-.tr-eixo { display: flex; justify-content: space-between; margin-left: 104px; font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
-.trilha { display: grid; grid-template-columns: 96px 1fr; gap: 8px; align-items: center; }
+.tr-eixo { display: flex; justify-content: space-between; margin-left: 124px; font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.trilha { display: grid; grid-template-columns: 116px 1fr; gap: 8px; align-items: center; }
 .tr-nome { font-size: 11.5px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tr-pista { position: relative; height: 4px; background: var(--grid); border-radius: 2px; margin: 0 6px; }
 .tr-ponto { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translate(-50%, -50%); background: var(--neutro); border: 2px solid var(--surface); }
@@ -185,3 +185,23 @@ td.gov a { text-decoration: none; }
 @media (max-width: 480px) { .hero { grid-template-columns: 1fr; } }
 .legenda-marcos { font-size: 11.5px; color: var(--ink-3); margin: 6px 0 0; line-height: 1.5; }
 .lm-traco { display: inline-block; width: 14px; border-top: 1.5px dashed var(--accent); vertical-align: middle; margin-right: 2px; }
+/* temas */
+.tema-titulo { font: 650 clamp(22px, 3vw, 28px)/1.2 var(--serif); margin: 48px 0 0; padding-top: 16px; border-top: 2px solid var(--ink); scroll-margin-top: 72px; }
+.chip-tema { font-weight: 600; }
+.linha-tema th { text-align: left; background: var(--band-b); font: 600 12px var(--sans); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); padding: 8px 14px; }
+.comparativo td.gov, .comparativo thead th:first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 150px; }
+.comparativo thead th a { text-decoration: none; }
+.comparativo td.gov small { white-space: nowrap; }
+
+/* mapa da fome */
+.mapa-fome { margin: 0 0 18px; }
+.mf-tit { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-2); margin: 0 0 6px; }
+.mf-anos { display: flex; flex-wrap: wrap; gap: 3px; }
+.mf-ano { display: inline-flex; flex-direction: column; align-items: center; width: 30px; padding: 3px 0; border-radius: 4px; font: 500 10px var(--mono); color: var(--ink-2); }
+.mf-ano b { font-size: 11px; line-height: 1.2; }
+.mf-ano.no { background: var(--ruim-bg); }
+.mf-ano.no b { color: var(--ruim); }
+.mf-ano.fora { background: var(--bom-bg); }
+.mf-ano.fora b { color: var(--bom); }
+.mf-leg { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mf-leg .mf-ano { width: 20px; }

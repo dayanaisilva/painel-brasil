@@ -277,19 +277,65 @@ def ranquear(ind):
 
     `direcao` = "maior" (maior é melhor), "menor" (menor é melhor) ou None (sem juízo).
     Entre os n governos com dado, o quarto superior (arredondado para cima) é ponto forte
-    e o quarto inferior é ponto fraco.
+    e o quarto inferior é ponto fraco. Empates (mesmo valor arredondado) recebem a mesma
+    classificação.
     """
     direcao = ind.get("direcao")
     res = ind["resumo"]
     if not direcao or len(res) < 3:
         return
-    ordem = sorted(res, key=lambda g: res[g]["valor"], reverse=(direcao == "maior"))
-    n, k = len(ordem), math.ceil(len(ordem) / 4)
-    for pos, gid in enumerate(ordem, 1):
+    sinal = 1 if direcao == "maior" else -1
+    v = {g: round(sinal * r["valor"], 3) for g, r in res.items()}
+    n, k = len(v), math.ceil(len(v) / 4)
+    for gid, x in v.items():
+        melhores = sum(1 for y in v.values() if y > x)
+        piores = sum(1 for y in v.values() if y < x)
         r = res[gid]
-        r["posicao"], r["total"] = pos, n
-        r["avaliacao"] = "bom" if pos <= k else ("ruim" if pos > n - k else None)
-    ind["melhor"], ind["pior"] = ordem[0], ordem[-1]
+        r["posicao"], r["total"] = melhores + 1, n
+        r["avaliacao"] = "bom" if melhores < k else ("ruim" if piores < k else None)
+    ind["melhor"] = max(v, key=v.get)
+    ind["pior"] = min(v, key=v.get)
+
+
+def ano_base_fim(g, ultimo_ano):
+    """Ano-base (antes do governo) e ano final de um governo para medir a variação de um nível."""
+    ini, fim = pd.Timestamp(g["inicio"]), pd.Timestamp(g["fim"])
+    base = ini.year - 1 if ini.month <= 6 else ini.year
+    final = fim.year if fim.month >= 7 else fim.year - 1
+    return base, min(final, ultimo_ano)
+
+
+def resumo_ritmo(df_anual, tolerancia=2):
+    """Variação média por ano de um indicador de nível durante cada governo.
+
+    Compara o valor do ano anterior à posse com o do último ano do governo, com
+    interpolação linear entre anos observados. Só usa anos a no máximo `tolerancia`
+    anos de uma observação real, para não inventar tendência em lacunas longas.
+    Medir o ritmo (e não o nível) evita premiar governos só por virem depois:
+    mortalidade e analfabetismo caem há décadas.
+    """
+    obs = df_anual.groupby("ano").valor.mean()
+    anos = range(int(obs.index.min()), int(obs.index.max()) + 1)
+    serie = obs.reindex(anos).interpolate(limit_area="inside")
+    perto = lambda a: min(abs(a - o) for o in obs.index) <= tolerancia  # noqa: E731
+    out = {}
+    for g in GOVERNOS:
+        base, final = ano_base_fim(g, int(obs.index.max()))
+        if final <= base or base not in serie.index or final not in serie.index:
+            continue
+        if pd.isna(serie[base]) or pd.isna(serie[final]) or not (perto(base) and perto(final)):
+            continue
+        out[g["id"]] = {"valor": (serie[final] - serie[base]) / (final - base),
+                        "de": float(serie[base]), "para": float(serie[final]),
+                        "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3"}
+    return out
+
+
+def serie_anual_completa(a):
+    """Série anual com todos os anos do intervalo; anos sem dado ficam null (o gráfico mostra a lacuna)."""
+    obs = a.groupby("ano").valor.mean()
+    anos = range(int(obs.index.min()), int(obs.index.max()) + 1)
+    return [{"x": str(y), "y": (round(float(obs[y]), 4) if y in obs.index else None)} for y in anos]
 
 
 def serie_json(df, fmt):
@@ -343,6 +389,7 @@ def main():
         a = anual(recorte(pib))
         a = a[a.ano >= ANO_INICIAL]
         ind["pib_crescimento"] = dict(
+            tema="economia",
             titulo="Crescimento do PIB", unidade="% ao ano", formato="pct", grafico="barra", freq="anual",
             direcao="maior", pergunta="A economia cresceu?",
             descricao="Variação real do Produto Interno Bruto em relação ao ano anterior. Barras abaixo de zero são anos de recessão.",
@@ -356,6 +403,7 @@ def main():
         g = g[g.ano >= ANO_INICIAL]
         a = a[a.ano >= ANO_INICIAL]
         ind["pib_per_capita"] = dict(
+            tema="economia",
             titulo="PIB per capita", unidade="US$ de 2015 por pessoa", formato="moeda_usd", grafico="barra", freq="anual",
             direcao="maior", pergunta="A riqueza por pessoa aumentou?",
             descricao="PIB dividido pela população, em dólares constantes de 2015, sem efeito de inflação ou câmbio.",
@@ -370,6 +418,7 @@ def main():
         por_ano = m.groupby(m.data.dt.year).valor.apply(lambda v: ((1 + v / 100).prod() - 1) * 100)
         a = pd.DataFrame({"data": pd.to_datetime([f"{y}-01-01" for y in por_ano.index]), "valor": por_ano.values})
         ind["ipca"] = dict(
+            tema="custo",
             titulo="Inflação (IPCA)", unidade="% no ano, escala logarítmica", formato="pct", grafico="barra",
             freq="anual", escala="log", direcao="menor", pergunta="Os preços subiram muito?",
             descricao=(f"IPCA acumulado em cada ano. Até 1994 a inflação passou de 1.000% ao ano, por isso o eixo é "
@@ -382,6 +431,7 @@ def main():
     if sm_r is not None and idx is not None:
         r = deflacionar(sm_r, idx)
         ind["salario_minimo"] = dict(
+            tema="custo",
             titulo="Salário mínimo real", unidade=f"R$ de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
             direcao="maior", pergunta="O salário mínimo compra mais?",
             descricao=(f"Salário mínimo convertido para reais e corrigido pelo IPCA até {ref_mes}. "
@@ -399,6 +449,7 @@ def main():
         j = j[j.data.dt.year >= ANO_INICIAL]
         j["governo"] = [governo_do_mes(d.year, d.month) for d in j.data]
         ind["cesta_sp"] = dict(
+            tema="custo",
             titulo="Cesta básica (São Paulo)", unidade="% do salário mínimo", formato="pct_simples",
             grafico="linha", freq="mensal", direcao="menor", pergunta="A comida pesa no bolso?",
             descricao="Quanto do salário mínimo bruto a cesta básica de São Paulo consome. Acima de 100%, o mínimo não pagava a cesta.",
@@ -410,6 +461,7 @@ def main():
     if gas is not None and idx is not None:
         r = deflacionar(mensal(recorte(gas)), idx)
         ind["gasolina"] = dict(
+            tema="custo",
             titulo="Gasolina", unidade=f"R$/litro de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
             direcao="menor", pergunta="Abastecer ficou mais caro?",
             descricao=f"Preço médio da gasolina comum nos postos, corrigido pelo IPCA para reais de {ref_mes}. A pesquisa da ANP começa em 2001.",
@@ -421,6 +473,7 @@ def main():
         d = mensal(recorte(dolar))
         d = d[d.data >= INICIO_REAL]
         ind["dolar"] = dict(
+            tema="economia",
             titulo="Dólar", unidade="R$ por US$", formato="moeda", grafico="linha", freq="mensal",
             direcao=None, pergunta="Quanto custava o dólar?",
             descricao=("Média mensal da PTAX de venda, desde o Plano Real. Valor nominal. Não há ranking: dólar alto "
@@ -434,6 +487,7 @@ def main():
         a = a[a.ano >= QUEIMADAS_INICIO]
         fechados = a[a.ano < ano_atual]
         ind["queimadas"] = dict(
+            tema="ambiente",
             titulo="Focos de queimada", unidade="focos no ano", formato="inteiro", grafico="barra", freq="anual",
             direcao="menor", pergunta="O país queimou mais?",
             descricao=(f"Focos de calor detectados pelo satélite de referência do INPE em todo o Brasil. "
@@ -441,6 +495,76 @@ def main():
             resumo_rotulo="focos por ano, em média", resumo=resumo_media_ponderada(fechados),
             serie=serie_json(a, "%Y"), fonte="INPE — Programa Queimadas (satélite de referência)",
             fonte_url="https://terrabrasilis.dpi.inpe.br/queimadas/portal/")
+
+    # ---------------- Fome, pobreza, saúde, educação (Banco Mundial / FAO / OMS / UNESCO, base IBGE) -------------
+    WB = "https://data.worldbank.org/indicator/{}?locations=BR"
+    sociais = [
+        # id, código, título, pergunta, unidade, tema, direção, método, descrição, fonte
+        ("fome", "SN.ITK.DEFC.ZS", "Mapa da Fome", "O Brasil estava no Mapa da Fome?", "% da população subalimentada",
+         "fome", "menor", "nivel",
+         "Prevalência de subalimentação calculada pela FAO (média de três anos). O país entra no Mapa da Fome quando "
+         "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa.",
+         "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
+        ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Quantos viviam na extrema pobreza?", "% da população",
+         "fome", "menor", "ritmo",
+         "Parcela da população abaixo da linha internacional de extrema pobreza do Banco Mundial (paridade de poder de compra), calculada com a PNAD/IBGE.",
+         "Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE"),
+        ("gini", "SI.POV.GINI", "Desigualdade (Gini)", "A desigualdade de renda caiu?", "índice de Gini (0 a 100)",
+         "fome", "menor", "ritmo",
+         "Índice de Gini da renda: 0 seria todos com a mesma renda, 100 seria uma pessoa com toda a renda. Calculado com a PNAD/IBGE.",
+         "Banco Mundial (SI.POV.GINI), a partir da PNAD/IBGE"),
+        ("mortalidade_infantil", "SP.DYN.IMRT.IN", "Mortalidade infantil", "Morriam menos bebês?", "mortes por mil nascidos vivos",
+         "saude", "menor", "ritmo",
+         "Mortes antes de 1 ano de idade a cada mil nascidos vivos. Cai há décadas no Brasil, por isso o ranking mede a velocidade da queda em cada governo.",
+         "ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE"),
+        ("expectativa_vida", "SP.DYN.LE00.IN", "Expectativa de vida", "Os brasileiros passaram a viver mais?", "anos ao nascer",
+         "saude", "maior", "ritmo",
+         "Anos que um recém-nascido deve viver nas condições do período. O ranking mede quanto ela subiu por ano em cada governo.",
+         "ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)"),
+        ("gasto_saude", "SH.XPD.GHED.GD.ZS", "Gasto público em saúde", "Quanto o governo investiu em saúde?", "% do PIB",
+         "saude", None, "nivel",
+         "Despesa pública com saúde (União, estados e municípios, incluindo o SUS) como parcela do PIB. Sem ranking: gasto é insumo, não resultado.",
+         "OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)"),
+        ("gasto_educacao", "SE.XPD.TOTL.GD.ZS", "Gasto público em educação", "Quanto o governo investiu em educação?", "% do PIB",
+         "educacao", None, "nivel",
+         "Despesa pública com educação (todas as esferas) como parcela do PIB. Há anos sem dado. Sem ranking: gasto é insumo, não resultado.",
+         "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
+        ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "O analfabetismo caiu?", "% das pessoas com 15 anos ou mais",
+         "educacao", "menor", "ritmo",
+         "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever (PNAD e Censo/IBGE). O ranking mede a velocidade da queda.",
+         "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
+        ("ensino_superior", "SE.TER.ENRR", "Acesso ao ensino superior", "Mais gente chegou à faculdade?", "taxa bruta de matrícula, %",
+         "educacao", "maior", "ritmo",
+         "Matrículas no ensino superior em relação à população na idade típica (taxa bruta, Censo da Educação Superior/INEP). O ranking mede quanto ela subiu por ano.",
+         "UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP"),
+    ]
+    for id_, cod, titulo, pergunta, unidade, tema, direcao, metodo, descricao, fonte in sociais:
+        bruto = coletar(id_, (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
+        if bruto is None:
+            continue
+        a = anual(bruto)
+        if id_ == "analfabetismo":
+            a["valor"] = 100 - a["valor"]
+        a = a[a.ano >= ANO_INICIAL - 1]
+        d = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao,
+                 formato="pct_simples" if "%" in unidade or id_ == "gini" else "decimal",
+                 grafico="linha_anual", freq="anual", descricao=descricao, fonte=fonte, fonte_url=WB.format(cod),
+                 serie=serie_anual_completa(a[a.ano >= ANO_INICIAL]))
+        if id_ == "gini":
+            d["formato"] = "decimal"
+        if metodo == "ritmo":
+            d.update(resumo=resumo_ritmo(a), resumo_rotulo="variação por ano no governo", resumo_formato="delta")
+        else:
+            d.update(resumo=resumo_media_ponderada(a[a.ano >= ANO_INICIAL]), resumo_rotulo="média no governo")
+        if id_ == "fome":
+            d["limite"] = {"valor": 2.5, "rotulo": "Linha do Mapa da Fome (2,5%)"}
+            d["mapa_fome"] = {str(int(r.ano)): bool(r.valor > 2.5) for r in a.itertuples()}
+        ind[id_] = d
+
+    try:
+        fontes.mec_descobrir()
+    except Exception as e:  # noqa: BLE001
+        log.warning("descoberta MEC falhou: %s", e)
 
     for v in ind.values():
         ranquear(v)
