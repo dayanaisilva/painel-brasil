@@ -1,7 +1,7 @@
 indicador,fonte,status,ultima_obs
-ipca,BCB/SGS 433 (IBGE),atualizado,2019-12-01
+ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01
 salario_minimo,BCB/SGS 1619,atualizado,2026-10-01
-dolar,Ipeadata (fallback do SGS),atualizado,2026-09-01
+dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-23
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01
 pib_per_capita,Banco Mundial (IBGE),atualizado,2025-01-01
 cesta_sp,DIEESE via Ipeadata,atualizado,2026-09-01

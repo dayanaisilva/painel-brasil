@@ -68,8 +68,9 @@ def sgs(codigo: int, inicio: int = 2002) -> pd.DataFrame:
             erros.append(f"{ini}-{fim}: {e}")
             log.warning("SGS %s janela %s-%s: %s", codigo, ini, fim, e)
         time.sleep(1)
-    if not partes:
-        raise ValueError(f"SGS {codigo}: sem dados. " + " | ".join(erros)[:300])
+    if erros or not partes:
+        # Uma janela que falha deixa a série com buracos: melhor falhar e reaproveitar a cópia anterior.
+        raise ValueError(f"SGS {codigo}: falha em {len(erros)} janela(s). " + " | ".join(erros)[:300])
     df = pd.DataFrame(partes)
     df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y")
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce")

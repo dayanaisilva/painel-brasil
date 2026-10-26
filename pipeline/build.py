@@ -42,7 +42,8 @@ STATUS: list[dict] = []
 # --------------------------------------------------------------------------- #
 # Coleta com fallback para o último CSV válido
 # --------------------------------------------------------------------------- #
-def coletar(id_: str, func, fonte: str) -> pd.DataFrame | None:
+def coletar(id_: str, func, fonte: str, max_atraso_dias: int = 120) -> pd.DataFrame | None:
+    """Baixa a série e só substitui a cópia salva se a nova for recente e não encolher."""
     arq = RAW / f"{id_}.csv"
     try:
         df = func()
@@ -51,6 +52,12 @@ def coletar(id_: str, func, fonte: str) -> pd.DataFrame | None:
             df = df[df.data <= pd.Timestamp.today()]  # algumas séries trazem meses futuros já decretados
         if df is None or df.empty:
             raise ValueError("série vazia")
+        if df.data.max() < pd.Timestamp.today() - pd.Timedelta(days=max_atraso_dias):
+            raise ValueError(f"série desatualizada: último dado em {df.data.max().date()}")
+        if arq.exists():
+            antigo = pd.read_csv(arq, parse_dates=["data"])
+            if df.data.max() < antigo.data.max() or len(df[df.data >= "2002-01-01"]) < 0.98 * len(antigo[antigo.data >= "2002-01-01"]):
+                raise ValueError(f"nova coleta menor que a anterior ({len(df)} vs {len(antigo)} obs)")
         df.to_csv(arq, index=False, date_format="%Y-%m-%d")
         STATUS.append({"indicador": id_, "fonte": fonte, "status": "atualizado",
                        "ultima_obs": str(df.data.max().date())})
@@ -261,13 +268,14 @@ def main():
         "dolar", SGS["dolar"], "BCB/SGS 1 (PTAX venda)", faixa(3, 10),
         (["câmbio", "comercial", "venda"], None, ["média", "r$ / us$"], faixa(3, 10), ("real", "efetiva", "fim"))),
         "BCB/SGS 1 (PTAX venda)")
-    pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)")
-    pibpc = coletar("pib_per_capita", lambda: fontes.banco_mundial("NY.GDP.PCAP.KD"), "Banco Mundial (IBGE)")
+    pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)", max_atraso_dias=800)
+    pibpc = coletar("pib_per_capita", lambda: fontes.banco_mundial("NY.GDP.PCAP.KD"), "Banco Mundial (IBGE)",
+                    max_atraso_dias=800)
     cesta = coletar("cesta_sp", ipea_auto("cesta_sp", ["cesta", "são paulo"], "DIEESE", ["valor", "custo"],
                                           faixa(300, 3000), ("variação", "horas", "%")),
                     "DIEESE via Ipeadata")
     gas = coletar("gasolina", gasolina, "ANP — Levantamento de Preços")
-    focos = coletar("queimadas", queimadas, "INPE/BDQueimadas")
+    focos = coletar("queimadas", queimadas, "INPE/BDQueimadas", max_atraso_dias=800)
     try:
         fontes.prodes_descobrir()
     except Exception as e:  # noqa: BLE001
