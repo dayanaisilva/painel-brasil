@@ -1,0 +1,9 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+DFSAUSE,Despesa por função - saúde e saneamento - empenhada - estadual,Min. Fazenda/STN,Anual,R$,
+DFSAUSM,Despesa por função - saúde e saneamento - empenhada - municipal,Min. Fazenda/STN,Anual,R$,
+HIST_FBKCG4N,"Capital fixo - formação bruta - construção - açudes, barragens, saneamento - adm. pública - INATIVA",IPEA,Anual,R$,I
+SCN104_PIBIUP104,"PIB - indústria - eletricidade, gás e saneamento básico - índice real encadeado (média 1995 = 100)",IBGE/SCN Trim.,Trimestral,-,A
+SCN104_PIBIUPAS104,"PIB - indústria - eletricidade, gás e saneamento básico - índice real encadeado dessazonalizado (média 1995 = 100)",IBGE/SCN Trim.,Trimestral,-,A
+SCN104_PIBIUPBM104,"PIB - indústria - eletricidade, gás e saneamento básico - índice real base móvel (média do ano anterior = 100)",IBGE/SCN Trim.,Trimestral,-,A
+SCN104_PIBIUPG104,"PIB - indústria - eletricidade, gás, e saneamento básico - variação real trimestral sobre mesmo trimestre do ano anterior",IBGE/SCN Trim.,Trimestral,(%),A
+SCN104_PIBIUPV104,"PIB - indústria - eletricidade, gás e saneamento básico",IBGE/SCN Trim.,Trimestral,R$,A

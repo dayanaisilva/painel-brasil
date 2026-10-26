@@ -1,0 +1,9 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+SIS_ESTABDTSUSUF,Número de estabelecimentos de diagnose e terapia pelo SUS,DATASUS,Anual,-,
+SIS_ESTABINTSUSUF,Número de estabelecimentos de internação pelo SUS,DATASUS,Anual,-,
+SIS_ESTABURGSUSUF,Número de estabelecimentos de urgência pelo SUS,DATASUS,Anual,-,
+SIS_ESTATAMBUF,Número de estabelecimentos de atendimento ambulatorial pelo SUS,DATASUS,Anual,-,
+SIS_ESTTMGCPTSUSUF,Número de estabelecimentos com tomógrafo computadorizado pelo SUS - INATIVA,DATASUS,Anual,-,
+SIS_NMLTCMPINFSUS1000UF,"Número de leitos complementares infantis (pediátricos + neonatal, UTI e Unidade Intermediária) pelo SUS por 10.000 habitantes",DATASUS,Anual,-,
+SIS_NMLTCMPSUS1000HUF,Número de leitos complementares pelo SUS (UTI e unidade intermediária) por 10.000 habitantes,DATASUS,Anual,-,
+SIS_NMLTINTSUS1000HUF,Número de leitos para internação pelo SUS por 10.000 habitantes,DATASUS,Anual,-,

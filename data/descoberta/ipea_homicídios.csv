@@ -1,0 +1,6 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+AVIOL12_HOMIC,Número de homicídios,DATASUS,Anual,Unidade,
+AVIOL12_HOMICF,Número de homicídios do sexo feminino,DATASUS,Anual,Unidade,
+AVIOL12_HOMICJ,Número de homicídios de jovens de 15 a 29 anos,DATASUS,Anual,Unidade,
+AVIOL12_HOMICM,Número de homicídios do sexo masculino,DATASUS,Anual,Unidade,
+AVIOL12_THOMIC,Taxa de homicídios (100.000 Habitantes),IPEA,Anual,Unidade,

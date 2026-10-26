@@ -1,0 +1,34 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+PNADC12_NDESOC12,Nível da desocupação,IBGE/PNAD Contínua,Mensal,(%),A
+PNADC12_NDESOCM12,Nível da desocupação - mensalizada,IPEA,Mensal,(%),A
+PNADC12_NDESOCMD12,Nível da desocupação - mensalizada dessazonalizada,IPEA,Mensal,(%),A
+PNADC12_TDESOC12,Taxa de desemprego (desocupação),IBGE/PNAD Contínua,Mensal,(%),A
+PNADC12_TDESOCFT12,Taxa combinada de desocupação e força de trabalho potencial,IBGE/PNAD Contínua,Mensal,(%),A
+PNADC12_TDESOCM12,Taxa de desocupação - mensalizada,IPEA,Mensal,(%),A
+PNADC12_TDESOCMD12,Taxa de desocupação - mensalizada dessazonalizada,IPEA,Mensal,(%),A
+PNADC12_TDESSUBOC12,Taxa combinada de desocupação e de subocupação,IBGE/PNAD Contínua,Mensal,(%),A
+PAN_TDESOC,Taxa de desocupação,IBGE/PNAD Contínua,Anual,(%),A
+PAN12_TDESOC12,Taxa de desocupação,IBGE/PNAD Contínua,Mensal,(%),A
+PAN4_TDESOC4,Taxa de desocupação,IBGE/PNAD Contínua,Trimestral,(%),A
+PNADCT_NIVDSCPUF,Nível da desocupação,IBGE/PNAD Contínua,Trimestral,(%),
+ADH_T_DES1014_BRA,Taxa de desocupação da população de 10 a 14 anos de idade - cor branca (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014_NEG,Taxa de desocupação da população de 10 a 14 anos de idade - cor negra (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_BRA,Taxa de desocupação da população de 15 a 17 anos de idade - cor branca (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_NEG,Taxa de desocupação da população de 15 a 17 anos de idade - cor negra (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_BRA,Taxa de desocupação da população de 18 anos ou mais de idade - cor branca (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_NEG,Taxa de desocupação da população de 18 anos ou mais de idade - cor negra (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014_HOM,Taxa de desocupação da população de 10 a 14 anos de idade - homens (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014_MUL,Taxa de desocupação da população de 10 a 14 anos de idade - mulheres (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_HOM,Taxa de desocupação da população de 15 a 17 anos de idade - homens (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_MUL,Taxa de desocupação da população de 15 a 17 anos de idade - mulheres (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_HOM,Taxa de desocupação da população de 18 anos ou mais de idade - homens (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_MUL,Taxa de desocupação da população de 18 anos ou mais de idade - mulheres (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014_RUR,Taxa de desocupação da população de 10 a 14 anos de idade - áreas rurais (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014_URB,Taxa de desocupação da população de 10 a 14 anos de idade - áreas urbanas (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_RUR,Taxa de desocupação da população de 15 a 17 anos de idade - áreas rurais (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517_URB,Taxa de desocupação da população de 15 a 17 anos de idade - áreas urbanas (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_RUR,Taxa de desocupação da população de 18 anos ou mais de idade - áreas rurais (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M_URB,Taxa de desocupação da população de 18 anos ou mais de idade - áreas urbanas (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1014,Taxa de desocupação da população de 10 a 14 anos de idade (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES1517,Taxa de desocupação da população de 15 a 17 anos de idade (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),
+ADH_T_DES18M,Taxa de desocupação da população de 18 anos ou mais de idade (Atlas DH - Censo),IPEA/ADH Censo IBGE,Decenal,(%),

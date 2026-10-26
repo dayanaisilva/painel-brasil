@@ -1,0 +1,5 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+HIST_FBKCG12N,Capital fixo - formação bruta - construção - água e esgoto - adm. pública - INATIVA,IPEA,Anual,R$,I
+PIBEGAE,"PIB Estadual (valor adicionado a preços básicos) - indústria - serviços de eletricidade e gás, água, esgoto e limpeza urbana (preços de 2010)",IBGE,Anual,"R$ (mil), a preços do ano 2010",
+PDIAE,Domicílios com rede de esgoto e/ou fossa séptica (Censo IBGE - Sidra),IPEA,Decenal,(%),
+PDIEREDE,Domicílios com rede de esgoto (Censo IBGE - Sidra),IBGE,Decenal,(%),

@@ -1,0 +1,4 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+FAM_PBF,Programa Bolsa Família (PBF) - número de benefícios em dezembro,MDS,Anual,Benefício,
+VAL_PBF,Programa Bolsa Família (PBF) - valor total dos benefícios em dezembro,MDS,Anual,R$ (mil),
+VAL_PBF12,Programa Bolsa Família (PBF) - valor total mensal dos benefícios,MDS,Mensal,R$ (mil),

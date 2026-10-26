@@ -1,0 +1,8 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+SIS_NMLTCMP1000HUF,Número de leitos complementares (UTI e unidade intermediária) por 10.000 habitantes,DATASUS,Anual,-,
+SIS_NMLTCMPINF1000UF,"Número de leitos complementares infantis (pediátricos + neonatal, UTI e Unidade Intermediária) por 10.000 habitantes",DATASUS,Anual,-,
+SIS_NMLTCMPINFSUS1000UF,"Número de leitos complementares infantis (pediátricos + neonatal, UTI e Unidade Intermediária) pelo SUS por 10.000 habitantes",DATASUS,Anual,-,
+SIS_NMLTCMPSUS1000HUF,Número de leitos complementares pelo SUS (UTI e unidade intermediária) por 10.000 habitantes,DATASUS,Anual,-,
+SIS_NMLTINT1000HUF,Número de leitos para internação por 10.000 habitantes,DATASUS,Anual,-,
+SIS_NMLTINTSUS1000HUF,Número de leitos para internação pelo SUS por 10.000 habitantes,DATASUS,Anual,-,
+SIS_NMLTINTUF,Número de leitos para internação,DATASUS,Anual,-,
