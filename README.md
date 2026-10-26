@@ -1,4 +1,4 @@
-# Painel Brasil 1985–2026
+# Tira-Teima · os números do Brasil, governo a governo (1985–2026)
 
 Indicadores econômicos e ambientais do Brasil desde a redemocratização, comparados governo a governo (de Sarney a Lula 3), com dados públicos oficiais e atualização automática.
 
