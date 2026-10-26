@@ -1,6 +1,6 @@
 indicador,fonte,status,ultima_obs,erro
 ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
-salario_minimo,BCB/SGS 1619,atualizado,2026-10-01,
+salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
 dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-26,
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
 populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",atualizado,2026-07-01,
@@ -21,5 +21,5 @@ desemprego,IBGE — PNAD Contínua (mensalizada pelo Ipea),atualizado,2026-08-01
 homicidios,Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea,atualizado,2024-01-01,
 bolsa_familia,"Ministério do Desenvolvimento Social (MDS), via Ipeadata",atualizado,2025-01-01,
 leitos_sus,"Ministério da Saúde (CNES/DATASUS), via Ipeadata",atualizado,2025-01-01,
-desmatamento,INPE — PRODES Amazônia Legal (via Ipeadata),indisponível,,nenhuma série candidata no Ipeadata
+desmatamento,INPE — PRODES Amazônia Legal (via Ipeadata),indisponível,,PRODES indisponível: https://terrabrasilis.dpi.inpe.br prodes_legal_amazon: 404 Client Error: Not Found for url: https://terrabrasilis.dpi.inpe.br/dashboard/api/v1/redis-cli/data/rates | https://terra
 inep_superior,INEP — Censo da Educação Superior,cópia anterior,2024,
