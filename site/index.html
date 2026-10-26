@@ -23,7 +23,7 @@
     <nav class="menu" aria-label="Seções">
       <a href="#calculadora">Calculadora</a>
       <a href="#governos">Governos</a>
-      <a href="#comparativo">Comparativo</a>
+      <a href="#comparativo">Comparar</a>
       <a href="#indicadores">Indicadores</a>
       <a href="#metodologia">Metodologia</a>
     </nav>
@@ -60,11 +60,20 @@
   </section>
 
   <section class="wrap bloco" id="comparativo">
-    <h2>Comparativo</h2>
-    <p class="sub">A métrica-resumo de cada indicador em cada governo. <span class="nota-parcial">*</span> Lula 3 está em andamento: valores parciais. — sem dado para o período.</p>
-    <div class="legenda-tabela"><span class="tag tag-bom">▲ entre os melhores</span><span class="tag tag-ruim">▼ entre os piores</span><span class="tag tag-neutro">dólar e gastos públicos: sem ranking</span></div>
-    <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela comparativa">
-      <table class="comparativo" id="tabela-comparativo"></table>
+    <h2>Compare dois governos</h2>
+    <p class="sub">Escolha dois períodos e veja, indicador por indicador, quem teve o melhor resultado. <span class="nota-parcial">*</span> Lula 3 está em andamento: valores parciais.</p>
+    <div class="duelo-sel">
+      <label>Governo A<select id="duelo-a"></select></label>
+      <span class="duelo-vs">×</span>
+      <label>Governo B<select id="duelo-b"></select></label>
+    </div>
+    <div id="duelo"></div>
+
+    <h2 class="h2-placar">Placar de todos os governos</h2>
+    <p class="sub">Cada bolinha é um indicador. <span class="tag tag-bom">● entre os melhores</span> <span class="tag tag-ruim">● entre os piores</span> <span class="tag tag-neutro">● no meio</span> Vazio: sem dado ou indicador sem ranking. Toque numa bolinha para ver o número.</p>
+    <label class="toggle"><input type="checkbox" id="placar-numeros"> Mostrar os números</label>
+    <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Placar de todos os governos">
+      <table class="placar" id="tabela-comparativo"></table>
     </div>
   </section>
 

@@ -248,26 +248,80 @@
 
   /* ---------- tabela comparativa ---------- */
   function tabelaComparativo() {
+    duelo();
+    placar();
+    document.getElementById("placar-numeros").addEventListener("change", placar);
+  }
+
+  // Compara dois governos indicador por indicador.
+  function duelo() {
+    const sa = document.getElementById("duelo-a"), sb = document.getElementById("duelo-b");
+    const opts = GOV.map((g) => `<option value="${g.id}">${esc(g.nome)}${innerWidth > 560 ? ` (${g.inicio.slice(0, 4)}–${g.id === "lula3" ? "hoje" : g.fim.slice(0, 4)})` : ""}</option>`).join("");
+    sa.innerHTML = opts; sb.innerHTML = opts;
+    sa.value = GOV.at(-2).id; sb.value = GOV.at(-1).id;
+    const desenhar = () => {
+      const A = sa.value, B = sb.value;
+      let placarA = 0, placarB = 0, h = "";
+      for (const [, nomeTema, ids] of TEMAS) {
+        const linhas = ids.filter((id) => D.indicadores[id]).map((id) => {
+          const ind = D.indicadores[id];
+          const ra = ind.resumo[A], rb = ind.resumo[B];
+          let ganhador = null;
+          if (ind.direcao && ra && rb && Math.abs(ra.valor - rb.valor) > 1e-9) {
+            const aMelhor = ind.direcao === "maior" ? ra.valor > rb.valor : ra.valor < rb.valor;
+            ganhador = aMelhor ? "A" : "B";
+            aMelhor ? placarA++ : placarB++;
+          }
+          const cel = (r, lado) => {
+            if (!r) return `<td class="du-val sem-dado">sem dado</td>`;
+            const win = ganhador === lado;
+            return `<td class="du-val${win ? " du-win" : ""}">${win ? '<span class="du-ic">▲</span>' : ""}<b>${fmt(resumoFmt(ind), r.valor)}${ast(r)}</b>${trajeto(ind, r) ? `<small>${trajeto(ind, r)}</small>` : ""}</td>`;
+          };
+          const nota = !ind.direcao ? '<small class="du-sem">sem ranking</small>' : ra && rb && !ganhador ? '<small class="du-sem">empate</small>' : "";
+          return `<tr>${cel(ra, "A")}<th scope="row"><a href="#ind-${id}">${esc(ind.pergunta || ind.titulo)}</a><small>${esc(ind.resumo_rotulo)}</small>${nota}</th>${cel(rb, "B")}</tr>`;
+        });
+        if (linhas.length) h += `<tr class="du-tema"><td colspan="3">${esc(nomeTema)}</td></tr>${linhas.join("")}`;
+      }
+      const nA = nomeGov(A), nB = nomeGov(B);
+      document.getElementById("duelo").innerHTML = A === B ? '<p class="vazio">Escolha dois governos diferentes.</p>' : `
+        <div class="du-placar"><div><b>${placarA}</b><span>indicadores em que ${esc(nA)} foi melhor</span></div>
+          <div><b>${placarB}</b><span>indicadores em que ${esc(nB)} foi melhor</span></div></div>
+        <p class="du-aviso">O placar só conta os indicadores em que os dois têm dado e há ranking. Contar vitórias não diz quais indicadores pesam mais. Leia cada linha.</p>
+        <div class="tabela-rolagem"><table class="duelo"><thead><tr><th>${esc(nA)}</th><th></th><th>${esc(nB)}</th></tr></thead><tbody>${h}</tbody></table></div>`;
+    };
+    sa.addEventListener("change", desenhar); sb.addEventListener("change", desenhar);
+    desenhar();
+  }
+
+  // Placar visual: uma bolinha por indicador e governo.
+  function placar() {
     const t = document.getElementById("tabela-comparativo");
-    let h = `<thead><tr><th>Indicador</th>${GOV.map((g) => `<th><a href="#gov-${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}</small></th>`).join("")}</tr></thead><tbody>`;
+    const numeros = document.getElementById("placar-numeros").checked;
+    const conta = Object.fromEntries(GOV.map((g) => [g.id, { bom: 0, ruim: 0 }]));
+    let corpo = "";
     for (const [, nomeTema, ids] of TEMAS) {
       const presentes = ids.filter((id) => D.indicadores[id]);
       if (!presentes.length) continue;
-      h += `<tr class="linha-tema"><th colspan="${GOV.length + 1}">${esc(nomeTema)}</th></tr>`;
+      corpo += `<tr class="linha-tema"><th colspan="${GOV.length + 1}">${esc(nomeTema)}</th></tr>`;
       for (const id of presentes) {
         const ind = D.indicadores[id];
-        h += `<tr><td class="gov"><a href="#ind-${id}">${esc(CURTO[id][0])}</a><small>${esc(CURTO[id][1])}${ind.direcao ? "" : " · sem ranking"}</small></td>`;
+        corpo += `<tr><td class="gov"><a href="#ind-${id}">${esc(CURTO[id][0])}</a><small>${esc(CURTO[id][1])}</small></td>`;
         for (const g of GOV) {
           const r = ind.resumo[g.id];
-          if (!r) { h += '<td class="num sem-dado">—</td>'; continue; }
-          const cls = r.avaliacao === "bom" ? " cel-bom" : r.avaliacao === "ruim" ? " cel-ruim" : "";
-          const ic = r.avaliacao === "bom" ? '<span class="ic">▲</span>' : r.avaliacao === "ruim" ? '<span class="ic">▼</span>' : "";
-          h += `<td class="num${cls}">${ic}${fmt(resumoFmt(ind), r.valor)}${ast(r)}</td>`;
+          if (!r) { corpo += '<td class="pl"><span class="pl-vazio" title="sem dado">·</span></td>'; continue; }
+          if (r.avaliacao) conta[g.id][r.avaliacao]++;
+          const cls = !ind.direcao ? "pl-sem" : r.avaliacao === "bom" ? "pl-bom" : r.avaliacao === "ruim" ? "pl-ruim" : "pl-meio";
+          const dica = `${g.nome} · ${ind.titulo}: ${fmt(resumoFmt(ind), r.valor)}${r.parcial ? " (parcial)" : ""}${r.posicao ? ` · ${r.posicao}º de ${r.total}` : ""}`;
+          corpo += numeros
+            ? `<td class="pl pl-num ${cls}" title="${esc(dica)}">${fmt(resumoFmt(ind), r.valor)}${ast(r)}</td>`
+            : `<td class="pl" title="${esc(dica)}"><span class="pl-dot ${cls}" tabindex="0" aria-label="${esc(dica)}"></span></td>`;
         }
-        h += "</tr>";
+        corpo += "</tr>";
       }
     }
-    t.innerHTML = h + "</tbody>";
+    const cab = `<thead><tr><th></th>${GOV.map((g) => `<th><a href="#gov-${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}</small></th>`).join("")}</tr>
+      <tr class="pl-resumo"><th>Total</th>${GOV.map((g) => `<td><span class="pl-cont bom">${conta[g.id].bom}</span><span class="pl-cont ruim">${conta[g.id].ruim}</span></td>`).join("")}</tr></thead>`;
+    t.innerHTML = cab + `<tbody>${corpo}</tbody>`;
   }
 
   function tabelaGovernos() {
