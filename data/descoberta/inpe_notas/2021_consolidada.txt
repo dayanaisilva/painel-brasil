@@ -1,0 +1,118 @@
+A taxa consolidada de desmatamento por corte raso para os nove Estados da
+Amazônia Legal em 2021 foi de 13.038 km2
+O Instituto Nacional de Pesquisas Espaciais (INPE), unidade vinculada ao Ministério de
+Ciência, Tecnologia e Inovações (MCTI) divulga anualmente a taxa consolidada de
+desmatamento para os nove Estados da Amazônia Legal Brasileira (ALB). A taxa foi
+calculada utilizando o resultado da análise das 229 imagens que recobrem toda a ALB.
+O valor consolidado da área desmatada calculada para o período de 01 de agosto de
+2020 e 31 de julho de 2021 foi de 13.038 km2. Este valor representou um aumento de
+20,15 % em relação à taxa de desmatamento consolidada apurada pelo PRODES em
+2020, que foi de 10.851 km2 para os nove Estados da ALB.
+Esta taxa é calculada anualmente baseada nos dados gerados pelo Programa de
+Monitoramento da Floresta Amazônica Brasileira por Satélite (PRODES). O
+mapeamento, para registrar e quantificar as áreas desmatadas maiores que 6,25
+hectares, baseou-se em imagens da série de satélites Landsat ou similares. O PRODES
+considera como desmatamento a remoção completa da cobertura florestal primária
+por corte raso, ou o estágio final de uma degradação progressiva da floresta em que há
+a perda completa do dossel, independentemente da futura utilização destas áreas.
+A Tabela 1 apresenta a distribuição da taxa de desmatamento para o ano de 2021 nos
+estados da ALB. Os valores apresentados para os estados do Pará, Amazonas, Mato
+Grosso e Rondônia corresponderam a 87,67% de todo desmatamento observado na
+ALB. Esta distribuição pode ser observada espacialmente na Figura 1, que apresenta o
+mapa de ocorrências de desmatamento identificadas no PRODES 2021.
+Tabela 1 – Distribuição da taxa por estado da ALB.
+Estado PRODES 2021 (km2) Contribuição (%)
+Acre 889 6,82
+Amazonas 2.306 17,69
+Amapá 17 0,13
+Maranhão 350 2,68
+Mato Grosso 2.213 16,97
+Pará 5.238 40,18
+Rondônia 1.673 12,83
+Roraima 315 2,42
+Tocantins 37 0,28
+ALB 13.038 100
+Figura 1 – Mapa de ocorrências de desmatamento identificadas no PRODES 2021, nas 229
+cenas que compõem a Amazônia Legal Brasileira.
+A Tabela 2 apresenta as variações da taxa para cada estado entre os anos de 2020 e
+2021. Exceto no Amapá, a análise desta tabela mostra um crescimento do
+desmatamento nos estados da ALB. Deve-se ressaltar que o estado do Pará teve a
+maior contribuição absoluta de desmatamento em 2021 (5.238 km²), mas apresentou
+variação percentual não tão elevada entre 2020 e 2021 (6,92 %). Por outro lado, o
+Amazonas, segundo estado que mais contribuiu com desmatamento (2.306 km²),
+apresentou a maior variação percentual (52,51 %). Outro estado que apresentou
+elevada variação percentual foi o Tocantins (48,0 %), entretanto com o segundo menor
+valor absoluto de desmatamento na ALB (37 km²).
+Tabela 2 – Valores absolutos e variação percentual para cada estado.
+PRODES 2020 PRODES 2021
+Estado Variação (%)
+(km2) (km2)
+Acre 706 889 25,92
+Amazonas 1.512 2.306 52,51
+Amapá 24 17 -29,17
+Maranhão 336 350 4,17
+Mato Grosso 1.779 2.213 24,40
+Pará 4.899 5.238 6,92
+Rondônia 1.273 1.673 31,42
+Roraima 297 315 6,06
+Tocantins 25 37 48,00
+ALB 10.851 13.038 20,15
+A taxa consolidada de desmatamento apresentou um valor -1,49 % abaixo da taxa
+estimada pelo PRODES em outubro de 2021, que foi de 13.235 km². A variação entre
+os valores estimado e consolidado por estado da ALB é apresentada na Tabela 3. A
+estimativa da taxa, naquela época, usou um subconjunto de 106 cenas prioritárias do
+sensor OLI/Landsat-8 ou similares dentro do conjunto das 229 que recobrem a
+Amazônia Legal. As 106 cenas selecionadas como prioritárias atenderam a três
+critérios: 1) cobrir a região onde foram registrados pelo menos 90% do desmatamento
+no período anterior do PRODES (agosto/2019 a julho/2020); 2) cobrir regiões onde
+foram registrados pelo menos 90% dos avisos de desmatamento do DETER 2020/2021;
+e 3) cobrir os 54 municípios prioritários para fiscalização referidos no Decreto Federal
+6.321/2007 e atualizado em 2018, 2020 e 2021 pelas Portarias Nº. 428, 161 e 9 do 19
+de novembro de 2018, 15 de abril de 2020 e 11 de janeiro de 2021 do Ministério do
+Meio Ambiente (MMA). As 106 cenas OLI/Landsat-8 utilizadas para estimar a taxa de
+desmatamento do PRODES 2021 cobriram 96,29 % das áreas desmatadas mapeadas no
+PRODES 2021. O que demonstra a adequada escolha das cenas prioritárias.
+Tabela 3 – Taxas estimadas e consolidadas por estado da ALB, PRODES 2021.
+Estimativa
+Consolidado 229 Variação consolidado /
+Estado 106 cenas
+cenas (km2) estimativa (%)
+(km2)
+Acre 871 889 2,07
+Amazonas 2.347 2.306 -1,75
+Amapá 39 17 -56,41
+Maranhão 363 350 -3,58
+Mato Grosso 2.263 2.213 -2,21
+Pará 5.257 5.238 -0,36
+Rondônia 1.681 1.673 -0,48
+Roraima 386 315 -18,39
+Tocantins 28 37 32,14
+ALB 13.235 13.038 -1,49
+As Figuras 2 e 3 mostram, respectivamente, a série histórica das taxas de desmatamento
+do PRODES para a ALB, em km2, considerando em 2021 o valor consolidado apresentado
+nesta nota, e a variação percentual das taxas de um ano para o outro. A Figura 4 apresenta
+as taxas consolidadas anuais por estado da ALB.
+Figura 2 –Taxas consolidadas anuais de desmatamento do PRODES (em km2) desde 1988 na
+Amazônia Legal Brasileira.
+Figura 3 – Variação relativa anual das taxas consolidadas do PRODES na Amazônia Legal
+Brasileira.
+Figura 4 – Taxas consolidadas de desmatamento anual por estado da Amazônia Legal Brasileira
+na série histórica do PRODES (em km²).
+Por meio do PRODES, o INPE/MCTI realiza o mapeamento sistemático da Amazônia Legal e
+produz, desde 1988, as taxas anuais de desmatamento na região. Essa série histórica é
+usada pelo governo brasileiro para avaliação e estabelecimento de políticas públicas
+relativas ao controle do desmatamento e ações voltadas a temática de REDD+.
+Além do uso governamental, os dados do PRODES embasam iniciativas bem-sucedidas no
+setor privado que conjugam produção e sustentabilidade, como a Moratória da Soja e o
+Termo de Ajuste de Conduta (TAC) da cadeia produtiva de carne bovina, entre outras. A
+série histórica do PRODES é ainda usada em milhares de trabalhos científicos,
+demonstrando também sua importância científica e ambiental em benefício da sociedade
+brasileira.
+O INPE também informa que através do projeto Monitoramento Ambiental dos Biomas
+Brasileiros: Mata Atlântica, Caatinga, Pampa e Pantanal, financiado pelo Fundo
+Amazônia, e do projeto BiomasBR MCTI - Cerrado do Ministério da Ciência, Tecnologia
+e Inovações (MCTI), está produzindo mapeamentos PRODES para todos os biomas
+brasileiros. Também está em produção a série histórica de dados de supressão de
+vegetação natural não florestal no bioma Amazônia, que deverá ser apresentada
+juntamente com a estimativa da taxa PRODES 2022.
+São José dos Campos, 03 de junho de 2022.
