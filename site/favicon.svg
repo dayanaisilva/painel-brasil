@@ -3,8 +3,10 @@
   <!-- cores da bandeira: verde, amarelo, azul e branco -->
   <rect width="64" height="64" rx="14" fill="#009C3B"/>
   <path d="M32 6 L58 32 L32 58 L6 32 Z" fill="#FFDF00"/>
-  <rect x="17" y="17" width="30" height="8" rx="2" fill="#002776"/>
-  <rect x="28" y="17" width="8" height="30" rx="2" fill="#002776"/>
-  <circle cx="45" cy="45" r="10" fill="#ffffff"/>
-  <path d="M40.2 45.2 l3.3 3.3 l6.3 -6.6" fill="none" stroke="#009C3B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- T branco com contorno azul para ter contraste sobre o amarelo -->
+  <g fill="#ffffff" stroke="#002776" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M17 17 H47 V25 H36 V47 H28 V25 H17 Z"/>
+  </g>
+  <circle cx="45" cy="45" r="10" fill="#002776"/>
+  <path d="M40.2 45.2 l3.3 3.3 l6.3 -6.6" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
