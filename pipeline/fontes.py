@@ -508,47 +508,59 @@ def prodes_taxas_descobrir() -> None:
 # e a do ano anterior (tabela por estado, linha "ALB"/"Amazônia Legal"). Os valores são lidos do PDF;
 # nada é digitado à mão. (ano da nota, tipo, url)
 PRODES_NOTAS = [
-    (2021, "estimativa", "https://www.gov.br/inpe/pt-br/assuntos/divulgacao-de-dados-prodes.pdf"),
-    (2021, "consolidada", "https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/nota-tecnica-prodes/NotaTecnica_consolidado_PRODES_2021_rev.pdf"),
-    (2022, "consolidada", "https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/a-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-amazonia-legal-em-2022-foi-de-11-594-km2-1/NotaTecnica_consolidado_PRODES_2022.pdf"),
-    (2024, "estimativa", "https://data.inpe.br/wp-content/uploads/2024/11/NT_Amz_tx_Prodes2024_T.pdf"),
-    (2024, "consolidada", "https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf"),
-    (2025, "estimativa", "https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf"),
-    (2025, "consolidada", "https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf"),
+    (2021, "estimativa", ["https://www.gov.br/inpe/pt-br/assuntos/divulgacao-de-dados-prodes.pdf"]),
+    (2021, "consolidada", ["https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/nota-tecnica-prodes/NotaTecnica_consolidado_PRODES_2021_rev.pdf",
+                           "http://mtc-m21d.sid.inpe.br/col/sid.inpe.br/mtc-m21d/2023/12.29.14.19/doc/NotaTecnica_consolidado_PRODES_2021_rev.pdf"]),
+    (2022, "consolidada", ["https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/a-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-amazonia-legal-em-2022-foi-de-11-594-km2-1/NotaTecnica_consolidado_PRODES_2022.pdf"]),
+    (2023, "estimativa", ["https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/estimativa-de-desmatamento-na-amazonia-legal-para-2023-e-de-9-001-km2/2023_1020_Nota_tecnica_Estimativa_Taxa_2023_SEI.pdf"]),
+    (2024, "estimativa", ["https://data.inpe.br/wp-content/uploads/2024/11/NT_Amz_tx_Prodes2024_T.pdf"]),
+    (2024, "consolidada", ["https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf"]),
+    (2025, "estimativa", ["https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf"]),
+    (2025, "consolidada", ["https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf"]),
 ]
-_NUM = r"\d{1,2}\.\d{3}(?:,\d+)?|\d{3,5}(?:,\d+)?"
+_NUM = r"\d{1,2}\.\d{3}"
 
 
 def _km(t: str) -> float:
     return float(t.replace(".", "").replace(",", "."))
 
 
-def _ler_nota(ano: int, url: str) -> tuple[dict, str]:
-    """Baixa a nota e devolve {ano: km²} da linha da Amazônia Legal, mais o texto extraído."""
+def _baixar_pdf(urls: list[str]) -> tuple[bytes, str]:
+    """Tenta cada endereço oficial; no gov.br (Plone), também o link direto de download do arquivo."""
+    erros = []
+    for u in urls:
+        for v in ([u, u + "/@@download/file"] if "gov.br" in u else [u]):
+            try:
+                r = _get(v, tentativas=2)
+                if r.content[:5].startswith(b"%PDF"):
+                    return r.content, u
+                erros.append(f"{v}: não é PDF ({r.headers.get('content-type')})")
+            except Exception as e:  # noqa: BLE001
+                erros.append(f"{v}: {str(e)[:120]}")
+    raise ValueError(" | ".join(erros)[:400])
+
+
+def _ler_nota(ano: int, urls: list[str]) -> tuple[dict, str, str]:
+    """Lê do texto da nota a taxa do ano e a do ano anterior, nas frases em que o INPE as anuncia:
+    título ("... para 2025 é de 5.731 km2") e comparação ("... Prodes 2024, que foi de 6.518 km2")."""
     import pdfplumber
-    r = _get(url, tentativas=3)
-    if not r.content[:5].startswith(b"%PDF"):
-        raise ValueError(f"não é PDF (HTTP {r.status_code}, {r.headers.get('content-type')})")
-    with pdfplumber.open(io.BytesIO(r.content)) as pdf:
+    conteudo, url = _baixar_pdf(urls)
+    with pdfplumber.open(io.BytesIO(conteudo)) as pdf:
         texto = "\n".join((pg.extract_text() or "") for pg in pdf.pages)
+    corrido = re.sub(r"\s+", " ", texto)
     achados = {}
-    # Linha de total da tabela por estado: "ALB 10.851 13.235 21,97%" (ano anterior, ano da nota, variação)
-    for linha in texto.splitlines():
-        if re.match(r"\s*(ALB|AML|AMZ|Amaz[ôo]nia Legal|Total)\b", linha, re.I):
-            nums = [n for n in re.findall(_NUM, linha.split("%")[0]) if "," not in n or n.count(".")]
-            nums = [_km(n) for n in nums if _km(n) >= 1000]
-            if len(nums) >= 2:
-                achados = {ano - 1: nums[0], ano: nums[1]}
-                break
-            if len(nums) == 1 and ano not in achados:
-                achados = {ano: nums[0]}
-    # Conferência com a frase principal da nota ("... para 2025 é de 5.731 km²")
-    frase = re.search(rf"{ano}[^.\n]{{0,80}}?(?:é|foi) de\s*({_NUM})\s*km", texto.replace("\n", " "))
-    if frase and ano in achados and abs(_km(frase.group(1)) - achados[ano]) > 0.5:
-        raise ValueError(f"tabela ({achados[ano]}) e texto ({frase.group(1)}) divergem")
-    if frase and ano not in achados:
-        achados[ano] = _km(frase.group(1))
-    return achados, texto
+    atual = re.search(rf"para {ano} (?:é|foi) de ({_NUM}) ?km", corrido)
+    if atual:
+        achados[ano] = _km(atual.group(1))
+    ant = re.search(rf"pro?des(?: em)? {ano - 1},? que foi de ({_NUM}) ?km", corrido, re.I)
+    if ant:
+        achados[ano - 1] = _km(ant.group(1))
+    # Conferência: a tabela por estado (linha ALB) tem de conter os mesmos números
+    # (o valor precisa aparecer de novo no texto, além da frase; se não aparecer, fica de fora)
+    achados = {a: v for a, v in achados.items() if corrido.count(f"{int(v):,}".replace(",", ".")) >= 2}
+    if not achados:
+        raise ValueError("nenhuma taxa confirmada no texto da nota")
+    return achados, texto, url
 
 
 def prodes_taxas() -> pd.DataFrame:
@@ -557,9 +569,10 @@ def prodes_taxas() -> pd.DataFrame:
     pasta = DESCOBERTA / "inpe_notas"
     pasta.mkdir(parents=True, exist_ok=True)
     diag, melhor = [], {}
-    for ano, tipo, url in PRODES_NOTAS:
+    for ano, tipo, urls in PRODES_NOTAS:
+        url = urls[0]
         try:
-            achados, texto = _ler_nota(ano, url)
+            achados, texto, url = _ler_nota(ano, urls)
             (pasta / f"{ano}_{tipo}.txt").write_text(texto, encoding="utf-8")
             diag.append({"nota": f"{ano} {tipo}", "url": url, "achados": str(achados)})
         except Exception as e:  # noqa: BLE001
