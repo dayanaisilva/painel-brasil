@@ -729,6 +729,10 @@ def main():
             raise ValueError(f"série PRODES fora do esperado (2004={v.get(2004)}, último={df.data.max().year})")
         return df
 
+    try:
+        fontes.prodes_taxas_descobrir()
+    except Exception as e:  # noqa: BLE001
+        log.warning("descoberta PRODES: %s", e)
     desm = coletar("desmatamento", desmatamento, "INPE — PRODES Amazônia Legal (via Ipeadata)", max_atraso_dias=365 * 3)
     if desm is not None:
         a = anual(desm)
@@ -839,7 +843,7 @@ def coletar_inep():
     ultimo = date.today().year - 1
     pendentes = [a for a in range(1995, ultimo + 1) if not (a in feitos and a < ultimo - 1)]
     # Baixa no máximo 8 anos por execução; os demais entram nas próximas (o progresso fica salvo no CSV).
-    for ano in pendentes[:8]:
+    for ano in sorted(pendentes, reverse=True)[:8]:  # mais recentes primeiro
         try:
             novos.append(fontes.inep_ano(ano, diag))
         except Exception as e:  # noqa: BLE001

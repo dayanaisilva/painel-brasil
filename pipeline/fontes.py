@@ -428,17 +428,24 @@ def inep_ano(ano: int, diag: list) -> dict:
                 if ies:
                     with z.open(ies) as fh:
                         diag.append({"ano": ano, "url": url, "arquivos": "IES cabeçalho: " + fh.readline().decode("latin-1")[:700]})
-                    d = _ler_csv_zip(z, ies, lambda c: "CATEGORIA" in c or "ORGANIZACAO" in c or c in ("CO_IES",))
+                    d = _ler_csv_zip(z, ies, lambda c: any(k in c for k in ("CATEGORIA", "CATEGADM", "DEP_ADM", "DEPENDENCIA",
+                                                                             "ORGANIZACAO", "NOMEORGACAD", "NATUREZA", "NUMERODEIES"))
+                                     or c in ("CO_IES",))
                     d.columns = [_norm(c) for c in d.columns]
-                    cat = next((c for c in d.columns if "CATEGORIA" in c), None)
-                    org = next((c for c in d.columns if "ORGANIZACAO" in c), None)
+                    pref = lambda chaves: next((c for k in chaves for c in d.columns if k in c), None)  # noqa: E731
+                    cat = pref(["CATEGORIA", "CATEGADM", "DEPENDENCIA", "DEP_ADM"])
+                    org = pref(["ORGANIZACAO", "NOMEORGACAD", "NO_NATUREZA", "NATUREZA"])
                     if cat is None or org is None:
                         raise ValueError(f"IES sem colunas de categoria/organização: {list(d.columns)[:20]}")
                     diag.append({"ano": ano, "url": url, "arquivos": f"IES colunas: {list(d.columns)} | cat={d[cat].value_counts().head(6).to_dict()} | org={d[org].value_counts().head(6).to_dict()}"[:900]})
                     cv = d[cat].fillna("").str.strip().str.upper()
                     fed = d[(cv == "1") | cv.str.contains("FEDERAL")]
                     o = fed[org].fillna("").str.strip().str.upper()
-                    n_univ = int(((o == "1") | o.str.contains("UNIVERSIDADE") & ~o.str.contains("CENTRO")).sum())
+                    eh_univ = (o == "1") | (o.str.contains("UNIVERSIDADE") & ~o.str.contains("CENTRO"))
+                    if "NUMERODEIES" in fed.columns:  # 2000–2008: arquivo agregado, uma linha por grupo com a contagem
+                        n_univ = int(pd.to_numeric(fed.loc[eh_univ, "NUMERODEIES"], errors="coerce").fillna(0).sum())
+                    else:
+                        n_univ = int(eh_univ.sum())
                     # validação: o país teve entre 30 e 90 universidades federais em todo o período
                     out["universidades_federais"] = n_univ if 30 <= n_univ <= 90 else None
                     if out["universidades_federais"] is None:
@@ -469,9 +476,7 @@ def inep_ano(ano: int, diag: list) -> dict:
 def prodes_taxas_descobrir() -> None:
     """Procura a tabela oficial de taxas anuais do PRODES (Amazônia Legal) e registra o que achar."""
     linhas = []
-    paginas = ["https://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes",
-               "http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes",
-               "https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates"]
+    paginas = ["https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates"]
     for pg in paginas:
         try:
             r = _get(pg, tentativas=1)
@@ -482,11 +487,14 @@ def prodes_taxas_descobrir() -> None:
                     linhas.append({"url": pg, "tipo": f"tabela {i}", "info": t.head(8).to_string()[:1500]})
             except Exception as e:  # noqa: BLE001
                 linhas.append({"url": pg, "tipo": "tabelas", "info": str(e)[:200]})
-            for js in re.findall(r'src="([^"]+\.js)"', html)[:6]:
-                u = js if js.startswith("http") else pg.rsplit("/", 1)[0] + "/" + js.lstrip("./")
+            from urllib.parse import urljoin
+            base = re.search(r'<base href="([^"]+)"', html)
+            raiz = urljoin(pg, base.group(1)) if base else pg
+            for js in re.findall(r'src="([^"]+\.js)"', html)[:8]:
+                u = urljoin(raiz, js)
                 try:
                     codigo = _get(u, tentativas=1).text
-                    for m in sorted(set(re.findall(r'["\'`]([^"\'`]*(?:api|rates|taxa)[^"\'`]{0,120})["\'`]', codigo)))[:40]:
+                    for m in sorted(set(re.findall(r'["\'`]([^"\'`\s]*(?:/api/|rates|redis|dashboard|geoserver|wfs)[^"\'`\s]{0,120})["\'`]', codigo)))[:80]:
                         linhas.append({"url": u, "tipo": "js", "info": m[:200]})
                 except Exception as e:  # noqa: BLE001
                     linhas.append({"url": u, "tipo": "js erro", "info": str(e)[:200]})
