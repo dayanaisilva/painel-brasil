@@ -611,6 +611,14 @@ def main():
             d["mapa_fome"] = {str(int(r.ano)): bool(r.valor > 2.5) for r in a.itertuples()}
         ind[id_] = d
 
+    # Descoberta (não afeta o site): séries oficiais candidatas para SUS e programas sociais.
+    for termos in (["internações"], ["sus"], ["leitos"], ["vacina"], ["bolsa família"], ["benefici"],
+                   ["matrículas"], ["ideb"], ["saneamento"], ["esgoto"], ["homicídios"], ["desocupação"]):
+        try:
+            fontes.ipea_buscar(*termos, periodicidade=None)
+        except Exception as e:  # noqa: BLE001
+            log.warning("descoberta %s: %s", termos, e)
+
     inep = coletar_inep()
     if inep is not None and not inep.empty:
         for col, titulo, pergunta, unidade, descricao in [
