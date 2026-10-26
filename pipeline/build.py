@@ -319,6 +319,12 @@ def main():
                     "DIEESE via Ipeadata")
     gas = coletar("gasolina", gasolina, "ANP — Levantamento de Preços")
     focos = coletar("queimadas", queimadas, "INPE/BDQueimadas", max_atraso_dias=800)
+    # Descoberta (não afeta o site): candidatas oficiais do IBGE para PIB per capita e população.
+    for termos in (["per capita"], ["população"]):
+        try:
+            fontes.ipea_buscar(*termos, periodicidade="Anual")
+        except Exception as e:  # noqa: BLE001
+            log.warning("descoberta %s: %s", termos, e)
 
     idx = indice_precos(ipca) if ipca is not None else None
     ref_mes = idx.index[-1].strftime("%m/%Y") if idx is not None else ""
