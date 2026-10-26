@@ -3,8 +3,8 @@
   <!-- cores da bandeira: verde, amarelo, azul e branco -->
   <rect width="64" height="64" rx="14" fill="#009C3B"/>
   <path d="M32 6 L58 32 L32 58 L6 32 Z" fill="#FFDF00"/>
-  <!-- T branco com contorno azul para ter contraste sobre o amarelo -->
-  <g fill="#ffffff" stroke="#002776" stroke-width="2.4" stroke-linejoin="round">
+  <!-- T branco -->
+  <g fill="#ffffff">
     <path d="M17 17 H47 V25 H36 V47 H28 V25 H17 Z"/>
   </g>
   <circle cx="45" cy="45" r="10" fill="#002776"/>
