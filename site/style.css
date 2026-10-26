@@ -205,3 +205,17 @@ td.gov a { text-decoration: none; }
 .mf-ano.fora b { color: var(--bom); }
 .mf-leg { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .mf-leg .mf-ano { width: 20px; }
+
+/* calculadora */
+.calc { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; max-width: 640px; }
+.calc label { display: grid; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; }
+.calc-moeda { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink-3); }
+.calc input, .calc select { font: 500 18px var(--mono); padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; }
+.calc input:focus, .calc select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.calc-res { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.calc-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; }
+.calc-card span { font-size: 12px; color: var(--ink-2); }
+.calc-card b { font: 650 28px var(--serif); }
+.calc-card small { font-size: 12px; color: var(--ink-3); }
+.calc-nota { grid-column: 1 / -1; font-size: 13px; color: var(--ink-3); margin: 0; max-width: 75ch; }
+@media (max-width: 520px) { .calc { grid-template-columns: 1fr 1fr; } .calc label:first-child { grid-column: 1 / -1; } }

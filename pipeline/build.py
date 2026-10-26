@@ -488,15 +488,34 @@ def main():
             fonte_url="https://www.dieese.org.br/cesta/")
 
     if gas is not None and idx is not None:
-        r = deflacionar(mensal(recorte(gas)), idx)
+        gm = mensal(recorte(gas))
+        r = deflacionar(gm, idx)
+        nominal = dict(zip(gm.data.dt.strftime("%Y-%m"), gm.valor.round(3)))
         ind["gasolina"] = dict(
             tema="custo",
             titulo="Gasolina", unidade=f"R$/litro de {ref_mes}", formato="moeda", grafico="linha", freq="mensal",
             direcao="menor", pergunta="Abastecer ficou mais caro?",
-            descricao=f"Preço médio da gasolina comum nos postos, corrigido pelo IPCA para reais de {ref_mes}. A pesquisa da ANP começa em 2001.",
+            descricao=(f"Preço médio da gasolina comum nos postos, corrigido pelo IPCA para reais de {ref_mes}. "
+                       "Passe o mouse para ver também o preço que se pagava na época. A pesquisa nacional de preços da ANP começa em jul/2001; "
+                       "antes disso o preço era tabelado pelo governo e não há série oficial de preço médio nos postos."),
             resumo_rotulo="preço real médio", resumo=resumo_media_mensal(r),
-            serie=serie_json(r, "%Y-%m"), fonte="ANP — Levantamento de Preços de Combustíveis (série histórica mensal)",
+            serie=[dict(p, n=nominal.get(p["x"])) for p in serie_json(r, "%Y-%m")],
+            fonte="ANP — Levantamento de Preços de Combustíveis (série histórica mensal)",
             fonte_url="https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos")
+        if sm_r is not None:
+            j = gm[["data", "valor"]].merge(sm_r[["data", "valor"]], on="data", suffixes=("_gas", "_sm"))
+            j["valor"] = j.valor_sm / j.valor_gas
+            j["governo"] = [governo_do_mes(d.year, d.month) for d in j.data]
+            ind["gasolina_litros"] = dict(
+                tema="custo",
+                titulo="Litros de gasolina por salário mínimo", unidade="litros", formato="inteiro", grafico="linha",
+                freq="mensal", direcao="maior", pergunta="Quantos litros o salário mínimo comprava?",
+                descricao=("Salário mínimo dividido pelo preço do litro, os dois na moeda da mesma época. Não depende de "
+                           "nenhum índice de inflação: mostra direto o poder de compra de quem ganha o mínimo."),
+                resumo_rotulo="litros por salário, em média", resumo=resumo_media_mensal(j),
+                serie=serie_json(j, "%Y-%m"),
+                fonte="ANP (preço da gasolina) e salário mínimo (BCB/Ipea)",
+                fonte_url="https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos")
 
     if dolar is not None:
         d = mensal(recorte(dolar))
@@ -686,7 +705,16 @@ def main():
             return [limpa(v) for v in o]
         return o
 
-    saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"),
+    calc = None
+    if idx is not None and sm_r is not None:
+        base = idx[idx.index >= f"{ANO_INICIAL}-01-01"]
+        smd = dict(zip(sm_r.data, sm_r.valor))
+        calc = {"meses": [d.strftime("%Y-%m") for d in base.index],
+                "indice": [round(float(v), 10) for v in base.values],
+                "salario": [round(float(smd[d]), 8) if d in smd else None for d in base.index],
+                "ref": ref_mes, "trocas": [{"data": t[0], "fator": t[1], "rotulo": t[2]} for t in moedas.TROCAS]}
+
+    saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
              "indicadores": limpa(ind), "fontes": STATUS}
     (SITE_DATA / "painel.json").write_text(json.dumps(saida, ensure_ascii=False), encoding="utf-8")

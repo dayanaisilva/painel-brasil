@@ -6,7 +6,7 @@
                   dilma1: "D1", dilma2: "D2", temer: "T", bolsonaro: "B", lula3: "L3" };
   const TEMAS = [
     ["economia", "Economia", ["pib_crescimento", "pib_per_capita", "dolar"]],
-    ["custo", "Custo de vida e renda", ["ipca", "salario_minimo", "cesta_sp", "gasolina"]],
+    ["custo", "Custo de vida e renda", ["ipca", "salario_minimo", "cesta_sp", "gasolina", "gasolina_litros"]],
     ["fome", "Fome, pobreza e desigualdade", ["fome", "pobreza", "gini"]],
     ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "gasto_saude"]],
     ["educacao", "Educação", ["analfabetismo", "ensino_superior", "universidades_federais", "municipios_federais", "gasto_educacao"]],
@@ -20,6 +20,7 @@
     salario_minimo: ["Salário mínimo", "ganho real"],
     cesta_sp: ["Cesta básica SP", "% do mínimo"],
     gasolina: ["Gasolina", "R$/l de hoje"],
+    gasolina_litros: ["Gasolina por salário", "litros/salário mínimo"],
     queimadas: ["Queimadas", "focos/ano"],
     dolar: ["Dólar", "média R$"],
     fome: ["Fome (FAO)", "variação %/ano"],
@@ -108,6 +109,7 @@
     document.getElementById("gerado-em").textContent =
       new Date(D.gerado_em).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
     linhaDoTempo();
+    calculadora();
     cardsGoverno();
     tabelaComparativo();
     tabelaGovernos();
@@ -135,6 +137,52 @@
       seg.innerHTML = `<span class="lt-nome">${esc(g.nome)}</span><span class="lt-anos">${g.inicio.slice(0, 4)}</span>`;
       box.append(seg);
     }
+  }
+
+  /* ---------- calculadora ---------- */
+  const MOEDAS = [
+    ["1986-02-28", "Cruzeiro", "Cr$"], ["1989-01-16", "Cruzado", "Cz$"], ["1990-03-16", "Cruzado Novo", "NCz$"],
+    ["1993-08-01", "Cruzeiro", "Cr$"], ["1994-07-01", "Cruzeiro Real", "CR$"], ["9999-12-31", "Real", "R$"],
+  ];
+  const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const moedaDo = (ym) => MOEDAS.find(([ate]) => `${ym}-15` < ate);
+  const paraReais = (valor, ym) =>
+    D.calculadora.trocas.reduce((v, t) => (`${ym}-15` < t.data ? v / t.fator : v), valor);
+
+  function calculadora() {
+    const C = D.calculadora;
+    const box = document.getElementById("calc");
+    if (!C || !box) return;
+    const anos = [...new Set(C.meses.map((m) => m.slice(0, 4)))];
+    const selAno = box.querySelector("#calc-ano"), selMes = box.querySelector("#calc-mes");
+    selAno.innerHTML = anos.map((a) => `<option>${a}</option>`).join("");
+    selMes.innerHTML = MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, "0")}">${m}</option>`).join("");
+    selAno.value = "1995"; selMes.value = "01";
+    box.querySelector("#calc-valor").value = "0,50";
+    const smHoje = [...C.salario].reverse().find((v) => v != null);
+    const calc = () => {
+      const ym = `${selAno.value}-${selMes.value}`;
+      const i = C.meses.indexOf(ym);
+      const moeda = moedaDo(ym);
+      box.querySelector("#calc-moeda").textContent = `${moeda[1]} (${moeda[2]})`;
+      const bruto = box.querySelector("#calc-valor").value.trim();
+      const v = parseFloat(bruto.includes(",") ? bruto.replace(/\./g, "").replace(",", ".") : bruto);
+      const out = document.getElementById("calc-res");
+      if (i < 0 || !(v > 0)) { out.innerHTML = '<p class="vazio">Escolha um mês com dado e digite um valor.</p>'; return; }
+      const reais = paraReais(v, ym);
+      const hoje = reais / C.indice[i];
+      const sm = C.salario[i];
+      const pct = sm ? (reais / sm) * 100 : null;
+      const quando = `${MESES[+selMes.value - 1]}/${selAno.value}`;
+      out.innerHTML = `
+        <div class="calc-card"><span>Corrigido pela inflação (IPCA)</span><b>${F.moeda(hoje)}</b><small>em reais de ${esc(C.ref)}</small></div>
+        ${pct != null ? `<div class="calc-card"><span>Peso no salário mínimo de ${quando}</span><b>${nf(pct < 1 ? 2 : 1, pct < 1 ? 2 : 1).format(pct)}%</b><small>o mínimo era ${moeda[2]} ${nf(2, 2).format(sm * (v / reais))}</small></div>
+        <div class="calc-card"><span>O mesmo peso no salário mínimo de hoje</span><b>${F.moeda((pct / 100) * smHoje)}</b><small>${nf(pct < 1 ? 2 : 1, pct < 1 ? 2 : 1).format(pct)}% de ${F.moeda(smHoje)}</small></div>` : ""}
+        <p class="calc-nota">${moeda[2] !== "R$" ? `Valor convertido de ${esc(moeda[1])} para reais pelos fatores oficiais das trocas de moeda. ` : ""}As duas contas respondem perguntas diferentes: a primeira diz quanto aquilo custaria hoje se acompanhasse a inflação; as outras dizem quanto pesava no bolso de quem ganhava o mínimo.</p>`;
+    };
+    box.addEventListener("input", calc);
+    box.addEventListener("change", calc);
+    calc();
   }
 
   /* ---------- cards por governo ---------- */
@@ -405,7 +453,12 @@
                 const g = nomeGov(govDoPonto(x));
                 return g ? `${quando} · ${g}` : quando;
               },
-              label: (it) => fmt(ind.formato, it.parsed.y) + (parcial(it.label) ? " (ano incompleto)" : ""),
+              label: (it) => {
+                const linhas = [fmt(ind.formato, it.parsed.y) + (parcial(it.label) ? " (ano incompleto)" : "")];
+                const n = ind.serie[it.dataIndex]?.n;
+                if (n != null) linhas[0] += " em valores de hoje", linhas.push(`R$ ${nf(2, 2).format(n)} na época`);
+                return linhas;
+              },
             },
           },
         },

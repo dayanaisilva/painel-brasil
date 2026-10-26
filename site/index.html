@@ -21,6 +21,7 @@
   <div class="wrap topo-linha">
     <span class="marca">Tira-Teima <span class="marca-anos">1985–2026</span></span>
     <nav class="menu" aria-label="Seções">
+      <a href="#calculadora">Calculadora</a>
       <a href="#governos">Governos</a>
       <a href="#comparativo">Comparativo</a>
       <a href="#indicadores">Indicadores</a>
@@ -39,6 +40,17 @@
       <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Cada período traz o seu contexto logo abaixo dos números.
     </aside>
     <div class="linha-tempo" id="linha-tempo" aria-label="Linha do tempo dos governos"></div>
+  </section>
+
+  <section class="wrap bloco" id="calculadora">
+    <h2>Quanto valia de verdade?</h2>
+    <p class="sub">"A gasolina custava R$ 0,50." Pode ser verdade, mas R$ 0,50 de 1995 não é R$ 0,50 de hoje. Digite um preço e o mês: a conta mostra o valor corrigido pela inflação e quanto ele pesava no salário mínimo da época.</p>
+    <form class="calc" id="calc" onsubmit="return false">
+      <label>Valor <span class="calc-moeda" id="calc-moeda"></span><input id="calc-valor" inputmode="decimal" autocomplete="off"></label>
+      <label>Mês<select id="calc-mes"></select></label>
+      <label>Ano<select id="calc-ano"></select></label>
+    </form>
+    <div class="calc-res" id="calc-res" aria-live="polite"></div>
   </section>
 
   <section class="wrap bloco" id="governos">
@@ -93,6 +105,7 @@
       <li>Governos têm durações diferentes: Itamar governou 2 anos e 3 meses, FHC e Lula, 8 anos cada. Médias de períodos curtos oscilam mais.</li>
       <li>A cesta básica é a de São Paulo (DIEESE) e é comparada ao salário mínimo bruto, sem descontos.</li>
       <li>Focos de queimada vêm do satélite de referência do INPE, com série comparável desde 2003. Contagem de focos não é área queimada.</li>
+      <li>A pesquisa nacional de preços de combustíveis da ANP começa em julho de 2001. Até o início de 2002 o preço da gasolina era definido pelo governo, e não há série oficial de preço médio nos postos antes disso. Por isso FHC 1 e Itamar ficam sem resultado em gasolina.</li>
       <li>A ANP não fez pesquisa de preços de combustíveis entre 18/8/2020 e 17/10/2020; esses meses ficam sem dado de gasolina.</li>
       <li>Fome, pobreza, mortalidade, expectativa de vida e educação vêm de bases da ONU (FAO, OMS, UNESCO, IGME) publicadas pelo Banco Mundial e calculadas com dados do IBGE, INEP e Ministério da Saúde. São as séries usadas para comparar o Brasil com outros países, inclusive pelo próprio governo. A FAO publica médias de três anos; a série começa em 2001.</li>
       <li>A taxa oficial de desmatamento do PRODES/INPE não é publicada em formato de tabela para download automático, por isso ainda não entra no painel.</li>
