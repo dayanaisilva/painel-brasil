@@ -1,0 +1,11 @@
+SERCODIGO,SERNOME,FNTSIGLA,PERNOME,UNINOME,SERSTATUS
+PNADCA_TXA15MUF,Taxa de analfabetismo - pessoas com 15 anos ou mais,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_BRA,Taxa de analfabetismo - pessoas com 15 anos ou mais - Brancos,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_NEG,Taxa de analfabetismo - pessoas com 15 anos ou mais - Pardos/Pretos,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_HOM,Taxa de analfabetismo - pessoas com 15 anos ou mais - homem ,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_MUL,Taxa de analfabetismo - pessoas com 15 anos ou mais - mulher ,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_15M,Taxa de analfabetismo - pessoas com 15 anos ou mais,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_18M,Taxa de analfabetismo - pessoas com 18 anos ou mais,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_25M,Taxa de analfabetismo - pessoas com 25 anos ou mais,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_40M,Taxa de analfabetismo - pessoas com 40 anos ou mais,IBGE/PNAD Contínua,Anual,(%),
+PNADCA_TXA15MUF_60M,Taxa de analfabetismo - pessoas com 60 anos ou mais,IBGE/PNAD Contínua,Anual,(%),

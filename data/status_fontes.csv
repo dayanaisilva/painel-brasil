@@ -12,14 +12,16 @@ fome,"FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)",atualizado,2024-01-01,
 pobreza,"Banco Mundial (SI.POV.DDAY), a partir da PNAD/IBGE",atualizado,2024-01-01,
 gini,"Ipea, a partir da PNAD e PNAD Contínua/IBGE",atualizado,2025-01-01,
 mortalidade_infantil,"ONU (IGME), via Banco Mundial (SP.DYN.IMRT.IN), com dados do Ministério da Saúde e IBGE",atualizado,2024-01-01,
-expectativa_vida,"ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)",atualizado,2024-01-01,
+expectativa_vida,IBGE — Tábuas Completas de Mortalidade (via Ipeadata),indisponível,,nenhuma série do Ipeadata passou na validação para expectativa_vida
+expectativa_vida_bm,"ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)",atualizado,2024-01-01,
 gasto_saude,"OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)",atualizado,2023-01-01,
 gasto_educacao,"UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP",atualizado,2022-01-01,
-analfabetismo,"UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE",atualizado,2024-01-01,
+analfabetismo,IBGE — PNAD e PNAD Contínua (via Ipeadata),indisponível,,nenhuma série do Ipeadata passou na validação para analfabetismo
+analfabetismo_bm,"UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE",atualizado,2024-01-01,
 ensino_superior,"UNESCO, via Banco Mundial (SE.TER.ENRR), a partir do Censo da Educação Superior/INEP",atualizado,2024-01-01,
-desemprego,IBGE — PNAD Contínua (mensalizada pelo Ipea),atualizado,2026-08-01,
+desemprego,IBGE — PNAD Contínua (taxa trimestral oficial),indisponível,,série desatualizada: último dado em 2026-04-01
 homicidios,Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea,atualizado,2024-01-01,
 bolsa_familia,"Ministério do Desenvolvimento Social (MDS), via Ipeadata",atualizado,2025-01-01,
 leitos_sus,"Ministério da Saúde (CNES/DATASUS), via Ipeadata",atualizado,2025-01-01,
-desmatamento,INPE — PRODES Amazônia Legal (via Ipeadata),indisponível,,PRODES indisponível: https://terrabrasilis.dpi.inpe.br prodes_legal_amazon: 404 Client Error: Not Found for url: https://terrabrasilis.dpi.inpe.br/dashboard/api/v1/redis-cli/data/rates | https://terra
+desmatamento,INPE — PRODES (TerraBrasilis),indisponível,,"série PRODES fora do esperado (2021=587.5156, último=2025)"
 inep_superior,INEP — Censo da Educação Superior,atualizado,2024,

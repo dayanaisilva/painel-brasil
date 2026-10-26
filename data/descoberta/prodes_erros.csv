@@ -7,4 +7,4 @@ https://terrabrasilis.dpi.inpe.br legal_amazon: 404 Client Error: Not Found for 
 "http://terrabrasilis2.dpi.inpe.br prodes_amazon: HTTPConnectionPool(host='terrabrasilis2.dpi.inpe.br', port=80): Max retries exceeded with url: /dashboard/api/v1/redis-c"
 "http://terrabrasilis2.dpi.inpe.br prodes_amazon_: HTTPConnectionPool(host='terrabrasilis2.dpi.inpe.br', port=80): Max retries exceeded with url: /dashboard/api/v1/redis-c"
 "http://terrabrasilis2.dpi.inpe.br legal_amazon: HTTPConnectionPool(host='terrabrasilis2.dpi.inpe.br', port=80): Max retries exceeded with url: /dashboard/api/v1/redis-c"
-camadas WFS com 'rate': []
+usado incremento mapeado da camada prodes-legal-amz:yearly_deforestation

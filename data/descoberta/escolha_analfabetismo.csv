@@ -1,0 +1,11 @@
+codigo,nome,ultimo,ultima_data,aprovada
+PNADCA_TXA15MUF,Taxa de analfabetismo - pessoas com 15 anos ou mais,4.9,2025-01-01,False
+PNADCA_TXA15MUF_BRA,Taxa de analfabetismo - pessoas com 15 anos ou mais - Brancos,2.8,2025-01-01,False
+PNADCA_TXA15MUF_NEG,Taxa de analfabetismo - pessoas com 15 anos ou mais - Pardos/Pretos,6.5,2025-01-01,False
+PNADCA_TXA15MUF_HOM,Taxa de analfabetismo - pessoas com 15 anos ou mais - homem ,5.2,2025-01-01,False
+PNADCA_TXA15MUF_MUL,Taxa de analfabetismo - pessoas com 15 anos ou mais - mulher ,4.6,2025-01-01,False
+PNADCA_TXA15MUF_15M,Taxa de analfabetismo - pessoas com 15 anos ou mais,4.9,2025-01-01,False
+PNADCA_TXA15MUF_18M,Taxa de analfabetismo - pessoas com 18 anos ou mais,5.1,2025-01-01,False
+PNADCA_TXA15MUF_25M,Taxa de analfabetismo - pessoas com 25 anos ou mais,5.8,2025-01-01,False
+PNADCA_TXA15MUF_40M,Taxa de analfabetismo - pessoas com 40 anos ou mais,8.3,2025-01-01,False
+PNADCA_TXA15MUF_60M,Taxa de analfabetismo - pessoas com 60 anos ou mais,13.8,2025-01-01,False
