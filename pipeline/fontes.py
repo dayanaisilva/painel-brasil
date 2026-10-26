@@ -72,7 +72,7 @@ def sgs(codigo: int, inicio: int = 2002) -> pd.DataFrame:
                 if tentativa == 4:
                     erros.append(f"{ini}-{fim}: {e}")
                 else:
-                    time.sleep(8 * (tentativa + 1))
+                    time.sleep(4 * (tentativa + 1))
         time.sleep(2)
     if erros or not partes:
         # Uma janela que falha deixa a série com buracos: melhor falhar e reaproveitar a cópia anterior.

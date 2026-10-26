@@ -838,9 +838,9 @@ def coletar_inep():
         if len(cache) and {"universidades_federais", "municipios_federais"} <= set(cache.columns) else set()
     diag, novos = [], []
     ultimo = date.today().year - 1
-    for ano in range(1995, ultimo + 1):
-        if ano in feitos and ano < ultimo - 1:
-            continue
+    pendentes = [a for a in range(1995, ultimo + 1) if not (a in feitos and a < ultimo - 1)]
+    # Baixa no máximo 8 anos por execução; os demais entram nas próximas (o progresso fica salvo no CSV).
+    for ano in pendentes[:8]:
         try:
             novos.append(fontes.inep_ano(ano, diag))
         except Exception as e:  # noqa: BLE001
