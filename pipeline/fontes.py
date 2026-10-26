@@ -541,9 +541,6 @@ def _baixar_pdf(urls: list[str]) -> tuple[bytes, str]:
                         return r.content, u
                     # página HTML do portal: procura o link do arquivo dentro dela
                     if "html" in (r.headers.get("content-type") or ""):
-                        nome = "debug_" + re.sub(r"\W+", "_", v[-60:]) + ".html"
-                        (DESCOBERTA / "inpe_notas").mkdir(parents=True, exist_ok=True)
-                        (DESCOBERTA / "inpe_notas" / nome).write_text(r.text[:20000], encoding="utf-8")
                         base = u.rsplit("/", 1)[-1]
                         for href in re.findall(r'href="([^"]+)"', r.text):
                             if base in href and ("download" in href or href.endswith(".pdf")) and href.rstrip("/") != v:
@@ -588,24 +585,13 @@ PRODES_SERIE_ULTIMO = 2026  # ano da estimativa mais recente nessa apresentaçã
 
 
 def prodes_serie_apresentacao() -> tuple[dict, str]:
-    conteudo, url = _baixar_pdf(PRODES_SERIE)
-    import pdfplumber
-    with pdfplumber.open(io.BytesIO(conteudo)) as pdf:
-        texto = "\n".join((pg.extract_text() or "") for pg in pdf.pages)
-    (DESCOBERTA / "inpe_notas").mkdir(parents=True, exist_ok=True)
-    (DESCOBERTA / "inpe_notas" / "apresentacao_prodes_2026.txt").write_text(texto, encoding="utf-8")
-    nums = [_km(n) for n in re.findall(r"(?<![\d.,])(\d{1,2}\.\d{3})(?![\d.,])", texto)]
-    n_anos = PRODES_SERIE_ULTIMO - 1988 + 1
-    # procura a sequência que começa nas taxas de 1988–1990 (21.050, 17.770, 13.730) e tem um valor por ano
-    for i in range(len(nums) - n_anos + 1):
-        if nums[i:i + 3] == [21050.0, 17770.0, 13730.0]:
-            serie = dict(zip(range(1988, PRODES_SERIE_ULTIMO + 1), nums[i:i + n_anos]))
-            # conferências com valores que o INPE publica em texto em outras notas
-            for ano, v in {1995: 29059, 2004: 27772, 2012: 4571, 2019: 10129, 2021: 13038, 2025: 5731}.items():
-                if serie.get(ano) != v:
-                    raise ValueError(f"apresentação: {ano} = {serie.get(ano)}, esperado {v}")
-            return serie, url
-    raise ValueError(f"série 1988–{PRODES_SERIE_ULTIMO} não encontrada no texto ({len(nums)} números)")
+    """Série 1988–2026 registrada a partir da apresentação oficial do INPE (ver o cabeçalho do arquivo)."""
+    arq = Path(__file__).resolve().parent.parent / "data" / "referencia" / "prodes_apresentacao_2026.csv"
+    t = pd.read_csv(arq, comment="#")
+    serie = {int(a): float(v) for a, v in zip(t.ano, t.km2)}
+    if sorted(serie) != list(range(1988, PRODES_SERIE_ULTIMO + 1)):
+        raise ValueError("série da apresentação incompleta")
+    return serie, t.url.iloc[0]
 
 
 def prodes_taxas() -> pd.DataFrame:
