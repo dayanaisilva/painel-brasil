@@ -1,0 +1,69 @@
+name: Atualizar dados e publicar
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Dias 12 e 28 de cada mês, 06h17 (horário de Brasília). O IPCA sai por volta do dia 10.
+    - cron: "17 9 12,28 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Baixar e processar dados
+        run: python -m pipeline.build
+
+      - name: Versionar dados atualizados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data site/data
+          if git diff --cached --quiet; then
+            echo "Sem mudanças nos dados."
+          else
+            git commit -m "dados: atualização automática $(date -u +%Y-%m-%d) [skip ci]"
+            git push
+          fi
+
+      - name: Preparar site
+        run: |
+          mkdir -p site/dados
+          cp data/painel.sqlite site/dados/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

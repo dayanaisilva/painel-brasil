@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Brasil 2003–2026</title>
+<meta name="description" content="PIB, inflação, salário mínimo, custo de vida e queimadas no Brasil de 2003 a 2026, comparados governo a governo com dados públicos oficiais.">
+<meta property="og:title" content="Painel Brasil 2003–2026">
+<meta property="og:description" content="Indicadores econômicos e ambientais do Brasil comparados governo a governo, com dados do IBGE, Banco Central, DIEESE, ANP e INPE.">
+<meta property="og:locale" content="pt_BR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topo">
+  <div class="wrap topo-linha">
+    <span class="marca">Painel Brasil <span class="marca-anos">2003–2026</span></span>
+    <nav class="menu" aria-label="Seções">
+      <a href="#comparativo">Comparativo</a>
+      <a href="#indicadores">Indicadores</a>
+      <a href="#metodologia">Metodologia</a>
+      <a href="#dados">Dados</a>
+    </nav>
+    <button class="tema" type="button" id="tema" aria-label="Alternar tema claro e escuro">◐</button>
+  </div>
+</header>
+
+<main id="conteudo">
+  <section class="wrap abertura">
+    <p class="kicker">Dados públicos oficiais · atualização mensal automática</p>
+    <h1>O Brasil em números, governo a governo</h1>
+    <p class="lede">Crescimento, inflação, salário, custo de vida e queimadas de 2003 até hoje, recortados pelos sete períodos de governo. Todos os números vêm de fontes oficiais e o código que os calcula é aberto.</p>
+    <aside class="aviso" role="note">
+      <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Leia cada indicador com o seu contexto.
+    </aside>
+    <div class="linha-tempo" id="linha-tempo" aria-label="Linha do tempo dos governos"></div>
+  </section>
+
+  <section class="wrap bloco" id="comparativo">
+    <h2>Comparativo</h2>
+    <p class="sub">A métrica-resumo de cada indicador em cada governo. <span class="nota-parcial">*</span> Lula 3 está em andamento: os valores são parciais.</p>
+    <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela comparativa">
+      <table class="comparativo" id="tabela-comparativo"></table>
+    </div>
+  </section>
+
+  <section class="wrap bloco" id="indicadores">
+    <h2>Indicadores</h2>
+    <nav class="chips" id="chips" aria-label="Ir para indicador"></nav>
+    <div id="lista-indicadores"></div>
+  </section>
+
+  <section class="wrap bloco texto" id="metodologia">
+    <h2>Metodologia</h2>
+    <h3>Períodos de governo</h3>
+    <div id="tabela-governos"></div>
+    <h3>Como cada número é atribuído a um governo</h3>
+    <ul>
+      <li><strong>Dados mensais</strong> (salário mínimo, dólar, cesta básica, gasolina, inflação): o mês pertence a quem governava no dia 15. Assim, maio de 2016 conta para Temer, que assumiu interinamente em 12/05/2016.</li>
+      <li><strong>Dados anuais</strong> (PIB, queimadas): o ano é dividido na proporção dos dias que cada governo exerceu o cargo. Só 2016 é dividido: cerca de 36% para Dilma 2 e 64% para Temer. Nos gráficos anuais, 2016 aparece na faixa de Temer.</li>
+      <li><strong>Inflação do governo</strong>: média anual equivalente, calculada a partir do IPCA acumulado em todos os meses do mandato.</li>
+      <li><strong>Ganho real do salário mínimo</strong>: variação do poder de compra entre o último mês do governo anterior e o último mês do governo.</li>
+      <li><strong>Valores em reais de hoje</strong>: salário mínimo e gasolina são corrigidos pelo IPCA para a moeda do último mês divulgado. O dólar aparece em valor nominal.</li>
+    </ul>
+    <h3>Limites</h3>
+    <ul>
+      <li>Correlação não é causalidade: um indicador melhor ou pior não prova efeito de política de governo.</li>
+      <li>A cesta básica é a de São Paulo (DIEESE) e é comparada ao salário mínimo bruto, sem descontos.</li>
+      <li>Focos de queimada vêm do satélite de referência do INPE, o único com série comparável desde 2003. Contagem de focos não é área queimada.</li>
+      <li>O ano corrente é sempre parcial e fica de fora das médias anuais de queimadas.</li>
+      <li>Fontes oficiais revisam dados. A cada atualização o painel baixa a série inteira de novo.</li>
+    </ul>
+    <h3>Situação das fontes nesta atualização</h3>
+    <div class="tabela-rolagem"><table class="status" id="tabela-status"></table></div>
+  </section>
+
+  <section class="wrap bloco texto" id="dados">
+    <h2>Dados abertos</h2>
+    <p>Baixe tudo o que alimenta o painel e refaça as contas:</p>
+    <ul class="downloads">
+      <li><a href="dados/painel.sqlite">Base SQLite</a> com as tabelas <code>serie</code>, <code>governo</code>, <code>indicador</code> e <code>resumo</code></li>
+      <li><a href="data/painel.json">JSON usado pelo site</a></li>
+      <li><a href="https://github.com/dayanaisilva/painel-brasil/tree/main/data">CSVs brutos e tratados no GitHub</a></li>
+      <li><a href="https://github.com/dayanaisilva/painel-brasil/tree/main/queries">Exemplos de consultas SQL</a></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="rodape">
+  <div class="wrap">
+    <p>Atualizado em <span id="gerado-em">—</span>. Código aberto em <a href="https://github.com/dayanaisilva/painel-brasil">github.com/dayanaisilva/painel-brasil</a>.</p>
+    <p>Projeto independente, sem vínculo com partido, candidato ou governo.</p>
+  </div>
+</footer>
+
+<script src="vendor/chart.umd.min.js"></script>
+<script src="vendor/chartjs-plugin-annotation.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
