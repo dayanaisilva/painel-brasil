@@ -463,6 +463,16 @@ def main():
         anos_ok = [a for a in g_.index if a in cresc_pop.index and not pd.isna(cresc_pop[a])]
         pc = pd.DataFrame({"ano": anos_ok,
                            "valor": [((1 + g_[a] / 100) / (1 + cresc_pop[a] / 100) - 1) * 100 for a in anos_ok]})
+        if pop_contas is not None and "pc_volume" in pop_contas:
+            # Onde o IBGE publica a variação em volume do PIB per capita, usa o número oficial direto.
+            vol = anual(pop_contas).groupby("ano").pc_volume.mean().dropna()
+            pc["valor"] = [float(vol[a]) if a in vol.index else v for a, v in zip(pc.ano, pc.valor)]
+            faltam = [a for a in vol.index if a not in set(pc.ano)]
+            if faltam:
+                pc = pd.concat([pc, pd.DataFrame({"ano": faltam, "valor": [float(vol[a]) for a in faltam]})]).sort_values("ano")
+            base_pop = (f"de {int(vol.index.min())} a {int(vol.index.max())}, variação em volume do PIB per capita publicada pelo "
+                        f"IBGE (Contas Nacionais, SIDRA 6784); antes, calculada com as estimativas de população do IBGE; depois, "
+                        f"com o crescimento real do PIB e a projeção oficial de população do IBGE")
         pc = pc[pc.ano >= ANO_INICIAL]
         serie_pc, unidade_pc = [], "% ao ano"
         nivel = None
@@ -493,8 +503,8 @@ def main():
             formato="moeda_int" if nivel is not None else "pct", grafico="barra", freq="anual",
             direcao="maior", pergunta="Quanto cresceu a riqueza produzida por pessoa (PIB per capita)?",
             descricao=("PIB dividido pela população, sem efeito da inflação: o valor de cada ano está em reais do ano mais recente. "
-                       "Crescimento por pessoa = (1 + crescimento real do PIB) ÷ (1 + crescimento da população) − 1. "
-                       f"População: {base_pop}. O nível em reais parte do PIB per capita publicado pelo IBGE no último ano da tabela."),
+                       f"Crescimento por pessoa: {base_pop}. Fora dos anos do IBGE, crescimento por pessoa = (1 + crescimento real do PIB) "
+                       "÷ (1 + crescimento da população) − 1. O nível em reais parte do PIB per capita publicado pelo IBGE no último ano da tabela."),
             resumo_rotulo="crescimento médio por ano", resumo_formato="pct",
             resumo=resumo_media_ponderada(pc),
             serie=serie_json(nivel[nivel.data.dt.year >= ANO_INICIAL], "%Y") if nivel is not None else serie_json(

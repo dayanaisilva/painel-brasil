@@ -45,7 +45,7 @@ jobs:
           else
             git commit -m "dados: atualização automática $(date -u +%Y-%m-%d) [skip ci]"
             # o código pode ter mudado enquanto a coleta rodava: traz as mudanças antes de enviar os dados
-            git pull --rebase origin main || { git rebase --abort; echo "rebase falhou; dados não versionados nesta execução"; exit 0; }
+            git pull --rebase -X theirs origin main || { git rebase --abort; echo "rebase falhou; dados não versionados nesta execução"; exit 0; }
             git push || echo "push falhou; o site é publicado mesmo assim"
           fi
 

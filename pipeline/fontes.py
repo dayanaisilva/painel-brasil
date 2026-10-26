@@ -661,8 +661,9 @@ def ibge_populacao_contas() -> pd.DataFrame:
             raise ValueError(f"SIDRA 6784 sem variável '{padrao}': {list(t.variavel.unique())[:8]}")
         return t[t.variavel == nomes[0]].set_index("ano").valor, t[t.variavel == nomes[0]].unidade.iloc[0]
     pop, _ = var(r"^Popula")
-    pib, u_pib = var(r"^Produto Interno Bruto a pre[çc]os correntes")
-    pc, _ = var(r"per capita")
+    pib, u_pib = var(r"^PIB - valores correntes")
+    pc, _ = var(r"^PIB per capita - valores correntes")
+    vol, _ = var(r"^PIB per capita - varia[çc][ãa]o em volume")
     mult = 1e6 if "milh" in u_pib.lower() else (1e3 if "mil" in u_pib.lower() else 1)
     unid_pop = t[t.variavel.str.match(r"^Popula", case=False)].unidade.iloc[0].lower()
     pop = pop * (1e3 if "mil" in unid_pop else 1)
@@ -671,4 +672,5 @@ def ibge_populacao_contas() -> pd.DataFrame:
     if not desvio < 0.01:
         raise ValueError(f"SIDRA 6784: PIB/população não bate com o per capita (desvio {desvio:.3f})")
     return pd.DataFrame({"data": pd.to_datetime([f"{a}-07-01" for a in comum]), "valor": pop[comum].values,
-                         "pc_nominal": pc[comum].values}).dropna()
+                         "pc_nominal": pc[comum].values,
+                         "pc_volume": vol.reindex(comum).values})
