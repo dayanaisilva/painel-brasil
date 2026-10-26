@@ -401,7 +401,10 @@
         <figure class="fig-rank"><figcaption>${ind.direcao ? `Do melhor para o pior (1º = ${esc(CRIT[id] ? CRIT[id][0] : "melhor")})` : `Por governo, em ordem cronológica (sem ranking)`}</figcaption>
           <div class="grafico grafico-rank"><canvas class="c-rank" role="img" aria-label="${esc(ind.titulo)} por governo"></canvas></div></figure>
       </div>
-      <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a></p>`;
+      <p class="fonte">Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a></p>
+      ${ind.notas ? `<details class="notas"><summary>Valor de cada ano e a nota técnica do INPE de onde ele saiu</summary><ul>${
+        ind.notas.map((n) => `<li><b>${n.ano}</b>: ${Math.round(n.valor).toLocaleString("pt-BR")} km² (taxa ${n.tipo === "consolidada" ? "consolidada" : "estimada, ainda sem consolidação"}) · <a href="${esc(n.url)}" target="_blank" rel="noopener">nota técnica (PDF)</a></li>`).join("")
+      }</ul></details>` : ""}`;
     c._ind = ind;
     return c;
   }

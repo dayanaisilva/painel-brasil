@@ -759,31 +759,27 @@ def main():
     def desmatamento():
         df = fontes.prodes_taxas()
         v = dict(zip(df.data.dt.year, df.valor))
-        incremento = "incremento" in open(fontes.DESCOBERTA / "prodes_erros.csv").read()
-        FONTE_USADA["desmatamento"] = ("INPE — PRODES, incremento anual mapeado (TerraBrasilis)" if incremento
-                                       else "INPE — PRODES, taxa anual (TerraBrasilis)")
-        # checagem com valores publicados pelo INPE: taxa 2021 foi 13.038 km²; o incremento mapeado fica pouco abaixo
-        if not (9000 <= v.get(2021, 0) <= 14500) or df.data.max().year < date.today().year - 2:
-            raise ValueError(f"série PRODES fora do esperado (2021={v.get(2021)}, último={df.data.max().year})")
+        FONTE_USADA["desmatamento"] = "INPE — PRODES, notas técnicas oficiais"
+        # Conferência com as taxas consolidadas divulgadas pelo INPE (manchetes das próprias notas)
+        conferir = {2021: 13038, 2022: 11594, 2023: 9064, 2024: 6518, 2025: 5731}
+        erradas = {a: v.get(a) for a, x in conferir.items() if a in v and abs(v[a] - x) > 0.5}
+        if erradas or len(v) < 3:
+            raise ValueError(f"notas PRODES fora do esperado: {erradas or v}")
         return df
 
-    try:
-        fontes.prodes_taxas_descobrir()
-    except Exception as e:  # noqa: BLE001
-        log.warning("descoberta PRODES: %s", e)
-    desm = coletar("desmatamento", desmatamento, "INPE — PRODES (TerraBrasilis)", max_atraso_dias=365 * 3)
-    if desm is not None:
+    desm = coletar("desmatamento", desmatamento, "INPE — PRODES, notas técnicas oficiais", max_atraso_dias=365 * 3)
+    if desm is not None and "url" in desm:
         a = anual(desm)
         a = a[a.ano >= ANO_INICIAL]
+        notas = [{"ano": int(r.ano), "valor": float(r.valor), "tipo": r.tipo, "url": r.url} for r in a.itertuples()]
         ind["desmatamento"] = dict(
             tema="ambiente", titulo="Desmatamento na Amazônia", pergunta="A Amazônia foi mais desmatada?",
             unidade="km² por ano (taxa PRODES)", formato="inteiro", grafico="barra", freq="anual", direcao="menor",
             descricao=("Área de floresta derrubada por corte raso na Amazônia Legal a cada ano, medida por satélite pelo "
-                       "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. Quando a taxa oficial não está "
-                       "disponível para download, o site usa a área efetivamente mapeada pelo PRODES no ano (incremento), que fica "
-                       "um pouco abaixo da taxa oficial porque a taxa estima também áreas cobertas por nuvens. A fonte exata aparece abaixo."),
+                       "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. O site mostra só os "
+                       "anos cujo valor o INPE publica em texto nas notas técnicas oficiais (PDF); cada ano tem o link da nota."),
             resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
-            fonte=FONTE_USADA.get("desmatamento", "INPE — PRODES (TerraBrasilis)"),
+            notas=notas, fonte="INPE — PRODES, notas técnicas oficiais",
             fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
 
     inep = coletar_inep()
@@ -885,6 +881,9 @@ AVISOS = {
     "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
     "fome": "Cada ano é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório. Abaixo de 2,5% a FAO não divulga o valor exato.",
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
+    "desmatamento": ("Só entram os anos cujo valor o INPE escreve em texto nas notas técnicas oficiais (cada nota traz o ano "
+                     "e o anterior); a série completa desde 1988 só aparece em gráfico nas notas. Por isso a comparação cobre "
+                     "poucos governos. O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior."),
     "homicidios": "Os números podem diferir um pouco da edição mais recente do Atlas da Violência, que revisa população e mortes a cada ano.",
 
     "universidades_federais": (

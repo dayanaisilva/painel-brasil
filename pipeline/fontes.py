@@ -504,88 +504,76 @@ def prodes_taxas_descobrir() -> None:
     pd.DataFrame(linhas).to_csv(DESCOBERTA / "prodes_taxas.csv", index=False)
 
 
+# Notas técnicas oficiais do INPE com a taxa PRODES da Amazônia Legal. Cada nota traz a taxa do ano
+# e a do ano anterior (tabela por estado, linha "ALB"/"Amazônia Legal"). Os valores são lidos do PDF;
+# nada é digitado à mão. (ano da nota, tipo, url)
+PRODES_NOTAS = [
+    (2021, "estimativa", "https://www.gov.br/inpe/pt-br/assuntos/divulgacao-de-dados-prodes.pdf"),
+    (2021, "consolidada", "https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/nota-tecnica-prodes/NotaTecnica_consolidado_PRODES_2021_rev.pdf"),
+    (2022, "consolidada", "https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias/a-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-amazonia-legal-em-2022-foi-de-11-594-km2-1/NotaTecnica_consolidado_PRODES_2022.pdf"),
+    (2024, "estimativa", "https://data.inpe.br/wp-content/uploads/2024/11/NT_Amz_tx_Prodes2024_T.pdf"),
+    (2024, "consolidada", "https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/07/Nota_tecnica_PRODES_2024_consolidada.pdf"),
+    (2025, "estimativa", "https://data.inpe.br/biomasbr/wp-content/uploads/sites/3/2025/10/20251015Nota_tecnica_EstimativaPRODES_2025_F.pdf"),
+    (2025, "consolidada", "https://data.inpe.br/wp-content/uploads/sites/3/2026/03/A-taxa-consolidada-de-desmatamento-para-os-nove-estados-da-Amazonia-Legal-para-2025-e-de-5.731-km2.pdf"),
+]
+_NUM = r"\d{1,2}\.\d{3}(?:,\d+)?|\d{3,5}(?:,\d+)?"
+
+
+def _km(t: str) -> float:
+    return float(t.replace(".", "").replace(",", "."))
+
+
+def _ler_nota(ano: int, url: str) -> tuple[dict, str]:
+    """Baixa a nota e devolve {ano: km²} da linha da Amazônia Legal, mais o texto extraído."""
+    import pdfplumber
+    r = _get(url, tentativas=3)
+    if not r.content[:5].startswith(b"%PDF"):
+        raise ValueError(f"não é PDF (HTTP {r.status_code}, {r.headers.get('content-type')})")
+    with pdfplumber.open(io.BytesIO(r.content)) as pdf:
+        texto = "\n".join((pg.extract_text() or "") for pg in pdf.pages)
+    achados = {}
+    # Linha de total da tabela por estado: "ALB 10.851 13.235 21,97%" (ano anterior, ano da nota, variação)
+    for linha in texto.splitlines():
+        if re.match(r"\s*(ALB|AML|AMZ|Amaz[ôo]nia Legal|Total)\b", linha, re.I):
+            nums = [n for n in re.findall(_NUM, linha.split("%")[0]) if "," not in n or n.count(".")]
+            nums = [_km(n) for n in nums if _km(n) >= 1000]
+            if len(nums) >= 2:
+                achados = {ano - 1: nums[0], ano: nums[1]}
+                break
+            if len(nums) == 1 and ano not in achados:
+                achados = {ano: nums[0]}
+    # Conferência com a frase principal da nota ("... para 2025 é de 5.731 km²")
+    frase = re.search(rf"{ano}[^.\n]{{0,80}}?(?:é|foi) de\s*({_NUM})\s*km", texto.replace("\n", " "))
+    if frase and ano in achados and abs(_km(frase.group(1)) - achados[ano]) > 0.5:
+        raise ValueError(f"tabela ({achados[ano]}) e texto ({frase.group(1)}) divergem")
+    if frase and ano not in achados:
+        achados[ano] = _km(frase.group(1))
+    return achados, texto
+
+
 def prodes_taxas() -> pd.DataFrame:
-    """Taxa anual oficial de desmatamento PRODES na Amazônia Legal (km²), como publicada no painel
-    TerraBrasilis do INPE. Tenta a API do painel e, se falhar, a camada WFS do GeoServer do INPE."""
-    linhas, erros = [], []
-    for host in ("https://terrabrasilis.dpi.inpe.br", "http://terrabrasilis2.dpi.inpe.br"):
-        for app in ("prodes_legal_amazon", "prodes_amazon", "prodes_amazon_", "legal_amazon"):
-            try:
-                r = S.get(f"{host}/dashboard/api/v1/redis-cli/data/rates", timeout=60,
-                          headers={"App-Identifier": app, "Content-Type": "application/json"})
-                r.raise_for_status()
-                dados = _json(r)
-                if isinstance(dados, dict):
-                    dados = dados.get("data") or dados.get("value") or next(iter(dados.values()), [])
-                if isinstance(dados, str):
-                    import json as _j
-                    dados = _j.loads(dados)
-                linhas = [d for d in dados if isinstance(d, dict) and "rate" in d and "year" in d]
-                if linhas:
-                    log.info("PRODES via %s App-Identifier=%s: %d linhas", host, app, len(linhas))
-                    break
-            except Exception as e:  # noqa: BLE001
-                erros.append(f"{host} {app}: {str(e)[:120]}")
-        if linhas:
-            break
-    if not linhas:
-        # Plano B: incremento anual mapeado pelo PRODES (camada vetorial oficial), só atributos, sem geometria.
+    """Taxa anual PRODES da Amazônia Legal (km²), só com o que o INPE publica nas notas técnicas.
+    Para cada ano vale a nota consolidada mais recente; a estimativa só entra se não houver consolidada."""
+    pasta = DESCOBERTA / "inpe_notas"
+    pasta.mkdir(parents=True, exist_ok=True)
+    diag, melhor = [], {}
+    for ano, tipo, url in PRODES_NOTAS:
         try:
-            cap = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
-                       params={"service": "WFS", "version": "2.0.0", "request": "GetCapabilities"}).text
-            nomes = re.findall(r"<(?:wfs:)?Name>([^<]+)</(?:wfs:)?Name>", cap)
-            prodes_cam = [n for n in nomes if "prodes" in n.lower()]
-            pd.DataFrame({"camada": prodes_cam}).to_csv(DESCOBERTA / "prodes_camadas_wfs.csv", index=False)
-            alvo = [n for n in prodes_cam if "legal" in n.lower() and "yearly_deforestation" in n.lower()
-                    and "nf" not in n.lower() and "smaller" not in n.lower()]
-            for c in alvo:
-                # O GeoServer devolve no máximo um lote por pedido: pagina até acabar.
-                partes, inicio, lote = [], 0, 50000
-                while True:
-                    r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
-                             params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
-                                     "propertyName": "year,area_km", "outputFormat": "csv", "sortBy": "year",
-                                     "count": lote, "startIndex": inicio})
-                    t = pd.read_csv(io.StringIO(r.text))
-                    partes.append(t)
-                    if len(t) == 0 or inicio > 5_000_000:
-                        break
-                    inicio += len(t)  # o servidor pode limitar o lote abaixo do pedido: só para quando vier vazio
-                t = pd.concat(partes)
-                erros.append(f"{c}: {len(t)} polígonos lidos")
-                t.columns = [x.lower() for x in t.columns]
-                if {"year", "area_km"} <= set(t.columns):
-                    g = t.groupby("year", as_index=False)["area_km"].sum()
-                    linhas = [{"year": int(y), "rate": float(a), "fonte": f"incremento mapeado ({c})"} for y, a in zip(g.year, g.area_km)]
-                    erros.append(f"usado incremento mapeado da camada {c}")
-                    break
+            achados, texto = _ler_nota(ano, url)
+            (pasta / f"{ano}_{tipo}.txt").write_text(texto, encoding="utf-8")
+            diag.append({"nota": f"{ano} {tipo}", "url": url, "achados": str(achados)})
         except Exception as e:  # noqa: BLE001
-            erros.append(f"WFS incremento: {str(e)[:150]}")
-    if not linhas:
-        # GeoServer: procura uma camada de taxas e baixa em JSON
-        try:
-            cap = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
-                       params={"service": "WFS", "version": "2.0.0", "request": "GetCapabilities"}).text
-            camadas = [c for c in re.findall(r"<Name>([^<]+)</Name>", cap) if "rate" in c.lower() and "prodes" in c.lower()]
-            erros.append(f"camadas WFS com 'rate': {camadas[:10]}")
-            for c in camadas:
-                r = _get("https://terrabrasilis.dpi.inpe.br/geoserver/ows",
-                         params={"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeNames": c,
-                                 "outputFormat": "application/json"})
-                feats = [f.get("properties", {}) for f in _json(r).get("features", [])]
-                linhas = [p for p in feats if "rate" in p and "year" in p]
-                if linhas:
-                    break
-        except Exception as e:  # noqa: BLE001
-            erros.append(f"WFS: {str(e)[:150]}")
-    DESCOBERTA.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame({"erro": erros}).to_csv(DESCOBERTA / "prodes_erros.csv", index=False)
-    if not linhas:
-        raise ValueError("PRODES indisponível: " + " | ".join(erros)[:300])
-    df = pd.DataFrame(linhas)
-    if "state" in df:
-        tot = df[df["state"].astype(str).str.upper().isin(["AMZ", "AMAZÔNIA LEGAL", "AMAZONIA LEGAL", "LEGAL AMAZON"])]
-        df = tot if not tot.empty else df.groupby("year", as_index=False)["rate"].sum()
-    df = df.groupby("year", as_index=False)["rate"].max()
-    return pd.DataFrame({"data": pd.to_datetime(df["year"].astype(int).astype(str) + "-01-01"),
-                         "valor": pd.to_numeric(df["rate"], errors="coerce")}).dropna().sort_values("data")
+            diag.append({"nota": f"{ano} {tipo}", "url": url, "achados": f"ERRO: {type(e).__name__}: {str(e)[:200]}"})
+            continue
+        for a, v in achados.items():
+            # ano anterior numa nota é sempre o valor consolidado; o ano da nota segue o tipo da nota
+            t = "consolidada" if (a < ano or tipo == "consolidada") else "estimativa"
+            prioridade = (t == "consolidada", ano)  # consolidada vence; entre iguais, a nota mais nova
+            if a not in melhor or prioridade > melhor[a]["_p"]:
+                melhor[a] = {"ano": a, "valor": v, "tipo": t, "nota_ano": ano, "url": url, "_p": prioridade}
+    pd.DataFrame(diag).to_csv(DESCOBERTA / "prodes_notas.csv", index=False)
+    if not melhor:
+        raise ValueError("nenhuma nota técnica do INPE pôde ser lida: " + " | ".join(d["achados"] for d in diag)[:300])
+    df = pd.DataFrame(sorted(melhor.values(), key=lambda d: d["ano"])).drop(columns="_p")
+    df.insert(0, "data", pd.to_datetime(df.ano.astype(str) + "-01-01"))
+    return df.drop(columns="ano")

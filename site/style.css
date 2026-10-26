@@ -277,3 +277,8 @@ table.duelo { table-layout: fixed; }
 .entradas a:hover { border-color: var(--ink-2); }
 .entradas b { font: 600 15px var(--sans); color: var(--ink); }
 .entradas span { font-size: 13px; color: var(--ink-2); }
+
+.notas { font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.notas summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+.notas ul { margin: 8px 0 0; padding-left: 18px; }
+.notas li { margin: 2px 0; }

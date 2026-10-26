@@ -5,3 +5,4 @@ remotezip>=0.12
 aia>=0.2
 certifi
 lxml
+pdfplumber
