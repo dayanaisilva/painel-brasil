@@ -185,8 +185,14 @@ def sgs(codigo, inicio=1980, diaria=False):
         b = min(a + passo - 1, hoje)
         url = (f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json"
                f"&dataInicial=01/01/{a}&dataFinal=31/12/{b}")
-        r = get(url)
-        partes += r.json()
+        for t in range(6):  # a API do BCB às vezes devolve página de erro em vez de JSON
+            try:
+                partes += get(url).json()
+                break
+            except ValueError:
+                if t == 5:
+                    raise
+                time.sleep(10 * (t + 1))
     df = pd.DataFrame(partes)
     df["data"] = pd.to_datetime(df["data"], dayfirst=True)
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
