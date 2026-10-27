@@ -370,7 +370,7 @@ dolar,dilma1 média no governo,2.0352,2.035185759816001,-1.4240183999092437e-05,
 dolar,dilma2 média no governo,3.4546,3.454645254273282,4.525427328205822e-05,confere,BCB SGS 1,
 dolar,temer média no governo,3.3982,3.398215772094515,1.5772094514865387e-05,confere,BCB SGS 1,
 dolar,bolsonaro média no governo,4.9152,4.915176654274988,-2.3345725011836294e-05,confere,BCB SGS 1,
-dolar,lula3 média no governo,5.2841,5.284413808206215,0.00031380820621507155,confere,BCB SGS 1,
+dolar,lula3 média no governo,5.2844,5.284413808206215,1.3808206214882546e-05,confere,BCB SGS 1,
 pib_crescimento,série 1985,7.85,7.85,0.0,confere,BCB SGS 7326,
 pib_crescimento,série 1986,7.49,7.49,0.0,confere,BCB SGS 7326,
 pib_crescimento,série 1987,3.53,3.53,0.0,confere,BCB SGS 7326,
@@ -516,86 +516,87 @@ pib_per_capita,dilma2 posição e ✓/✕,12 ruim,12 ruim,,confere,ranking recal
 pib_per_capita,temer posição e ✓/✕,10 ruim,10 ruim,,confere,ranking recalculado,
 pib_per_capita,bolsonaro posição e ✓/✕,8 ,8 ,,confere,ranking recalculado,
 pib_per_capita,lula3 posição e ✓/✕,3 bom,3 bom,,confere,ranking recalculado,
-desemprego,trimestre que contém 2012-02,,8.0,,sem par,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2012-05,7.7,7.6,-0.10000000000000053,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2012-08,7.3,7.1,-0.20000000000000018,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2012-11,6.8667,6.9,0.03330000000000055,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2013-02,7.6667,8.0,0.3333000000000004,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2013-05,7.6667,7.5,-0.16669999999999963,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2013-08,7.2,7.0,-0.20000000000000018,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2013-11,6.5,6.2,-0.2999999999999998,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2014-02,6.8333,7.2,0.3666999999999998,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2014-05,7.0333,6.9,-0.1332999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2014-08,6.9333,6.8,-0.1333000000000002,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2014-11,6.6333,6.6,-0.03330000000000055,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2015-02,7.4667,8.0,0.5332999999999997,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2015-05,8.2333,8.4,0.16670000000000051,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2015-08,8.8,9.0,0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2012-02,8.0,8.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2012-05,7.6,7.6,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2012-08,7.1,7.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2012-11,6.9,6.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2013-02,8.0,8.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2013-05,7.5,7.5,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2013-08,7.0,7.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2013-11,6.2,6.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2014-02,7.2,7.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2014-05,6.9,6.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2014-08,6.8,6.8,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2014-11,6.6,6.6,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2015-02,8.0,8.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2015-05,8.4,8.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2015-08,9.0,9.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
 desemprego,trimestre que contém 2015-11,9.1,9.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2016-02,10.3,11.0,0.6999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2016-05,11.3333,11.4,0.06670000000000087,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2016-08,11.8333,11.9,0.06670000000000087,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2016-11,12.0,12.1,0.09999999999999964,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2017-02,13.3,13.9,0.5999999999999996,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2017-05,13.4,13.1,-0.3000000000000007,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2017-08,12.7,12.5,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2017-11,12.1,11.9,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2018-02,12.7333,13.2,0.46669999999999945,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2018-05,12.8,12.6,-0.20000000000000107,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2018-08,12.2,12.0,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2018-11,11.7333,11.7,-0.03330000000000055,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2019-02,12.5,12.8,0.3000000000000007,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2019-05,12.3667,12.1,-0.26670000000000016,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2016-02,11.0,11.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2016-05,11.4,11.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2016-08,11.9,11.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2016-11,12.1,12.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2017-02,13.9,13.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2017-05,13.1,13.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2017-08,12.5,12.5,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2017-11,11.9,11.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2018-02,13.2,13.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2018-05,12.6,12.6,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2018-08,12.0,12.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2018-11,11.7,11.7,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2019-02,12.8,12.8,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2019-05,12.1,12.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
 desemprego,trimestre que contém 2019-08,11.9,11.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2019-11,11.3667,11.1,-0.26670000000000016,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2020-02,11.8,12.4,0.5999999999999996,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2020-05,13.1333,13.6,0.46669999999999945,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2020-08,14.6,14.9,0.3000000000000007,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2020-11,14.3667,14.2,-0.16670000000000051,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2021-02,14.6333,14.9,0.26670000000000016,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2021-05,14.5667,14.2,-0.3667000000000016,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2021-08,13.2,12.7,-0.5,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2021-11,11.6,11.1,-0.5,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2022-02,11.1667,11.1,-0.06670000000000087,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2022-05,9.8667,9.3,-0.5666999999999991,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2022-08,8.9,8.7,-0.20000000000000107,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2022-11,8.1,7.9,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2023-02,8.6,8.8,0.20000000000000107,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2023-05,8.2667,8.0,-0.26670000000000016,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2023-08,7.8,7.7,-0.09999999999999964,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2023-11,7.5,7.4,-0.09999999999999964,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2024-02,7.7667,7.9,0.1333000000000002,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2024-05,7.1667,6.9,-0.26669999999999927,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2024-08,6.6,6.4,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2024-11,6.1667,6.2,0.03330000000000055,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2025-02,6.7667,7.0,0.23329999999999984,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2025-05,6.2,5.8,-0.40000000000000036,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2019-11,11.1,11.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2020-02,12.4,12.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2020-05,13.6,13.6,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2020-08,14.9,14.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2020-11,14.2,14.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2021-02,14.9,14.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2021-05,14.2,14.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2021-08,12.7,12.7,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2021-11,11.1,11.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2022-02,11.1,11.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2022-05,9.3,9.3,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2022-08,8.7,8.7,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2022-11,7.9,7.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2023-02,8.8,8.8,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2023-05,8.0,8.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2023-08,7.7,7.7,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2023-11,7.4,7.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2024-02,7.9,7.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2024-05,6.9,6.9,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2024-08,6.4,6.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2024-11,6.2,6.2,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2025-02,7.0,7.0,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2025-05,5.8,5.8,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
 desemprego,trimestre que contém 2025-08,5.6,5.6,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2025-11,5.2333,5.1,-0.1333000000000002,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2026-02,5.7667,6.1,0.3332999999999995,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,trimestre que contém 2026-05,5.6,5.4,-0.1999999999999993,DIVERGE,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
-desemprego,média de 2013,7.25835,7.175,-0.08335000000000026,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2014,6.8583,6.874999999999999,0.01669999999999927,confere,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2015,8.4,8.625,0.22499999999999964,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2016,11.36665,11.6,0.23334999999999972,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2017,12.875,12.85,-0.025000000000000355,confere,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2018,12.36665,12.375,0.00835000000000008,confere,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2019,12.03335,11.975000000000001,-0.058349999999999014,confere,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2020,13.475,13.775,0.3000000000000007,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2021,13.5,13.225,-0.27500000000000036,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2022,9.50835,9.25,-0.2583500000000001,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2023,8.041675,7.9750000000000005,-0.06667499999999915,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2024,6.925025000000001,6.85,-0.07502500000000101,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,média de 2025,5.95,5.875,-0.07500000000000018,DIVERGE,"SIDRA 4099, média dos 4 trimestres",
-desemprego,dilma1 média no governo,,7.150000000000001,,sem par,SIDRA 4099,
-desemprego,dilma2 média no governo,8.9396,9.243749999999999,0.30414999999999814,DIVERGE,SIDRA 4099,
-desemprego,temer média no governo,12.4083,12.421875,0.013574999999999449,confere,SIDRA 4099,
-desemprego,bolsonaro média no governo,12.1292,12.05625,-0.07295000000000051,DIVERGE,SIDRA 4099,
-desemprego,lula3 média no governo,6.7881,6.735714285714285,-0.052385714285715146,DIVERGE,SIDRA 4099,
-desemprego,dilma1 ranking,,2,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
-desemprego,dilma2 posição e ✓/✕,2 ,3 ,,DIVERGE,ranking recalculado,
-desemprego,temer posição e ✓/✕,4 ruim,5 ruim,,DIVERGE,ranking recalculado,
-desemprego,bolsonaro posição e ✓/✕,3 ,4 ruim,,DIVERGE,ranking recalculado,
+desemprego,trimestre que contém 2025-11,5.1,5.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2026-02,6.1,6.1,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,trimestre que contém 2026-05,5.4,5.4,0.0,confere,SIDRA 4099 (taxa de desocupação trimestral),"se o publicado estiver um trimestre deslocado, a data do Ipeadata está sendo lida como início do trimestre seguinte"
+desemprego,média de 2012,7.3999999999999995,7.4,8.881784197001252e-16,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2013,7.175,7.175,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2014,6.875,6.874999999999999,-8.881784197001252e-16,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2015,8.625,8.625,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2016,11.6,11.6,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2017,12.85,12.85,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2018,12.375,12.375,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2019,11.975,11.975000000000001,1.7763568394002505e-15,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2020,13.775,13.775,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2021,13.225,13.225,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2022,9.25,9.25,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2023,7.9750000000000005,7.9750000000000005,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2024,6.8500000000000005,6.85,-8.881784197001252e-16,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,média de 2025,5.875,5.875,0.0,confere,"SIDRA 4099, média dos 4 trimestres",
+desemprego,dilma1 média no governo,7.15,7.150000000000001,8.881784197001252e-16,confere,SIDRA 4099,
+desemprego,dilma2 média no governo,9.2437,9.243749999999999,4.9999999998107114e-05,confere,SIDRA 4099,
+desemprego,temer média no governo,12.4219,12.421875,-2.5000000000829914e-05,confere,SIDRA 4099,
+desemprego,bolsonaro média no governo,12.0562,12.05625,4.999999999988347e-05,confere,SIDRA 4099,
+desemprego,lula3 média no governo,6.7357,6.735714285714285,1.4285714285300344e-05,confere,SIDRA 4099,
+desemprego,dilma1 posição e ✓/✕,2 bom,2 bom,,confere,ranking recalculado,
+desemprego,dilma2 posição e ✓/✕,3 ,3 ,,confere,ranking recalculado,
+desemprego,temer posição e ✓/✕,5 ruim,5 ruim,,confere,ranking recalculado,
+desemprego,bolsonaro posição e ✓/✕,4 ruim,4 ruim,,confere,ranking recalculado,
 desemprego,lula3 posição e ✓/✕,1 bom,1 bom,,confere,ranking recalculado,
 gasolina,preço nominal 2001-07,1.681,1.6814,0.00039999999999995595,confere,ANP,
 gasolina,preço real 2001-07,7.3678,7.3677976011360995,-2.3988639004102197e-06,confere,ANP / IPCA SIDRA,
@@ -752,89 +753,89 @@ gasolina_litros,dilma2 posição e ✓/✕,2 bom,2 bom,,confere,ranking recalcul
 gasolina_litros,temer posição e ✓/✕,3 ,3 ,,confere,ranking recalculado,
 gasolina_litros,bolsonaro posição e ✓/✕,5 ,5 ,,confere,ranking recalculado,
 gasolina_litros,lula3 posição e ✓/✕,1 bom,1 bom,,confere,ranking recalculado,
-calculadora,índice 1985-01,1e-10,7.35063847837585e-11,-2.6493615216241507e-11,DIVERGE,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1985-01,6e-08,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1986-01,3e-10,2.5744959238696636e-10,-4.255040761303364e-11,DIVERGE,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1986-01,2.2e-07,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1987-01,5e-10,4.578335836618365e-10,-4.216641633816355e-11,DIVERGE,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1987-01,3.5e-07,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1988-01,2.2e-09,2.2281112695067974e-09,2.8111269506797583e-11,DIVERGE,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1988-01,1.64e-06,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1989-01,2.78e-08,2.7833980913337935e-08,3.3980913337934376e-11,confere,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1989-01,1.977e-05,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1990-01,7.031e-07,7.031201914987523e-07,2.0191498752349598e-11,confere,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1990-01,0.00046689,,,sem par,BCB SGS 1619 + fatores,
-calculadora,índice 1991-01,8.7206e-06,8.720566259512527e-06,-3.374048747338575e-11,confere,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1991-01,0.00448204,0.004482036363636363,-3.6363636364208918e-09,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1992-01,5.20879e-05,5.208794380406209e-05,4.380406208928916e-11,confere,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1992-01,0.03492267,0.034922665454545455,-4.545454547477679e-09,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1993-01,0.0006572358,0.000657235791943108,-8.056891959151713e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1985-01,7.3506385e-11,7.35063847837585e-11,-2.162415040348242e-19,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1985-01,6.0567273e-08,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1986-01,2.5744959e-10,2.5744959238696636e-10,2.3869663491179857e-18,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1986-01,2.1818182e-07,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1987-01,4.5783358e-10,4.578335836618365e-10,3.661836496230319e-18,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1987-01,3.5083636e-07,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1988-01,2.2281113e-09,2.2281112695067974e-09,-3.0493202644767063e-17,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1988-01,1.6363636e-06,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1989-01,2.7833981e-08,2.7833980913337935e-08,-8.66620650334005e-17,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1989-01,1.9772364e-05,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1990-01,7.0312019e-07,7.031201914987523e-07,1.4987523788494942e-15,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1990-01,0.00046689091,,,sem par,BCB SGS 1619 + fatores,
+calculadora,índice 1991-01,8.7205663e-06,8.720566259512527e-06,-4.0487471841409335e-14,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1991-01,0.0044820364,0.004482036363636363,-3.636363692799405e-11,confere,BCB SGS 1619 + fatores,
+calculadora,índice 1992-01,5.2087944e-05,5.208794380406209e-05,-1.9593791107837266e-13,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1992-01,0.034922665,0.034922665454545455,4.5454545682943603e-10,confere,BCB SGS 1619 + fatores,
+calculadora,índice 1993-01,0.00065723579,0.000657235791943108,1.943108000890259e-12,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1993-01,0.4548,0.45480000000000004,5.551115123125783e-17,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1994-01,0.0183621036,0.018362103559152205,-4.084779389734727e-11,confere,"SIDRA 1737, base = último mês",
-calculadora,salário mínimo em R$ 1994-01,11.95709091,11.957090909090908,-9.090914687703844e-10,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1995-01,0.1343226302,0.1343226302188024,1.8802404078144264e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1994-01,0.018362104,0.018362103559152205,-4.408477957684731e-10,confere,"SIDRA 1737, base = último mês",
+calculadora,salário mínimo em R$ 1994-01,11.957091,11.957090909090908,-9.090909180997642e-08,confere,BCB SGS 1619 + fatores,
+calculadora,índice 1995-01,0.13432263,0.1343226302188024,2.1880239287064285e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1995-01,70.0,70.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1996-01,0.1638407997,0.16384079974605406,4.605404946289582e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1996-01,0.1638408,0.16384079974605406,-2.5394594760363987e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1996-01,100.0,100.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1997-01,0.1792267967,0.1792267967310495,3.104949630738929e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1997-01,0.1792268,0.1792267967310495,-3.268950499180079e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1997-01,112.0,112.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1998-01,0.1877148762,0.18771487616970098,-3.02990132983183e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1998-01,0.18771488,0.18771487616970098,-3.830299022400396e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1998-01,120.0,120.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 1999-01,0.1908038188,0.19080381881998634,1.998634591160453e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 1999-01,0.19080382,0.19080381881998634,-1.1800136701101138e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 1999-01,130.0,130.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2000-01,0.2076964219,0.20769642194643126,4.6431247735512216e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2000-01,0.20769642,0.20769642194643126,1.946431266164339e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2000-01,136.0,136.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2001-01,0.2199955368,0.2199955367664926,-3.350739130603131e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2001-01,0.21999554,0.2199955367664926,-3.2335073785194623e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2001-01,151.0,151.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2002-01,0.236758606,0.2367586060091347,9.134693002010863e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2002-01,0.23675861,0.2367586060091347,-3.990865304892566e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2002-01,180.0,180.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2003-01,0.2710105707,0.27101057073083895,3.083894251076913e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2003-01,0.27101057,0.27101057073083895,7.308389449178776e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2003-01,200.0,200.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2004-01,0.2918979423,0.2918979423481361,4.8136106212126606e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2004-01,0.29189794,0.2918979423481361,2.348136074470375e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2004-01,240.0,240.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2005-01,0.3135229791,0.31352297913482957,3.4829583661633023e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2005-01,0.31352298,0.31352297913482957,-8.651704352935496e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2005-01,260.0,260.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2006-01,0.3313945457,0.3313945457042001,4.200140235610661e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2006-01,0.33139455,0.3313945457042001,-4.295799882481077e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2006-01,300.0,300.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2007-01,0.3412965145,0.34129651450486703,4.8670512065029925e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2007-01,0.34129651,0.34129651450486703,4.504867034960114e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2007-01,350.0,350.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2008-01,0.3568641754,0.3568641753725659,-2.74341105388487e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2008-01,0.35686418,0.3568641753725659,-4.627434102566497e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2008-01,380.0,380.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2009-01,0.3777018789,0.3777018789355645,3.5564495792783646e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2009-01,0.37770188,0.3777018789355645,-1.064435484199322e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2009-01,415.0,415.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2010-01,0.3950471782,0.3950471781839325,-1.6067536190433884e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2010-01,0.39504718,0.3950471781839325,-1.816067518589648e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2010-01,510.0,510.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2011-01,0.4187230069,0.41872300691823905,1.8239021404298228e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2011-01,0.41872301,0.41872300691823905,-3.0817609575350957e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2011-01,540.0,540.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2012-01,0.444758859,0.4447588590220129,2.201289150960406e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2012-01,0.44475886,0.4447588590220129,-9.779870802084645e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2012-01,622.0,622.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2013-01,0.472130727,0.47213072695036407,-4.963590649609273e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2013-01,0.47213073,0.47213072695036407,-3.049635932672601e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2013-01,678.0,678.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2014-01,0.4985006164,0.498500616353865,-4.613498472139099e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2014-01,0.49850062,0.498500616353865,-3.6461350050309704e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2014-01,724.0,724.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2015-01,0.5340826585,0.5340826585035,3.499978085130806e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2015-01,0.53408266,0.5340826585035,-1.4965000350031232e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2015-01,788.0,788.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2016-01,0.5912631148,0.5912631148264798,2.6479707315729684e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2016-01,0.59126311,0.5912631148264798,4.826479771402603e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2016-01,880.0,880.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2017-01,0.6229190726,0.62291907262674,2.673994359270182e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2017-01,0.62291907,0.62291907262674,2.6267399366730615e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2017-01,937.0,937.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2018-01,0.6407037114,0.640703711403833,3.8329339702158904e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2018-01,0.64070371,0.640703711403833,1.4038329387844328e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2018-01,954.0,954.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2019-01,0.6648999881,0.6648999880968461,-3.153810546052682e-12,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2019-01,0.66489999,0.6648999880968461,-1.903153856730455e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2019-01,998.0,998.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2020-01,0.6927703969,0.6927703969480475,4.804756592591275e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2020-01,0.6927704,0.6927703969480475,-3.0519524685246324e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2020-01,1039.0,1039.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2021-01,0.7243542207,0.7243542207330708,3.307076834602185e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2021-01,0.72435422,0.7243542207330708,7.330707152419791e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2021-01,1100.0,1100.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2022-01,0.7995381035,0.7995381034850572,-1.494282475533737e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2022-01,0.7995381,0.7995381034850572,3.4850571317690537e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2022-01,1212.0,1212.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2023-01,0.8457059944,0.8457059944401822,4.018219090795583e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2023-01,0.84570599,0.8457059944401822,4.440182221898681e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2023-01,1302.0,1302.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2024-01,0.8838188973,0.8838188973392334,3.923339431111117e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2024-01,0.8838189,0.8838188973392334,-2.6607666070432856e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2024-01,1412.0,1412.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2025-01,0.9241199289,0.9241199289166482,1.664812732116161e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2025-01,0.92411993,0.9241199289166482,-1.083351852670944e-09,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2025-01,1518.0,1518.0,0.0,confere,BCB SGS 1619 + fatores,
-calculadora,índice 2026-01,0.9651633406,0.9651633405874389,-1.2561063300609021e-11,confere,"SIDRA 1737, base = último mês",
+calculadora,índice 2026-01,0.96516334,0.9651633405874389,5.874388753213111e-10,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2026-01,1621.0,1621.0,0.0,confere,BCB SGS 1619 + fatores,
 calculadora,índice 2026-09,1.0,1.0,0.0,confere,"SIDRA 1737, base = último mês",
 calculadora,salário mínimo em R$ 2026-09,1621.0,1621.0,0.0,confere,BCB SGS 1619 + fatores,
@@ -1151,41 +1152,29 @@ gasto_educacao,dilma1 resumo (media),5.845,5.844960093498227,-3.9906501772435377
 gasto_educacao,dilma2 resumo (media),6.2604,6.2604013293622485,1.3293622487253742e-06,confere,Banco Mundial SE.XPD.TOTL.GD.ZS,
 gasto_educacao,temer resumo (media),6.231,6.231028328771178,2.8328771177754675e-05,confere,Banco Mundial SE.XPD.TOTL.GD.ZS,
 gasto_educacao,bolsonaro resumo (media),5.7128,5.71278750896454,-1.2491035459305522e-05,confere,Banco Mundial SE.XPD.TOTL.GD.ZS,
-analfabetismo,série 2000,13.63,13.629997253417997,-2.7465820036098876e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2004,11.38,11.379997253417997,-2.7465820036098876e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2006,10.38,10.379997253417997,-2.7465820036098876e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2007,9.99,9.989997863769503,-2.1362304973848723e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2008,9.96,9.959999084472699,-9.155273019700871e-07,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2009,9.7,9.699996948242202,-3.0517577975786025e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2010,9.62,9.620002746582003,2.7465820036098876e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2011,8.59,8.589996337890597,-3.662109403279601e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2012,8.66,8.660003662109403,3.662109403279601e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2013,8.52,8.519996643066406,-3.3569335933236744e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2014,8.27,8.269996643066406,-3.3569335933236744e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2015,7.95,7.949996948242202,-3.051757798466781e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2016,7.19,7.190002441406193,2.4414061927657826e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2017,6.92,6.919998168945298,-1.8310547016398004e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2018,6.77,6.769996643066406,-3.3569335933236744e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2019,6.1074,6.107373300046305,-2.6699953695086265e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2020,5.2556,5.255588566895796,-1.1433104204705558e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2021,5.2274,5.227382911302499,-1.708869750149944e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2022,5.6231,5.623133839892006,3.3839892005893546e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2023,5.4275,5.427450936492306,-4.9063507693958286e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,série 2024,5.26,5.260002136230497,2.1362304973848723e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,lula1 resumo (ritmo_rel),-4.5495,-4.549455654043777,4.434595622271331e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,lula2 resumo (ritmo_rel),-1.8829,-1.8829483772733746,-4.837727337458908e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,dilma1 resumo (ritmo_rel),-3.7097,-3.709701214626082,-1.2146260819356769e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,dilma2 resumo (ritmo_rel),-3.8694,-3.869405377479729,-5.377479728618795e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,temer resumo (ritmo_rel),-5.2148,-5.214807347516359,-7.347516358890971e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,bolsonaro resumo (ritmo_rel),-4.5343,-4.534271325540407,2.8674459593425183e-05,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,lula3 resumo (ritmo_rel),-3.2828,-3.2827922181348668,7.781865133171806e-06,confere,Banco Mundial SE.ADT.LITR.ZS,
-analfabetismo,lula1 posição e ✓/✕,2 bom,2 bom,,confere,ranking recalculado,
-analfabetismo,lula2 posição e ✓/✕,7 ruim,7 ruim,,confere,ranking recalculado,
-analfabetismo,dilma1 posição e ✓/✕,5 ,5 ,,confere,ranking recalculado,
-analfabetismo,dilma2 posição e ✓/✕,4 ,4 ,,confere,ranking recalculado,
-analfabetismo,temer posição e ✓/✕,1 bom,1 bom,,confere,ranking recalculado,
-analfabetismo,bolsonaro posição e ✓/✕,3 ,3 ,,confere,ranking recalculado,
-analfabetismo,lula3 posição e ✓/✕,6 ruim,6 ruim,,confere,ranking recalculado,
+analfabetismo,série 2016,6.7,7.190002441406193,0.490002441406193,DIVERGE,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2017,6.5,6.919998168945298,0.4199981689452983,DIVERGE,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2018,6.3,6.769996643066406,0.4699966430664064,DIVERGE,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2019,6.1,6.107373300046305,0.007373300046305431,confere,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2020,,5.255588566895796,,sem par,Banco Mundial SE.ADT.LITR.ZS,site sem valor neste ano
+analfabetismo,série 2021,,5.227382911302499,,sem par,Banco Mundial SE.ADT.LITR.ZS,site sem valor neste ano
+analfabetismo,série 2022,5.6,5.623133839892006,0.023133839892006236,confere,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2023,5.4,5.427450936492306,0.0274509364923059,confere,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,série 2024,5.3,5.260002136230497,-0.03999786376950265,confere,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,lula1 resumo (ritmo_rel),,-4.549455654043777,,sem par,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,lula2 resumo (ritmo_rel),,-1.8829483772733746,,sem par,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,dilma1 resumo (ritmo_rel),,-3.709701214626082,,sem par,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,dilma2 resumo (ritmo_rel),,-3.869405377479729,,sem par,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,temer resumo (ritmo_rel),,-5.214807347516359,,sem par,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,bolsonaro resumo (ritmo_rel),-2.9016,-4.534271325540407,-1.6326713255404064,DIVERGE,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,lula3 resumo (ritmo_rel),-4.3534,-3.2827922181348668,1.070607781865133,DIVERGE,Banco Mundial SE.ADT.LITR.ZS,
+analfabetismo,lula1 ranking,,2,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
+analfabetismo,lula2 ranking,,7,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
+analfabetismo,dilma1 ranking,,5,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
+analfabetismo,dilma2 ranking,,4,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
+analfabetismo,temer ranking,,1,,DIVERGE,,governo com resultado recalculado mas sem resultado no site
+analfabetismo,bolsonaro posição e ✓/✕,None ,3 ,,DIVERGE,ranking recalculado,
+analfabetismo,lula3 posição e ✓/✕,None ,6 ruim,,DIVERGE,ranking recalculado,
 ensino_superior,série 2012,43.8344,43.8344116210938,1.1621093797486992e-05,confere,Banco Mundial SE.TER.ENRR,
 ensino_superior,série 2013,44.9967,44.9966697692871,-3.02307128947632e-05,confere,Banco Mundial SE.TER.ENRR,
 ensino_superior,série 2014,47.8132,47.8131904602051,-9.539794902480025e-06,confere,Banco Mundial SE.TER.ENRR,
@@ -1365,12 +1354,13 @@ leitos_sus,dilma2 resumo (media),15.3523,15.352281846655355,-1.8153344644389335e
 leitos_sus,temer resumo (media),14.7222,14.722192607637473,-7.392362528335639e-06,confere,Ipeadata SIS_NMLTINTSUS1000HUF,
 leitos_sus,bolsonaro resumo (media),14.6487,14.648746024512054,4.6024512053932654e-05,confere,Ipeadata SIS_NMLTINTSUS1000HUF,
 leitos_sus,lula3 resumo (media),14.6739,14.67388270322555,-1.7296774450059615e-05,confere,Ipeadata SIS_NMLTINTSUS1000HUF,
-analfabetismo,série 2016,7.19,6.7,-0.4900000000000002,DIVERGE,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2017,6.92,6.5,-0.41999999999999993,DIVERGE,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2018,6.77,6.3,-0.46999999999999975,DIVERGE,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2019,6.1074,6.1,-0.007400000000000517,confere,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2022,5.6231,5.6,-0.023100000000000342,confere,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2023,5.4275,5.4,-0.027499999999999858,confere,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,série 2024,5.26,5.3,0.040000000000000036,confere,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,bolsonaro resumo (ritmo_rel),-4.5343,-2.9016456585353123,1.6326543414646877,DIVERGE,Ipeadata PNADCA_TXA15MUF,
-analfabetismo,lula3 resumo (ritmo_rel),-3.2828,-4.353440861380542,-1.070640861380542,DIVERGE,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2016,6.7,6.7,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2017,6.5,6.5,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2018,6.3,6.3,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2019,6.1,6.1,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2022,5.6,5.6,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2023,5.4,5.4,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2024,5.3,5.3,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,série 2025,4.9,4.9,0.0,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,bolsonaro resumo (ritmo_rel),-2.9016,-2.9016456585353123,-4.565853531213193e-05,confere,Ipeadata PNADCA_TXA15MUF,
+analfabetismo,lula3 resumo (ritmo_rel),-4.3534,-4.353440861380542,-4.086138054226751e-05,confere,Ipeadata PNADCA_TXA15MUF,
