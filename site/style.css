@@ -217,12 +217,12 @@ tr.ruim .barrinha span { background: var(--ruim); }
 .colunas-gov { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 36px; }
 .colunas-gov h2 { font-size: 19px; display: flex; gap: 8px; align-items: baseline; padding-bottom: 10px; border-bottom: 2px solid var(--tinta); }
 .lista-res { list-style: none; margin: 0; padding: 0; }
-.lista-res li a { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--linha); text-decoration: none; color: var(--tinta); }
+.lista-res li a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--linha); text-decoration: none; color: var(--tinta); }
 .lista-res li a:hover .nome { color: var(--azul); }
 .lista-res .nome { font-weight: 650; }
 .lista-res .val { font-weight: 650; text-align: right; white-space: nowrap; }
 .lista-res .pos { grid-column: 1 / -1; font-size: 14px; color: var(--tinta-2); }
-.lista-res .un { font-weight: 400; color: var(--tinta-3); font-size: 13px; display: block; text-align: right; }
+.lista-res .un { font-weight: 400; color: var(--tinta-3); font-size: 13px; display: block; text-align: right; white-space: normal; max-width: 22ch; margin-left: auto; }
 .lista-res .vazio { padding: 12px 0; color: var(--tinta-3); }
 
 /* ---------- comparar ---------- */
@@ -301,7 +301,7 @@ select, .calc input { font: inherit; font-size: 16px; height: 44px; padding: 0 1
   .busca { max-width: 260px; }
   .inicio-topo { grid-template-columns: 1fr; gap: 24px; }
   .indice { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .com-lado { grid-template-columns: 1fr; }
+  .com-lado { grid-template-columns: minmax(0, 1fr); }
   .lado { display: none; }
   .ir-para { display: block; margin-bottom: 20px; }
   .ir-para select { width: 100%; }
@@ -314,7 +314,7 @@ select, .calc input { font: inherit; font-size: 16px; height: 44px; padding: 0 1
   .menu { order: 4; flex-basis: 100%; flex-wrap: wrap; margin: 0 -6px; gap: 0; }
   .tema { margin-left: auto; }
   .pagina { padding: 24px 16px 56px; }
-  .indice, .ferramentas, .colunas-gov, .calc-res { grid-template-columns: 1fr; }
+  .indice, .ferramentas, .colunas-gov, .calc-res { grid-template-columns: minmax(0, 1fr); }
   .regua-faixa { height: auto; flex-wrap: wrap; border: 0; background: none; gap: 4px; }
   .regua-faixa a { flex: 1 1 30% !important; border: 1px solid var(--linha); border-radius: 6px; padding: 6px 8px; background: var(--superficie); }
   .regua-faixa a:nth-child(even) { background: var(--superficie); }

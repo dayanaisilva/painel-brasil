@@ -149,7 +149,10 @@
     else if (rota === "comparar") titulo = paginaComparar(main);
     else if (rota === "calculadora") titulo = paginaCalculadora(main);
     else if (rota === "metodologia") titulo = paginaMetodologia(main);
-    else titulo = paginaInicio(main);
+    else if (rota === "i" || rota === "g") {
+      main.innerHTML = `<div class="pagina estreita"><h1>Página não encontrada</h1><p class="lede-pag">Este endereço não corresponde a nenhum ${rota === "i" ? "indicador" : "governo"}. Veja a <a href="#/${rota === "i" ? "indicadores" : "governos"}">lista completa</a> ou use a busca no topo.</p></div>`;
+      titulo = "Página não encontrada";
+    } else titulo = paginaInicio(main);
     document.title = titulo ? `${titulo} · Tira-Teima` : "Tira-Teima · Os números do Brasil, governo a governo";
     const secao = { i: "indicadores", g: "governos" }[rota] || rota;
     for (const a of document.querySelectorAll(".menu a")) {
