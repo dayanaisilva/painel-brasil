@@ -682,3 +682,23 @@ def ibge_populacao_contas() -> pd.DataFrame:
     return pd.DataFrame({"data": pd.to_datetime([f"{a}-07-01" for a in comum]), "valor": pop[comum].values,
                          "pc_nominal": pc[comum].values,
                          "pc_volume": vol.reindex(comum).values})
+
+
+def ibge_desocupacao() -> pd.DataFrame:
+    """Taxa de desocupação trimestral oficial da PNAD Contínua (IBGE, SIDRA 4099), datada no 1º mês do trimestre."""
+    r = _get("https://apisidra.ibge.gov.br/values/t/4099/n1/all/v/4099/p/all", tentativas=3)
+    linhas = _json(r)
+    cab, dados = linhas[0], linhas[1:]
+    k = next(k for k, n in cab.items() if k.endswith("C") and n.startswith("Trimestre"))
+    out = []
+    for d in dados:
+        cod, v = d[k], d["V"]
+        try:
+            ano, tri = int(cod[:4]), int(cod[4:])
+            out.append((pd.Timestamp(ano, (tri - 1) * 3 + 1, 1), float(v)))
+        except (ValueError, TypeError):
+            continue
+    df = pd.DataFrame(out, columns=["data", "valor"]).sort_values("data")
+    DESCOBERTA.mkdir(parents=True, exist_ok=True)
+    df.to_csv(DESCOBERTA / "sidra_4099.csv", index=False)
+    return df

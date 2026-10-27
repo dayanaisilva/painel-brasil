@@ -129,7 +129,8 @@ def sgs_ou_ipea(chave, codigo, rotulo_sgs, valido, ipea_args, inicio=SGS_INICIO)
         except Exception as e:  # noqa: BLE001
             log.warning("%s: SGS falhou (%s); tentando Ipeadata", chave, e)
             df = ipea_auto(chave, *ipea_args)()
-            FONTE_USADA[chave] = "Ipeadata (fallback do SGS)"
+            FONTE_USADA[chave] = {"salario_minimo": "Ministério do Trabalho (salário mínimo vigente), via Ipeadata",
+                                  "dolar": "Banco Central (câmbio comercial, venda), via Ipeadata"}.get(chave, "Ipeadata")
             return df
     return f
 
@@ -538,7 +539,7 @@ def main():
                        "Mostra o poder de compra: quanto o mínimo de cada época valeria hoje."),
             resumo_rotulo="ganho real no período", resumo_formato="pct", resumo=resumo_variacao(r),
             serie=serie_json(r[r.data.dt.year >= ANO_INICIAL], "%Y-%m"),
-            fonte=FONTE_USADA.get("salario_minimo", "Banco Central (SGS 1619)") + ", deflacionado pelo IPCA/IBGE",
+            fonte=FONTE_USADA.get("salario_minimo", "Banco Central (SGS 1619)") + ", corrigido pelo IPCA/IBGE",
             fonte_url="https://www3.bcb.gov.br/sgspub/")
         r.to_csv(PROC / "salario_minimo_real.csv", index=False, date_format="%Y-%m-%d")
         validar_salario(r, ref_mes)
@@ -658,6 +659,7 @@ def main():
         ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "Que parte das pessoas com 15 anos ou mais não sabia ler e escrever?", "% das pessoas com 15 anos ou mais",
          "educacao", "menor", "ritmo_rel",
          "Parcela das pessoas de 15 anos ou mais que não sabem ler e escrever, segundo a PNAD Contínua (IBGE), que começa em 2016. "
+         "O IBGE não divulgou esse dado para 2020 e 2021; o gráfico liga 2019 a 2022 com uma linha tracejada. "
          "O ranking mede a queda percentual por ano em cada governo e só aparece quando há pelo menos três governos com dado.",
          "UNESCO, via Banco Mundial (SE.ADT.LITR.ZS), a partir da PNAD/IBGE"),
         ("ensino_superior", "SE.TER.ENRR", "Taxa bruta de matrícula no ensino superior", "As matrículas no ensino superior cresceram?", "taxa bruta de matrícula, %",
@@ -677,7 +679,8 @@ def main():
         # Série oficial do IBGE (PNAD Contínua). Começa em 2016; a PNAD anual anterior tem outra metodologia.
         df = fontes.ipea_serie("PNADCA_TXA15MUF")
         v = dict(zip(df.data.dt.year, df.valor))
-        if not (5.0 <= v.get(2024, 0) <= 5.6 and 6.3 <= v.get(2019, 0) <= 6.9):
+        # Valores conferidos na auditoria de 27/10/2026, após a reponderação da PNAD Contínua: 2019 = 6,1; 2024 = 5,3.
+        if not (4.9 <= v.get(2024, 0) <= 5.6 and 5.7 <= v.get(2019, 0) <= 6.9 and len(v) >= 6):
             raise ValueError(f"analfabetismo IBGE fora do esperado: 2019={v.get(2019)}, 2024={v.get(2024)}")
         return df
 
@@ -704,6 +707,9 @@ def main():
                 fonte, fonte_url = fonte_of, url_of
             else:
                 bruto = coletar(id_ + "_bm", (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
+                if id_ == "analfabetismo":  # a descrição fala do IBGE: diz quando a série veio de outra fonte
+                    descricao = (descricao + " Nesta atualização a série do IBGE não pôde ser usada; os valores são os da "
+                                 "UNESCO, que diferem um pouco dos do IBGE em 2016 a 2018.")
         else:
             bruto = coletar(id_, (lambda c=cod: fontes.banco_mundial(c)), fonte, max_atraso_dias=365 * 6)
         if bruto is None:
@@ -754,8 +760,8 @@ def main():
     oficiais = [
         # id, código Ipeadata, título, pergunta, unidade, tema, direção, freq, descrição, fonte
         ("desemprego", "PAN4_TDESOC4", "Desemprego", "Qual era a taxa de desemprego?", "% da força de trabalho", "economia", "menor", "trimestral",
-         "Taxa de desocupação trimestral oficial da PNAD Contínua (IBGE), que começa em 2012. A média de cada ano bate com a "
-         "taxa anual divulgada pelo IBGE. Pesquisas anteriores usavam outra metodologia e cobriam só regiões metropolitanas, "
+         "Taxa de desocupação trimestral da PNAD Contínua (IBGE, tabela 4099 do SIDRA), que começa em 2012. Cada trimestre "
+         "vale para os seus três meses. Pesquisas anteriores usavam outra metodologia e cobriam só regiões metropolitanas, "
          "por isso não entram na comparação.",
          "IBGE — PNAD Contínua (taxa trimestral oficial)"),
         ("homicidios", "AVIOL12_THOMIC", "Homicídios", "Quantos assassinatos havia para cada 100 mil habitantes?", "por 100 mil habitantes", "seguranca", "menor", "anual",
@@ -774,12 +780,15 @@ def main():
          "Ministério da Saúde (CNES/DATASUS), via Ipeadata"),
     ]
     for id_, cod, titulo, pergunta, unidade, tema, direcao, freq, descricao, fonte in oficiais:
-        bruto = coletar(id_, (lambda c=cod: fontes.ipea_serie(c)), fonte,
+        func = fontes.ibge_desocupacao if id_ == "desemprego" else (lambda c=cod: fontes.ipea_serie(c))
+        bruto = coletar(id_, func, fonte,
                         max_atraso_dias=120 if freq == "mensal" else 300 if freq == "trimestral" else 365 * 4)
         if bruto is None:
             continue
         base = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao, descricao=descricao,
-                    fonte=fonte, fonte_url="https://www.ipeadata.gov.br/", freq=freq)
+                    fonte=fonte, freq=freq,
+                    fonte_url=("https://sidra.ibge.gov.br/tabela/4099" if id_ == "desemprego"
+                               else f"https://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='{cod}')"))
         if freq == "trimestral":
             # cada trimestre vale para os seus três meses: a média de 4 trimestres é a taxa anual oficial
             t = mensal(bruto)[["data", "valor"]]
@@ -922,7 +931,14 @@ def main():
 AVISOS = {
     "pib_crescimento": "Crescimento num governo depende muito do cenário externo e do ponto de partida: recessões herdadas e crises mundiais (2008, pandemia) pesam no resultado.",
     "ipca": "Até 1994 o Brasil vivia hiperinflação, por isso Sarney, Collor e Itamar ficam muito acima. Isso reflete o período, não só decisões de cada governo.",
-    "salario_minimo": "Na hiperinflação (até 1994) o valor real do mínimo oscilava muito de um mês para o outro; o site compara médias de 12 meses para reduzir essa distorção.",
+    "cesta_sp": ("Antes de 1995 o peso da cesta depende de qual série oficial do salário mínimo se usa: no governo Collor, "
+                 "89,8% com a série do Ministério do Trabalho (a usada aqui) e 83,3% com a do Banco Central, que inclui os abonos "
+                 "de 1990 e 1991. É a cesta de São Paulo: em outras capitais o peso é diferente."),
+    "salario_minimo": ("Antes de 1995 o resultado muda conforme a série oficial e o índice de preços usados. Na hiperinflação "
+                       "o valor real do mínimo oscilava muito de um mês para o outro, e em 1990 e 1991 houve abonos que só uma "
+                       "das séries oficiais inclui. No governo Itamar, por exemplo, o ganho é de +2,6% pela série do Ministério "
+                       "do Trabalho corrigida pelo IPCA (a usada aqui), −0,3% pela série do Banco Central e −2,0% pelo salário "
+                       "mínimo real do Ipea, corrigido pelo INPC. Leia Sarney, Collor e Itamar com cautela."),
     "desemprego": "A série oficial comparável (PNAD Contínua) só existe desde 2012. Governos anteriores ficam sem dado, o que não quer dizer que o desemprego fosse baixo ou alto.",
     "bolsa_familia": "Entre nov/2021 e fev/2023 o programa se chamou Auxílio Brasil, com regras e valores diferentes. Mais benefícios pode indicar mais cobertura ou mais pobreza; o número sozinho não diz qual.",
     "analfabetismo": "A série oficial comparável do IBGE (PNAD Contínua) começa em 2016. Antes disso o IBGE usava a PNAD anual, com outra metodologia, por isso os governos anteriores não entram na comparação.",
