@@ -4,143 +4,48 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tira-Teima · Os números do Brasil, governo a governo</title>
-<meta name="description" content="PIB, inflação, salário mínimo, custo de vida e queimadas no Brasil desde a redemocratização, comparados governo a governo com dados públicos oficiais.">
+<meta name="description" content="Economia, custo de vida, fome, saúde, educação, segurança e meio ambiente no Brasil desde 1985, comparados governo a governo com dados oficiais.">
 <meta property="og:title" content="Tira-Teima · Os números do Brasil, governo a governo">
 <meta property="og:site_name" content="Tira-Teima">
-<meta property="og:description" content="Do Sarney ao Lula 3: indicadores econômicos e ambientais comparados governo a governo, com dados do IBGE, Banco Central, DIEESE, ANP e INPE.">
+<meta property="og:description" content="De Sarney a Lula 3: os indicadores oficiais do Brasil comparados governo a governo, com a fonte de cada número.">
 <meta property="og:locale" content="pt_BR">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#009C3B">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#007A3D">
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
 <header class="topo">
-  <div class="wrap topo-linha">
-    <a class="marca" href="#conteudo"><img src="favicon.svg" alt="" width="26" height="26">Tira-Teima <span class="marca-anos">1985–2026</span></a>
+  <div class="topo-linha">
+    <a class="marca" href="#/"><img src="favicon.svg" alt="" width="28" height="28"><span>Tira-Teima</span></a>
+    <div class="busca" role="search">
+      <label class="sr" for="busca">Buscar indicador</label>
+      <input id="busca" type="search" placeholder="Buscar: inflação, desmatamento, salário…" autocomplete="off" aria-controls="busca-res" aria-expanded="false">
+      <ul id="busca-res" class="busca-res" role="listbox" hidden></ul>
+    </div>
     <nav class="menu" aria-label="Seções">
-      <a href="#comparativo">Comparar</a>
-      <a href="#governos">Governos</a>
-      <a href="#indicadores">Temas</a>
-      <a href="#calculadora">Calculadora</a>
-      <a href="#metodologia">Metodologia</a>
+      <a href="#/indicadores" data-rota="indicadores">Indicadores</a>
+      <a href="#/governos" data-rota="governos">Governos</a>
+      <a href="#/comparar" data-rota="comparar">Comparar</a>
+      <a href="#/calculadora" data-rota="calculadora">Calculadora</a>
+      <a href="#/metodologia" data-rota="metodologia">Como calculamos</a>
     </nav>
-    <button class="tema" type="button" id="tema" aria-label="Alternar tema claro e escuro">◐</button>
+    <button class="tema" type="button" id="tema" aria-label="Alternar tema claro e escuro"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5a7.5 7.5 0 0 1 0 15z" fill="currentColor"/></svg></button>
   </div>
 </header>
 
-<main id="conteudo">
-  <section class="wrap abertura">
-    <p class="kicker">Tira-Teima · desde a redemocratização · só dados oficiais</p>
-    <h1>Os números do Brasil, governo a governo</h1>
-    <p class="lede">Doze períodos, de Sarney a Lula 3. Crescimento, inflação, salário, custo de vida e queimadas medidos com a mesma régua para todos, a partir de fontes oficiais.</p>
-    <aside class="aviso" role="note">
-      <strong>Como ler este painel.</strong> Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Crises internacionais, preço de commodities, pandemia e decisões de mandatos anteriores pesam nos resultados. Cada período traz o seu contexto logo abaixo dos números.
-    </aside>
-    <nav class="entradas" aria-label="Comece por aqui">
-      <a href="#comparativo"><b>Comparar dois governos</b><span>Escolha dois períodos e veja indicador por indicador.</span></a>
-      <a href="#governos"><b>Ver um governo</b><span>Onde cada governo ficou entre os melhores e os piores.</span></a>
-      <a href="#indicadores"><b>Ver um tema</b><span>Economia, renda, fome, saúde, educação, segurança e ambiente.</span></a>
-      <a href="#calculadora"><b>Corrigir um preço antigo</b><span>Quanto valia "R$ 0,50 em 1995" de verdade.</span></a>
-    </nav>
-    <div class="linha-tempo" id="linha-tempo" aria-label="Linha do tempo dos governos"></div>
-  </section>
-
-  <section class="wrap bloco" id="comparativo">
-    <h2>Compare dois governos</h2>
-    <p class="sub">Escolha dois períodos e veja, indicador por indicador, quem teve o melhor resultado. <span class="nota-parcial">*</span> Lula 3 está em andamento: valores parciais.</p>
-    <div class="duelo-sel">
-      <label>Governo A<select id="duelo-a"></select></label>
-      <span class="duelo-vs">×</span>
-      <label>Governo B<select id="duelo-b"></select></label>
-    </div>
-    <div id="duelo"></div>
-
-    <h2 class="h2-placar">Placar de todos os governos</h2>
-    <p class="sub">Cada bolinha é um indicador. <span class="tag tag-bom">● entre os melhores</span> <span class="tag tag-ruim">● entre os piores</span> <span class="tag tag-neutro">● no meio</span> Vazio: sem dado ou indicador sem ranking. Toque numa bolinha para ver o número.</p>
-    <label class="toggle"><input type="checkbox" id="placar-numeros"> Mostrar os números</label>
-    <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Placar de todos os governos">
-      <table class="placar" id="tabela-comparativo"></table>
-    </div>
-    <p class="du-aviso">Este placar não é uma conclusão das fontes oficiais. Os dados vêm delas, mas a forma de resumir cada governo (médias, ritmo por ano, cobertura mínima) e de ordenar é do site, descrita em cada indicador e na Metodologia. Cada indicador pode ser baixado em CSV para refazer a conta.</p>
-  </section>
-
-  <section class="wrap bloco" id="governos">
-    <h2>Governo a governo</h2>
-    <p class="sub">Em cada indicador com ranking, os governos são ordenados do melhor para o pior resultado, com o critério escrito ao lado. Os 3 primeiros recebem <span class="tag tag-bom">✓</span> e os 3 últimos recebem <span class="tag tag-ruim">✕</span> (com menos governos, o corte é um quarto da lista). ✓ e ✕ não querem dizer que o número subiu ou desceu: dizem só se o resultado ficou entre os melhores ou os piores. A régua é a mesma para todos e está na <a href="#metodologia">metodologia</a>.</p>
-    <div class="cards-gov" id="cards-gov"></div>
-  </section>
-
-  <section class="wrap bloco" id="indicadores">
-    <h2>Temas</h2>
-    <nav class="chips" id="chips" aria-label="Ir para indicador"></nav>
-    <div id="lista-indicadores"></div>
-  </section>
-
-  <section class="wrap bloco" id="calculadora">
-    <h2>Quanto valia de verdade?</h2>
-    <p class="sub">"A gasolina custava R$ 0,50." Pode ser verdade, mas R$ 0,50 de 1995 não é R$ 0,50 de hoje. Digite um preço e o mês: a conta mostra o valor corrigido pela inflação e quanto ele pesava no salário mínimo da época.</p>
-    <form class="calc" id="calc" onsubmit="return false">
-      <label>Valor <span class="calc-moeda" id="calc-moeda"></span><input id="calc-valor" inputmode="decimal" autocomplete="off"></label>
-      <label>Mês<select id="calc-mes"></select></label>
-      <label>Ano<select id="calc-ano"></select></label>
-    </form>
-    <div class="calc-res" id="calc-res" aria-live="polite"></div>
-  </section>
-
-  <section class="wrap bloco texto" id="metodologia">
-    <h2>Metodologia</h2>
-    <h3>Períodos de governo</h3>
-    <div id="tabela-governos"></div>
-    <h3>A régua de pontos fortes e fracos</h3>
-    <ul>
-      <li><strong>Maior é melhor:</strong> crescimento do PIB, crescimento do PIB per capita, ganho real do salário mínimo, aumento da expectativa de vida, aumento do acesso ao ensino superior.</li>
-      <li><strong>Menor é melhor:</strong> desemprego, homicídios, inflação, peso da cesta básica no salário mínimo, preço real da gasolina, focos de queimada, extrema pobreza, desigualdade (Gini), mortalidade infantil, analfabetismo.</li>
-      <li><strong>Sem ranking:</strong> dólar, investimento público em saúde, investimento público em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome (a FAO não mede abaixo de 2,5%, então não dá para comparar quem já estava fora do mapa; o site mostra quantos pontos da FAO, cada um uma média de três anos, ficaram acima de 2,5% em cada governo). Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação.</li>
-      <li><strong>Ritmo, não nível:</strong> mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo: do ano anterior à posse até o último ano do mandato. Extrema pobreza, mortalidade infantil e analfabetismo usam a variação percentual (cair de 50 para 45 pesa igual a cair de 10 para 9), para não favorecer quem começou de um patamar mais alto. Gini, expectativa de vida e ensino superior usam a variação em pontos. Lacunas de até 2 anos são preenchidas por interpolação linear; lacunas maiores deixam o governo sem resultado.</li>
-      <li><strong>Universidades federais e cidades com ensino federal</strong>: contagem anual do Censo da Educação Superior (INEP, desde 1995). O resumo mostra quantas foram acrescentadas entre o ano anterior à posse e o último ano do governo. Sem ranking, porque é expansão de estrutura e governos mais longos tendem a somar mais.</li>
-      <li><strong>PIB per capita</strong>: crescimento real do PIB (IBGE) descontado o crescimento da população (IBGE), em reais do ano mais recente.</li>
-      <li>Entre os governos com dado no indicador, o quarto melhor (arredondado para cima) recebe ✓ ponto forte e o quarto pior recebe ✕ ponto fraco. Com 12 governos, são 3 de cada lado.</li>
-      <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do seu período. Por isso Itamar não aparece no dólar (a série começa no Plano Real, em jul/1994) e os governos anteriores a 2003 não aparecem em queimadas.</li>
-      <li>Lula 3 entra no ranking com os dados até agora, marcado com *.</li>
-    </ul>
-    <h3>Como cada número é atribuído a um governo</h3>
-    <ul>
-      <li><strong>Dados mensais</strong>: o mês pertence a quem governava no dia 15. Nos dois impeachments, o vice entra na data em que assumiu como interino: Itamar em 02/10/1992 e Temer em 12/05/2016.</li>
-      <li><strong>Dados anuais</strong> (PIB, queimadas): o ano é dividido na proporção dos dias de cada governo. Isso afeta 1985 (Sarney a partir de 15/03), 1990, 1992 e 2016. Nos gráficos anuais, o ano aparece na faixa de quem governou mais dias.</li>
-      <li><strong>Inflação do governo</strong>: média anual equivalente ao IPCA acumulado em todos os meses do mandato.</li>
-      <li><strong>Ganho real do salário mínimo</strong>: média do poder de compra nos últimos 12 meses do governo comparada com a média dos 12 meses anteriores à posse. Usar médias evita distorções da hiperinflação, quando o salário subia num mês e perdia valor nos seguintes.</li>
-      <li><strong>Moedas antes do Real</strong>: de 1986 a 1994 o Brasil trocou de moeda quatro vezes (Cruzado, Cruzado Novo, Cruzeiro, Cruzeiro Real, Real). Salário mínimo e cesta básica são convertidos para reais pelos fatores oficiais de cada troca e depois corrigidos pelo IPCA. O resultado é conferido contra a série de salário mínimo real do Ipea.</li>
-      <li><strong>Valores em reais de hoje</strong>: salário mínimo e gasolina são corrigidos pelo IPCA até o último mês divulgado. O dólar aparece em valor nominal, só a partir do Plano Real.</li>
-    </ul>
-    <h3>Limites</h3>
-    <ul>
-      <li>Correlação não é causalidade: um indicador melhor ou pior não prova efeito de política de governo.</li>
-      <li>Governos têm durações diferentes: Itamar governou 2 anos e 3 meses, FHC e Lula, 8 anos cada. Médias de períodos curtos oscilam mais.</li>
-      <li>A cesta básica é a de São Paulo (DIEESE) e é comparada ao salário mínimo bruto, sem descontos.</li>
-      <li>Focos de queimada vêm do satélite de referência do INPE, com série comparável desde 2003. Contagem de focos não é área queimada.</li>
-      <li>A pesquisa nacional de preços de combustíveis da ANP começa em julho de 2001. Até o início de 2002 o preço da gasolina era definido pelo governo, e não há série oficial de preço médio nos postos antes disso. Por isso FHC 1 e Itamar ficam sem resultado em gasolina.</li>
-      <li>A ANP não fez pesquisa de preços de combustíveis entre 18/8/2020 e 17/10/2020; esses meses ficam sem dado de gasolina.</li>
-      <li>Fome, pobreza, mortalidade, expectativa de vida e educação vêm de bases da ONU (FAO, OMS, UNESCO, IGME) publicadas pelo Banco Mundial e calculadas com dados do IBGE, INEP e Ministério da Saúde. São as séries usadas para comparar o Brasil com outros países, inclusive pelo próprio governo. A FAO publica médias de três anos; a série começa em 2001.</li>
-      <li>A taxa oficial de desmatamento do PRODES/INPE não é publicada em formato de tabela para download automático, por isso ainda não entra no painel.</li>
-      <li>Fontes oficiais revisam dados. A cada atualização o painel baixa a série inteira de novo.</li>
-    </ul>
-    <h3>Situação das fontes nesta atualização</h3>
-    <div class="tabela-rolagem"><table class="status" id="tabela-status"></table></div>
-  </section>
-
+<main id="conteudo" tabindex="-1">
+  <p class="carregando">Carregando os dados…</p>
 </main>
 
 <footer class="rodape">
-  <div class="wrap">
-    <p>Atualizado em <span id="gerado-em">—</span>. Fontes: IBGE, Banco Central, Ipea, DIEESE, ANP, INPE, INEP, Ministério da Saúde, MDS, FAO, OMS e UNESCO.</p>
-    <p>Projeto independente, sem vínculo com partido, candidato ou governo.</p>
+  <div class="rodape-linha">
+    <p>Dados atualizados em <span id="gerado-em">—</span>. Fontes: IBGE, Banco Central, Ipea, DIEESE, ANP, INPE, INEP, Ministério da Saúde, MDS, FAO, OMS e UNESCO.</p>
+    <p>Projeto independente, sem vínculo com partido, candidato ou governo. Os números mostram o que aconteceu durante cada governo, não o que cada governo causou.</p>
   </div>
 </footer>
 
