@@ -4,6 +4,10 @@ IBGE SIDRA 1737 v2265,https://apisidra.ibge.gov.br/values/t/1737/n1/all/v/2265/p
 BCB SGS 1619,https://api.bcb.gov.br/dados/serie/bcdata.sgs.1619/dados?formato=json,443,2026-12-01 00:00:00,
 Ipeadata GAC12_SALMINRE12,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='GAC12_SALMINRE12'),1035,2026-09-01 00:00:00,R$ (do último mês) | Salário mínimo real | IPEA | atualizada 2026-10-09T12:56:06.91-03:00
 Ipeadata DIEESE12_CBSP12,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='DIEESE12_CBSP12'),803,2026-09-01 00:00:00,R$ | Cesta básica - município de São Paulo | Dieese | atualizada 2026-10-23T12:10:04.337-03:00
+BCB SGS 1,https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?formato=json,8236,2026-10-27 00:00:00,
+BCB SGS 7326,https://api.bcb.gov.br/dados/serie/bcdata.sgs.7326/dados?formato=json,46,2025-01-01 00:00:00,
+IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
+IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
 IBGE SIDRA 4099 v4099,https://apisidra.ibge.gov.br/values/t/4099/n1/all/v/4099/p/all,58,202602,
 ANP planilhas mensais Brasil encontradas,https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/,2,https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/2001-2012/mensal-brasil-2001-a-2012.xlsx ; https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/mensal-brasil-desde-jan2013.xlsx,
 "ANP gasolina comum, preço médio de revenda (Brasil, mensal)",https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/,302,2026-09-01 00:00:00,

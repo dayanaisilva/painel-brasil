@@ -1,38 +1,6 @@
 etapa,erro,trace
-dolar,JSONDecodeError: Expecting value: line 1 column 1 (char 0),"e 1 column 1 (char 0)
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 699, in main
-    f()
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 407, in audit_dolar
-    d = sgs(1, 1994, diaria=True)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 189, in sgs
-    partes += r.json()
-              ^^^^^^^^
-  File ""/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/requests/models.py"", line 1120, in json
-    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
-requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-"
-pib e per capita,JSONDecodeError: Expecting value: line 1 column 1 (char 0),"line 699, in main
-    f()
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 678, in <lambda>
-    (""pib e per capita"", lambda: audit_pib_pc(audit_pib())),
-                                              ^^^^^^^^^^^
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 425, in audit_pib
-    s7326 = sgs(7326, 1980)
-            ^^^^^^^^^^^^^^^
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 189, in sgs
-    partes += r.json()
-              ^^^^^^^^
-  File ""/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/requests/models.py"", line 1120, in json
-    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
-requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-"
 ANP página serie-historica-do-levantamento-de-precos,HTTPError: 404 Client Error: Not Found for url: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/serie-historica-do-levantamento-de-precos,"Traceback (most recent call last):
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 597, in audit_gasolina
+  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 603, in audit_gasolina
     html = get(raiz + pg, tent=2).text
            ^^^^^^^^^^^^^^^^^^^^^^
   File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 161, in get
@@ -42,7 +10,7 @@ ANP página serie-historica-do-levantamento-de-precos,HTTPError: 404 Client Erro
 requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/serie-historica-do-levantamento-de-precos
 "
 ANP página serie-historica-levantamento-precos,HTTPError: 404 Client Error: Not Found for url: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/serie-historica-levantamento-precos,"Traceback (most recent call last):
-  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 597, in audit_gasolina
+  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 603, in audit_gasolina
     html = get(raiz + pg, tent=2).text
            ^^^^^^^^^^^^^^^^^^^^^^
   File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 161, in get
