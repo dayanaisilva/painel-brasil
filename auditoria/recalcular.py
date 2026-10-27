@@ -589,7 +589,8 @@ def audit_gasolina(ipca_m, sm_reais):
     base = ("https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
             "precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/")
     partes = []
-    links = {base + "mensal-brasil-desde-jan2013.xlsx"}
+    links = {base + "mensal-brasil-desde-jan2013.xlsx",
+             base.replace("/shlp/mensal/", "/shlp/2001-2012/") + "mensal-brasil-2001-a-2012.xlsx"}
     raiz = "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
     for pg in ("serie-historica-do-levantamento-de-precos", "serie-historica-levantamento-precos"):
         try:
