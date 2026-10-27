@@ -613,7 +613,7 @@ def audit_gasolina(ipca_m, sm_reais):
                     tab.columns = linha
                     cp = next(c for c in tab.columns if "PRODUTO" in c)
                     cm = next(c for c in tab.columns if c.startswith("MÊS") or c.startswith("MES") or "DATA" in c)
-                    cv = next(c for c in tab.columns if "REVENDA" in c and "MÉDIO" in c and "PREÇO" in c)
+                    cv = next(c for c in tab.columns if "REVENDA" in c and "MÉDIO" in c and re.search("PRE[ÇC]O", c))
                     tab = tab[tab[cp].astype(str).str.upper().str.strip() == "GASOLINA COMUM"]
                     partes.append(pd.DataFrame({"data": pd.to_datetime(tab[cm], errors="coerce"),
                                                 "valor": pd.to_numeric(tab[cv], errors="coerce"), "arquivo": f"{arq.rsplit('/', 1)[-1]}/{aba}"}))
