@@ -1,0 +1,11 @@
+etapa,erro,trace
+ANP mensal-brasil-2001-a-2012.xlsx,HTTPError: 404 Client Error: Not Found for url: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/mensal-brasil-2001-a-2012.xlsx,"Traceback (most recent call last):
+  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 594, in audit_gasolina
+    cont = get(base + arq).content
+           ^^^^^^^^^^^^^^^
+  File ""/home/runner/work/painel-brasil/painel-brasil/auditoria/recalcular.py"", line 161, in get
+    r.raise_for_status()
+  File ""/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/requests/models.py"", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/mensal-brasil-2001-a-2012.xlsx
+"

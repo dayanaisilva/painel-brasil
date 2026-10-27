@@ -1,0 +1,26 @@
+serie,url,observacoes,ultima,metadados
+IBGE SIDRA 1737 v63,https://apisidra.ibge.gov.br/values/t/1737/n1/all/v/63/p/all,562,202609,
+IBGE SIDRA 1737 v2265,https://apisidra.ibge.gov.br/values/t/1737/n1/all/v/2265/p/all,562,202609,
+BCB SGS 1619,https://api.bcb.gov.br/dados/serie/bcdata.sgs.1619/dados?formato=json,443,2026-12-01 00:00:00,
+Ipeadata GAC12_SALMINRE12,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='GAC12_SALMINRE12'),1035,2026-09-01 00:00:00,R$ (do último mês) | Salário mínimo real | IPEA | atualizada 2026-10-09T12:56:06.91-03:00
+Ipeadata DIEESE12_CBSP12,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='DIEESE12_CBSP12'),803,2026-09-01 00:00:00,R$ | Cesta básica - município de São Paulo | Dieese | atualizada 2026-10-23T12:10:04.337-03:00
+BCB SGS 1,https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?formato=json,8236,2026-10-27 00:00:00,
+BCB SGS 7326,https://api.bcb.gov.br/dados/serie/bcdata.sgs.7326/dados?formato=json,46,2025-01-01 00:00:00,
+IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
+IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
+IBGE SIDRA 4099 v4099,https://apisidra.ibge.gov.br/values/t/4099/n1/all/v/4099/p/all,58,202602,
+"ANP gasolina comum, preço médio de revenda (Brasil, mensal)",https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/,164,2026-09-01 00:00:00,
+INPE focos anuais (listagem),https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/,4,AMS_sat_ref/;Brasil_sat_ref/;Brasil_todos_sats/;EstadosBr_sat_ref/,
+Banco Mundial SN.ITK.DEFC.ZS,https://api.worldbank.org/v2/country/BRA/indicator/SN.ITK.DEFC.ZS?format=json&per_page=500,24,2024,lastupdated 2026-10-08
+Banco Mundial SI.POV.DDAY,https://api.worldbank.org/v2/country/BRA/indicator/SI.POV.DDAY?format=json&per_page=500,40,2024,lastupdated 2026-10-08
+Banco Mundial SP.DYN.IMRT.IN,https://api.worldbank.org/v2/country/BRA/indicator/SP.DYN.IMRT.IN?format=json&per_page=500,65,2024,lastupdated 2026-10-08
+Banco Mundial SP.DYN.LE00.IN,https://api.worldbank.org/v2/country/BRA/indicator/SP.DYN.LE00.IN?format=json&per_page=500,65,2024,lastupdated 2026-10-08
+Banco Mundial SH.XPD.GHED.GD.ZS,https://api.worldbank.org/v2/country/BRA/indicator/SH.XPD.GHED.GD.ZS?format=json&per_page=500,24,2023,lastupdated 2026-10-08
+Banco Mundial SE.XPD.TOTL.GD.ZS,https://api.worldbank.org/v2/country/BRA/indicator/SE.XPD.TOTL.GD.ZS?format=json&per_page=500,25,2022,lastupdated 2026-10-08
+Banco Mundial SE.ADT.LITR.ZS,https://api.worldbank.org/v2/country/BRA/indicator/SE.ADT.LITR.ZS?format=json&per_page=500,22,2024,lastupdated 2026-10-08
+Banco Mundial SE.TER.ENRR,https://api.worldbank.org/v2/country/BRA/indicator/SE.TER.ENRR?format=json&per_page=500,12,2024,lastupdated 2026-10-08
+Ipeadata PNADS_GINI,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='PNADS_GINI'),29,2025-01-01 00:00:00,- | Coeficiente de Gini da renda domiciliar per capita de todas as fontes | IPEA | atualizada 2026-05-25T16:22:07.64-03:00
+Ipeadata AVIOL12_THOMIC,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='AVIOL12_THOMIC'),45,2024-01-01 00:00:00,Unidade | Taxa de homicídios (100.000 Habitantes) | IPEA | atualizada 2026-07-08T15:31:51.873-03:00
+Ipeadata FAM_PBF,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='FAM_PBF'),22,2025-01-01 00:00:00,Benefício | Programa Bolsa Família (PBF) - número de benefícios em dezembro | MDS | atualizada 2026-03-16T13:47:01.997-03:00
+Ipeadata SIS_NMLTINTSUS1000HUF,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='SIS_NMLTINTSUS1000HUF'),16,2025-01-01 00:00:00,- | Número de leitos para internação pelo SUS por 10.000 habitantes | DATASUS | atualizada 2026-03-19T14:47:32.093-03:00
+Ipeadata PNADCA_TXA15MUF,http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='PNADCA_TXA15MUF'),8,2025-01-01 00:00:00,(%) | Taxa de analfabetismo - pessoas com 15 anos ou mais | IBGE/PNAD Contínua | atualizada 2026-06-30T12:37:46.427-03:00
