@@ -589,9 +589,18 @@ def audit_gasolina(ipca_m, sm_reais):
     base = ("https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
             "precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/")
     partes = []
-    for arq in ("mensal-brasil-2001-a-2012.xlsx", "mensal-brasil-desde-jan2013.xlsx"):
+    links = {base + "mensal-brasil-desde-jan2013.xlsx"}
+    raiz = "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
+    for pg in ("serie-historica-do-levantamento-de-precos", "serie-historica-levantamento-precos"):
         try:
-            cont = get(base + arq).content
+            html = get(raiz + pg, tent=2).text
+            links |= {u for u in re.findall(r'href="([^"]+\.xlsx)"', html) if "mensal" in u.lower() and "brasil" in u.lower()}
+        except Exception as e:  # noqa: BLE001
+            erro(f"ANP página {pg}", e)
+    FONTES.append({"serie": "ANP planilhas mensais Brasil encontradas", "url": raiz, "observacoes": len(links), "ultima": " ; ".join(sorted(links))[:600]})
+    for arq in sorted(links):
+        try:
+            cont = get(arq).content
         except Exception as e:  # noqa: BLE001
             erro(f"ANP {arq}", e)
             continue
@@ -606,7 +615,7 @@ def audit_gasolina(ipca_m, sm_reais):
                     cv = next(c for c in tab.columns if "REVENDA" in c and "MÉDIO" in c and "PREÇO" in c)
                     tab = tab[tab[cp].astype(str).str.upper().str.strip() == "GASOLINA COMUM"]
                     partes.append(pd.DataFrame({"data": pd.to_datetime(tab[cm], errors="coerce"),
-                                                "valor": pd.to_numeric(tab[cv], errors="coerce"), "arquivo": f"{arq}/{aba}"}))
+                                                "valor": pd.to_numeric(tab[cv], errors="coerce"), "arquivo": f"{arq.rsplit('/', 1)[-1]}/{aba}"}))
                     break
     if not partes:
         raise ValueError("planilhas da ANP sem tabela reconhecida")
