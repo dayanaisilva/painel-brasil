@@ -1,7 +1,7 @@
 indicador,fonte,status,ultima_obs,erro
 ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
 salario_minimo,Ipeadata (fallback do SGS),atualizado,2026-10-01,
-dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-26,
+dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-27,
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
 populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",atualizado,2026-07-01,
 populacao_contas,"IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)",atualizado,2023-07-01,
