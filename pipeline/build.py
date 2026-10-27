@@ -905,8 +905,9 @@ def main():
         base = idx[idx.index >= f"{ANO_INICIAL}-01-01"]
         smd = dict(zip(sm_r.data, sm_r.valor))
         calc = {"meses": [d.strftime("%Y-%m") for d in base.index],
-                "indice": [round(float(v), 10) for v in base.values],
-                "salario": [round(float(smd[d]), 8) if d in smd else None for d in base.index],
+                # 8 algarismos significativos: antes do Real os valores em R$ equivalentes têm muitos zeros depois da vírgula
+                "indice": [float(f"{float(v):.8g}") for v in base.values],
+                "salario": [float(f"{float(smd[d]):.8g}") if d in smd else None for d in base.index],
                 "ref": ref_mes, "trocas": [{"data": t[0], "fator": t[1], "rotulo": t[2]} for t in moedas.TROCAS]}
 
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
