@@ -9,6 +9,7 @@ BCB SGS 7326,https://api.bcb.gov.br/dados/serie/bcdata.sgs.7326/dados?formato=js
 IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
 IBGE SIDRA 6784 vall,https://apisidra.ibge.gov.br/values/t/6784/n1/all/v/all/p/all,224,2023,
 IBGE SIDRA 4099 v4099,https://apisidra.ibge.gov.br/values/t/4099/n1/all/v/4099/p/all,58,202602,
+ANP planilhas mensais Brasil encontradas,https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/,1,https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/mensal-brasil-desde-jan2013.xlsx,
 "ANP gasolina comum, preço médio de revenda (Brasil, mensal)",https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/,164,2026-09-01 00:00:00,
 INPE focos anuais (listagem),https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/,4,AMS_sat_ref/;Brasil_sat_ref/;Brasil_todos_sats/;EstadosBr_sat_ref/,
 Banco Mundial SN.ITK.DEFC.ZS,https://api.worldbank.org/v2/country/BRA/indicator/SN.ITK.DEFC.ZS?format=json&per_page=500,24,2024,lastupdated 2026-10-08
