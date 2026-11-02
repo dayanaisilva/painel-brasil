@@ -944,9 +944,10 @@ AVISOS = {
     "analfabetismo": "A série oficial comparável do IBGE (PNAD Contínua) começa em 2016. Antes disso o IBGE usava a PNAD anual, com outra metodologia, por isso os governos anteriores não entram na comparação.",
     "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
     "fome": ("Cada ponto é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório; abaixo de 2,5% a FAO "
-             "não divulga o valor exato. Médias de três anos atravessam governos: a saída do Mapa anunciada no relatório de 2025 "
-             "(SOFI 2025) se refere à média de 2022 a 2024, que inclui o último ano do governo Bolsonaro e os dois primeiros do Lula 3. "
-             "O ano de divulgação do relatório também não é o ano medido."),
+             "não divulga o valor exato. Médias de três anos atravessam governos e o ano do relatório não é o ano medido. "
+             "O relatório de 2025 (SOFI 2025) anunciou a saída do Mapa com base na média de 2022 a 2024; o de 2026 revisou "
+             "essa média para 2,7%, acima da linha, e colocou a média de 2023 a 2025 abaixo de 2,5%. O gráfico usa a revisão "
+             "mais recente."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "desmatamento": ("O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior, e o site "
                      "atribui cada ano pela regra geral (dias de governo no ano civil). Desmatamento depende também de preço de "
