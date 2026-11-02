@@ -1,7 +1,7 @@
 indicador,fonte,status,ultima_obs,erro
 ipca,BCB/SGS 433 (IBGE),atualizado,2026-09-01,
-salario_minimo,"Ministério do Trabalho (salário mínimo vigente), via Ipeadata",atualizado,2026-10-01,
-dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-27,
+salario_minimo,"Ministério do Trabalho (salário mínimo vigente), via Ipeadata",atualizado,2026-11-01,
+dolar,BCB/SGS 1 (PTAX venda),atualizado,2026-10-30,
 pib_crescimento,BCB/SGS 7326 (IBGE),atualizado,2025-01-01,
 populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",atualizado,2026-07-01,
 populacao_contas,"IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)",atualizado,2023-07-01,
@@ -23,5 +23,5 @@ desemprego,IBGE — PNAD Contínua (taxa trimestral oficial),atualizado,2026-04-
 homicidios,Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea,atualizado,2024-01-01,
 bolsa_familia,"Ministério do Desenvolvimento Social (MDS), via Ipeadata",atualizado,2025-01-01,
 leitos_sus,"Ministério da Saúde (CNES/DATASUS), via Ipeadata",atualizado,2025-01-01,
-desmatamento,INPE — PRODES (notas técnicas e apresentação oficial),atualizado,2026-01-01,
-inep_superior,INEP — Censo da Educação Superior,cópia anterior,2024,
+desmatamento,"INPE — PRODES, notas técnicas oficiais",cópia anterior,2026-01-01,notas PRODES fora do esperado: {2021: 13235.0}
+inep_superior,INEP — Censo da Educação Superior,atualizado,2024,
