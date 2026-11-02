@@ -556,7 +556,7 @@ def main():
             descricao=("Preço da cesta básica do DIEESE em São Paulo (13 alimentos, nas quantidades para um adulto passar um mês, definidas pelo Decreto-Lei 399/1938) dividido pelo salário mínimo bruto. Exemplo: 50% quer dizer que a cesta custava metade do mínimo. Quanto menor, mais sobra do salário. Acima de 100%, o mínimo não pagava a cesta."),
             resumo_rotulo="do salário mínimo comprometido com a cesta, em média", resumo=resumo_media_mensal(j),
             serie=serie_json(j, "%Y-%m"),
-            fonte="DIEESE — Pesquisa Nacional da Cesta Básica, via Ipeadata; salário mínimo do BCB",
+            fonte="DIEESE — Pesquisa Nacional da Cesta Básica, via Ipeadata; salário mínimo: " + ("Banco Central (SGS 1619)" if str(FONTE_USADA.get("salario_minimo", "")).startswith("BCB") else "Ministério do Trabalho, via Ipeadata"),
             fonte_url="https://www.dieese.org.br/cesta/")
 
     if gas is not None and idx is not None:
