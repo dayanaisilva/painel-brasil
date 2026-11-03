@@ -314,12 +314,12 @@
     } else {
       if (ind.limite && ultimo && (ultimo.censurado || ultimo.y < ind.limite.valor)) {
         veredito = `<p>Último dado: <mark>abaixo de ${fmt(fmtSerie, ind.limite.valor)}</mark>, fora do Mapa da Fome (média de ${+ultimo.x - 1} a ${+ultimo.x + 1}).</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso ? "" : "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
       } else if (ind.mapa_fome && ultimo?.y === 2.5) {
         veredito = `<p>Último dado: <mark>2,5% na série do Banco Mundial</mark>, triênio ${+ultimo.x - 1}–${+ultimo.x + 1}.</p>
           <p class="criterio">Esse registro pode representar um valor abaixo de 2,5%. A marcação original da FAO precisa ser conferida; não tratamos 2,5 como uma medição exata.</p>`;
       } else veredito = `<p>Último dado: <mark>${fmt(fmtSerie, ultimo?.y)}</mark>${ultimo ? `, em ${ultimo.x.length > 4 ? `${ultimo.x.slice(5, 7)}/${ultimo.x.slice(0, 4)}` : ultimo.x}` : ""}.</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso ? "" : "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
     }
     const temRank = !!ind.direcao;
     const marcosLeg = (() => {
@@ -392,10 +392,14 @@
     return ind.pergunta || ind.titulo;
   }
 
+  function rotuloTerritorio(ind, t) {
+    return ind.territorios.filter(x => x.nome === t.nome).length > 1 ? `${t.nome} · recorte INPE ${t.id}` : t.nome;
+  }
+
   function terrasIndigenasHTML(ind) {
-    const opcoes = (preferido) => ind.territorios.map((t) => `<option value="${t.id}"${t.nome === preferido ? " selected" : ""}>${esc(t.nome)}</option>`).join("");
+    const opcoes = (preferido) => ind.territorios.map((t) => `<option value="${t.id}"${t.nome === preferido ? " selected" : ""}>${esc(rotuloTerritorio(ind,t))}</option>`).join("");
     return `<section class="bloco-ind"><h2>Comparar Terras Indígenas, ano a ano</h2>
-      <p class="sub">Compare os incrementos mapeados em dois recortes da mesma edição. Valores absolutos dependem do tamanho dos territórios; não são um ranking de proteção. Os limites desta base não representam necessariamente a situação fundiária em cada ano.</p>
+      <p class="sub">Compare os incrementos mapeados em dois recortes da mesma edição. Valores absolutos dependem do tamanho dos territórios; não são um ranking de proteção. Os limites desta base não representam necessariamente a situação fundiária em cada ano. Nomes repetidos são distinguidos pelo código do recorte INPE e não são fundidos automaticamente.</p>
       <p><label for="ti-a">Primeira Terra Indígena</label> <select class="ti-seletor" id="ti-a">${opcoes("Apyterewa")}</select></p>
       <p><label for="ti-b">Segunda Terra Indígena</label> <select class="ti-seletor" id="ti-b">${opcoes("Yanomami")}</select></p>
       <div class="tab-wrap"><table><thead><tr><th>Ciclo PRODES</th><th id="ti-nome-a"></th><th id="ti-nome-b"></th></tr></thead><tbody id="ti-comparacao"></tbody></table></div>
@@ -416,8 +420,8 @@
   function tabelaTerritorios(ind) {
     const a = ind.territorios.find(t => String(t.id) === $("#ti-a").value);
     const b = ind.territorios.find(t => String(t.id) === $("#ti-b").value);
-    $("#ti-nome-a").textContent = a.nome;
-    $("#ti-nome-b").textContent = b.nome;
+    $("#ti-nome-a").textContent = rotuloTerritorio(ind,a);
+    $("#ti-nome-b").textContent = rotuloTerritorio(ind,b);
     const valor = (t,ano) => Object.hasOwn(t.valores,ano) ? fmt("area",t.valores[ano]) : "Sem registro";
     $("#ti-comparacao").innerHTML = ind.serie.map(p => `<tr><th>${+p.x-1}/08 a ${p.x}/07</th><td>${valor(a,p.x)}</td><td>${valor(b,p.x)}</td></tr>`).join("");
   }

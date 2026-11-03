@@ -352,7 +352,7 @@ def aplicar_restricao_auditoria(ind):
         ind["resumo"] = {}
         ind["sem_resumo_governo"] = True
         ind["resumo_suspenso"] = "Comparação por governo suspensa até concluir a conciliação da fonte."
-        ind["aviso"] = ind["resumo_suspenso"] + " " + audit.get("pendencia", "")
+        ind["aviso"] = ind.get("aviso") or audit.get("pendencia", "")
         for campo in ("melhor", "pior"):
             ind.pop(campo, None)
 

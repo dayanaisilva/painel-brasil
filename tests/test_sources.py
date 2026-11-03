@@ -52,11 +52,13 @@ class PublicationPolicyTests(unittest.TestCase):
     def test_partial_source_cannot_generate_government_ranking(self):
         from pipeline.build import aplicar_restricao_auditoria, ranquear
         d={'direcao':'menor','resumo':{'a':{'valor':1},'b':{'valor':2},'c':{'valor':3}},
-           'auditoria':{'status':'Conciliação parcial','pendencia':'definição não conciliada'}}
+           'auditoria':{'status':'Conciliação parcial','pendencia':'definição não conciliada'},
+           'aviso':'Limitação metodológica da série'}
         aplicar_restricao_auditoria(d);ranquear(d)
         self.assertEqual(d['resumo'],{})
         self.assertIsNone(d['direcao'])
         self.assertNotIn('melhor',d)
+        self.assertEqual(d['aviso'],'Limitação metodológica da série')
 
     def test_audited_source_keeps_summary(self):
         from pipeline.build import aplicar_restricao_auditoria

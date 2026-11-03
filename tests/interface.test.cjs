@@ -29,8 +29,12 @@ async function route(hash){w.location.hash=hash;await tick();assert(w.document.q
  }
  await route('#/i/homicidios');
  assert(w.document.querySelector('.veredito').textContent.includes('20,03'));
+ assert.equal(w.document.querySelector('.veredito').textContent.split('Comparação por governo suspensa').length-1,1);
+ assert(w.document.querySelector('.ressalva').textContent.includes('divulgação do Atlas 2026'));
  await route('#/i/desmatamento_ti');
  assert.equal(w.document.querySelectorAll('#ti-a option').length,386);
+ const labels=[...w.document.querySelectorAll('#ti-a option')].map(o=>o.textContent);
+ assert.equal(new Set(labels).size,386);
  assert.equal(w.document.querySelectorAll('#ti-comparacao tr').length,18);
  assert.equal(w.document.querySelector('#ti-nome-a').textContent,'Apyterewa');
  assert.equal(w.document.querySelector('#ti-nome-b').textContent,'Yanomami');
