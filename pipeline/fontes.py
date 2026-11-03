@@ -263,7 +263,7 @@ def prodes_descobrir() -> None:
 # --------------------------------------------------------------------------- #
 ANP_BASE = ("https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
             "precos-revenda-e-de-distribuicao-combustiveis")
-ANP_ARQUIVOS = [f"{ANP_BASE}/shlp/mensal/mensal-brasil-2001-a-2012.xlsx",
+ANP_ARQUIVOS = [f"{ANP_BASE}/shlp/2001-2012/mensal-brasil-2001-a-2012.xlsx",
                 f"{ANP_BASE}/shlp/mensal/mensal-brasil-desde-jan2013.xlsx"]
 ANP_PAGINAS = [f"{ANP_BASE}/serie-historica-do-levantamento-de-precos",
                f"{ANP_BASE}/serie-historica-levantamento-precos"]
@@ -306,6 +306,8 @@ def _anp_planilha(conteudo: bytes, diag: list | None = None, nome: str = "") -> 
 
 
 def _anp_aba(bruto: pd.DataFrame) -> pd.DataFrame:
+    if not bruto.head(30).astype(str).apply(lambda c: c.str.upper().str.strip().eq("TIPO RELATÓRIO: BRASIL")).any().any():
+        raise ValueError("ANP: planilha sem identificação de abrangência Brasil")
     cab = next(i for i in range(min(30, len(bruto)))
                if bruto.iloc[i].astype(str).str.upper().str.strip().eq("PRODUTO").any())
     df = bruto.iloc[cab + 1:].copy()
@@ -315,7 +317,10 @@ def _anp_aba(bruto: pd.DataFrame) -> pd.DataFrame:
     c_prod = next(c for c, u in cols.items() if "PRODUTO" in u)
     c_preco = next(c for c, u in cols.items() if "REVENDA" in u and ("MÉDIO" in u or "MEDIO" in u)
                    and "DESVIO" not in u and "MARGEM" not in u)
-    g = df[df[c_prod].astype(str).str.upper().str.contains("GASOLINA COMUM")]
+    g = df[df[c_prod].astype(str).str.upper().str.strip().eq("GASOLINA COMUM")]
+    c_unidade = next(c for c, u in cols.items() if "UNIDADE" in u)
+    if not g[c_unidade].astype(str).str.strip().str.lower().eq("r$/l").all():
+        raise ValueError("ANP: unidade da gasolina diferente de R$/l")
     return pd.DataFrame({"data": pd.to_datetime(g[c_mes], errors="coerce"),
                          "valor": pd.to_numeric(g[c_preco], errors="coerce")}).dropna()
 
@@ -332,8 +337,19 @@ def anp_gasolina() -> pd.DataFrame:
     pd.DataFrame({"erro": erros}).to_csv(DESCOBERTA / "anp_erros.csv", index=False)
     if not partes:
         raise ValueError("ANP sem planilha válida. " + " | ".join(erros)[:300])
-    df = pd.concat(partes).drop_duplicates("data").sort_values("data").reset_index(drop=True)
-    return df
+    return consolidar_anp(partes)
+
+
+def consolidar_anp(partes):
+    """Sobreposição idêntica é aceita; valores conflitantes exigem conciliação."""
+    df = pd.concat(partes, ignore_index=True)
+    conflitos = df.groupby("data").valor.nunique()
+    if (conflitos > 1).any():
+        raise ValueError("ANP: preços conflitantes no mesmo mês: " +
+                         ", ".join(str(d.date()) for d in conflitos[conflitos > 1].index))
+    if (df.valor <= 0).any() or not df.valor.map(lambda v: float('-inf') < v < float('inf')).all():
+        raise ValueError("ANP: preço inválido")
+    return df.drop_duplicates("data").sort_values("data").reset_index(drop=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -441,6 +457,7 @@ def inep_ano(ano: int, diag: list) -> dict:
                     if cat is None or org is None:
                         raise ValueError(f"IES sem colunas de categoria/organização: {list(d.columns)[:20]}")
                     diag.append({"ano": ano, "url": url, "arquivos": f"IES colunas: {list(d.columns)} | cat={d[cat].value_counts().head(6).to_dict()} | org={d[org].value_counts().head(6).to_dict()}"[:900]})
+                    d = validar_ies(d, cat, org)
                     cv = d[cat].fillna("").str.strip().str.upper()
                     fed = d[(cv == "1") | cv.str.contains("FEDERAL")]
                     o = fed[org].fillna("").str.strip().str.upper()
@@ -453,27 +470,44 @@ def inep_ano(ano: int, diag: list) -> dict:
                     out["universidades_federais"] = n_univ if 30 <= n_univ <= 90 else None
                     if out["universidades_federais"] is None:
                         diag.append({"ano": ano, "url": url, "arquivos": f"contagem de universidades fora da faixa ({n_univ}); revisar códigos"})
-                    out["institutos_federais"] = int((o.isin(["4", "5"]) | o.str.contains("INSTITUTO FEDERAL") | o.str.contains("CENTRO FEDERAL")).sum())
+                    eh_if = o.isin(["4", "5"]) | o.str.contains("INSTITUTO FEDERAL") | o.str.contains("CENTRO FEDERAL")
+                    out["institutos_federais"] = (int(pd.to_numeric(fed.loc[eh_if, "NUMERODEIES"], errors="raise").sum())
+                                                   if "NUMERODEIES" in fed.columns else int(eh_if.sum()))
                 if cursos:
                     c = _ler_csv_zip(z, cursos, lambda c: "CATEGORIA" in c or c.startswith("CO_MUNICIPIO") or "MODALIDADE" in c)
                     diag.append({"ano": ano, "url": url, "arquivos": f"CURSOS colunas: {list(c.columns)[:12]}"})
                     c.columns = [_norm(x) for x in c.columns]
-                    cat = next((x for x in c.columns if "CATEGORIA" in x), None)
-                    if cat is None:
-                        raise ValueError(f"cursos sem coluna de categoria: {list(c.columns)[:20]}")
-                    mun = next((x for x in c.columns if x.startswith("CO_MUNICIPIO")), None)
-                    mod = next((x for x in c.columns if "MODALIDADE" in x), None)
-                    cv = c[cat].fillna("").str.strip().str.upper()
-                    f = c[(cv == "1") | cv.str.contains("FEDERAL")]
-                    if mod:
-                        f = f[f[mod].str.strip().isin(["1", "Presencial"])]
-                    if mun:
-                        out["municipios_federais"] = int(f[mun].dropna().str.strip().replace("", pd.NA).dropna().nunique())
+                    out["municipios_federais"] = contar_municipios_federais(
+                        c, presencial_no_arquivo=base(cursos).startswith("GRADUACAO_PRESENCIAL"))
                 return out
         except Exception as e:  # noqa: BLE001
             ultimo_erro = e
             diag.append({"ano": ano, "url": url, "arquivos": f"ERRO: {type(e).__name__}: {str(e)[:300]}"})
     raise ValueError(f"INEP {ano}: {ultimo_erro}")
+
+
+def validar_ies(d, categoria, organizacao):
+    if "NUMERODEIES" in d.columns:
+        return d  # tabelas históricas agregadas; a medida é a soma da coluna
+    if "CO_IES" not in d.columns or d.CO_IES.isna().any():
+        raise ValueError("INEP: identificação CO_IES ausente")
+    if d.groupby("CO_IES")[[categoria, organizacao]].nunique(dropna=False).gt(1).any().any():
+        raise ValueError("INEP: categoria/organização conflitante para a mesma IES")
+    return d.drop_duplicates("CO_IES")
+
+
+def contar_municipios_federais(c, presencial_no_arquivo=False):
+    cat = next((x for x in c.columns if "CATEGORIA" in x), None)
+    mun = "CO_MUNICIPIO" if "CO_MUNICIPIO" in c.columns else next((x for x in c.columns if x.startswith("CO_MUNICIPIO")), None)
+    mod = next((x for x in c.columns if "MODALIDADE" in x), None)
+    if cat is None or mun is None or (mod is None and not presencial_no_arquivo):
+        raise ValueError("INEP: categoria, município ou modalidade presencial não identificados")
+    cv = c[cat].fillna("").str.strip().str.upper()
+    f = c[(cv == "1") | cv.str.contains("FEDERAL")]
+    if mod:
+        f = f[f[mod].fillna("").str.strip().str.upper().isin(["1", "PRESENCIAL"])]
+    codigos = f[mun].dropna().str.strip().replace("", pd.NA).dropna()
+    return int(codigos[codigos != "0"].nunique())
 
 
 def prodes_taxas_descobrir() -> None:

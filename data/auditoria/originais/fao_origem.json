@@ -1,0 +1,10 @@
+{
+  "url": "https://bulks-faostat.fao.org/production/Food_Security_Data_E_All_Data_(Normalized).zip",
+  "last_modified_http": "Tue, 21 Jul 2026 09:40:50 GMT",
+  "sha256_zip": "1ccced40d8e228693c6fcc5d172de9bcaa3a1c6a1581ebde345d71c1dfa9b692",
+  "filtros": {
+    "Area": "Brazil",
+    "Item Code": "210041"
+  },
+  "arquivo_interno": "Food_Security_Data_E_All_Data_(Normalized).csv"
+}

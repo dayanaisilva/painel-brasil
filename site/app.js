@@ -310,9 +310,12 @@
         <p><span class="marcador ruim">✕</span>Pior resultado: <mark>${esc(nomeGov(ind.pior))}</mark>, com ${fmt(resumoFmt(ind), p.valor)}${ast(p)} <span class="mudo">(${esc(ind.resumo_rotulo)})</span>.${p.sentido === "melhorou" ? " O indicador melhorou nesse governo, só que menos que nos outros." : ""}</p>
         <p class="criterio">Critério: ${esc(c ? c[0] : "")} fica em 1º. ${esc(explica(id, ind))} ✓ e ✕ marcam o quarto melhor e o quarto pior dos governos com dado.</p>`;
     } else {
-      if (ind.limite && ultimo && ultimo.y <= ind.limite.valor) {
+      if (ind.limite && ultimo && (ultimo.censurado || ultimo.y < ind.limite.valor)) {
         veredito = `<p>Último dado: <mark>abaixo de ${fmt(fmtSerie, ind.limite.valor)}</mark>, fora do Mapa da Fome (média de ${+ultimo.x - 1} a ${+ultimo.x + 1}).</p>
         <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+      } else if (ind.mapa_fome && ultimo?.y === 2.5) {
+        veredito = `<p>Último dado: <mark>2,5% na série do Banco Mundial</mark>, triênio ${+ultimo.x - 1}–${+ultimo.x + 1}.</p>
+          <p class="criterio">Esse registro pode representar um valor abaixo de 2,5%. A marcação original da FAO precisa ser conferida; não tratamos 2,5 como uma medição exata.</p>`;
       } else veredito = `<p>Último dado: <mark>${fmt(fmtSerie, ultimo?.y)}</mark>${ultimo ? `, em ${ultimo.x.length > 4 ? `${ultimo.x.slice(5, 7)}/${ultimo.x.slice(0, 4)}` : ultimo.x}` : ""}.</p>
         <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
     }
@@ -353,6 +356,7 @@
           <details><summary>De onde vem o número</summary><div class="corpo">
             <p>Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a>.</p>
             ${ind.notas ? notasHTML(ind) : ""}
+            ${ind.auditoria ? `<p><b>Conferência: ${esc(ind.auditoria.status)}.</b> ${esc(ind.auditoria.escopo)}</p><p>${esc(ind.auditoria.pendencia)}</p>` : ""}
             <p><button type="button" class="botao" id="baixar-csv">Baixar dados e cálculo (CSV)</button></p></div></details>
           ${Object.values(ind.resumo).some((r) => r.sensibilidade) ? `<details><summary>Quanto o recorte dos anos muda a média?</summary><div class="corpo">
             <p>Comparamos a média principal com a média que exclui anos de troca de governo e o ano corrente. A diferença mostra sensibilidade ao recorte; não é margem de erro ou intervalo de confiança.</p>
@@ -394,14 +398,14 @@
     if (!anos.length) return "";
     return `<div class="mapa-fome bloco-ind"><h2>Brasil no Mapa da Fome</h2>
       <p class="sub">Cada quadro é uma média de três anos feita pela FAO; o rótulo mostra o triênio.</p>
-      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${+a - 1} a ${+a + 1}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${String(+a - 1).slice(2)}–${String(+a + 1).slice(2)}</span>`).join("")}</div>
-      <p class="mf-leg">✕ no mapa (mais de 2,5% da população subalimentada). ✓ fora do mapa.</p></div>`;
+      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no === null ? "" : no ? "no" : "fora"}" title="${+a - 1} a ${+a + 1}: ${no === null ? "2,5 na série; limite a confirmar na FAO" : no ? "acima de 2,5%" : "abaixo de 2,5%"}"><b>${no === null ? "?" : no ? "✕" : "✓"}</b>${String(+a - 1).slice(2)}–${String(+a + 1).slice(2)}</span>`).join("")}</div>
+      <p class="mf-leg">✕ acima de 2,5%. ✓ abaixo de 2,5%. ? registro 2,5 que pode representar valor abaixo do limite; confirmação pendente.</p></div>`;
   }
 
   function csvIndicador(id, ind) {
     const q = (v) => (v === null || v === undefined ? "" : /[",;\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
     const L = [["# " + ind.titulo + " (" + ind.unidade + ")"], ["# fonte: " + ind.fonte + " (" + ind.fonte_url + ")"], ["# regra: " + explica(id, ind)], [],
-      ["periodo", "valor"], ...ind.serie.map((p) => [ind.mapa_fome ? `${+p.x - 1}–${+p.x + 1}` : p.x, ind.mapa_fome && p.y === 2.5 ? "<2,5" : p.y]), [],
+      ["periodo", "valor"], ...ind.serie.map((p) => [ind.mapa_fome ? `${+p.x - 1}–${+p.x + 1}` : p.x, p.censurado ? "<2,5" : ind.mapa_fome && p.y === 2.5 ? "2,5 (possivelmente <2,5)" : p.y]), [],
       ["governo", "periodo_com_dado", ind.resumo_rotulo || "resumo", "valor_inicio", "ano_inicio", "valor_fim", "ano_fim", "posicao"]];
     for (const [g, r] of Object.entries(ind.resumo || {}))
       L.push([nomeGov(g), r.periodo, r.valor, r.de ?? r.inicio_val, r.de != null ? r.periodo.split(" → ")[0] : r.inicio_ano, r.para ?? r.fim_val, r.para != null ? r.periodo.split(" → ")[1] : r.fim_ano, r.posicao]);
@@ -726,7 +730,7 @@
             callbacks: {
               title: (it) => { const x = it[0].label; const q = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x; if (ind.titulo === "Mapa da Fome") return `${+x - 1}–${+x + 1} (triênio)`; if (ind.notas) return `ago/${+x - 1}–jul/${x}`; const g = nomeGov(govDoPonto(x)); return g ? `${q}, ${g}` : q; },
               label: (it) => {
-                const linhas = [(ind.mapa_fome && it.parsed.y === 2.5 ? "<2,5%" : fmt(ind.formato, it.parsed.y)) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
+                const linhas = [(ind.serie[it.dataIndex]?.censurado ? "<2,5%" : ind.mapa_fome && it.parsed.y === 2.5 ? "2,5% (possivelmente abaixo do limite)" : fmt(ind.formato, it.parsed.y)) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
                 const n = ind.serie[it.dataIndex]?.n;
                 if (n != null) linhas[0] += " em valores de hoje", linhas.push(`R$ ${nf(2, 2).format(n)} na época`);
                 return linhas;

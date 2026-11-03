@@ -37,7 +37,7 @@ GitHub Actions (dias 12 e 28 + a cada push)
   └─ GitHub Pages publica a pasta site/
 ```
 
-Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.1 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
+Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.2 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
 
 ## Rodar localmente
 
@@ -60,7 +60,7 @@ sqlite3 data/painel.sqlite < queries/exemplos.sql
 
 Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Contexto externo e decisões de mandatos anteriores afetam os resultados.
 
-## Revisão estatística 2.1
+## Revisão estatística 2.2
 
 - Sem placar agregado entre indicadores; posições são descritivas, não testes de significância.
 - Ritmos exigem extremos presentes na fonte e cobertura original mínima de 75% dos anos.
@@ -74,3 +74,9 @@ Reprocessamento sem coleta: `TIRA_TEIMA_OFFLINE=1 python -m pipeline.build`.
 Nesse modo os CSVs existentes são preservados e as fontes são identificadas como cópia anterior; a projeção populacional usa a população já armazenada. Não é uma atualização de dados.
 
 Limitações ainda abertas: conciliação integral com os produtores, harmonização histórica do Gini, revisão FAO de 2,7%, intervalos amostrais e sensibilidade das médias anuais ponderadas. Não interpretar posições como efeito causal ou superioridade estatisticamente comprovada.
+
+## Conciliação de fontes
+
+Execute `python -m pipeline.auditar_fontes` após o build para comparar os dados com os snapshots oficiais arquivados em `data/auditoria/originais`. O comando falha diante de divergências e produz comparações por observação. Não substitui os dados automaticamente. Instale as dependências de `requirements.txt`.
+
+Escopo, pendências, definições e links: [matriz de conciliação](docs/conciliacao-fontes.md). O status apresentado no site exige nova conferência quando muda o arquivo de entrada.

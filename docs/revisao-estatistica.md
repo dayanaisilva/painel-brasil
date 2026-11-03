@@ -1,4 +1,4 @@
-# Revisão estatística 2.1
+# Revisão estatística 2.2
 
 Esta revisão corrige regras de transformação e apresentação. Não certifica todas as observações das fontes.
 
@@ -17,13 +17,13 @@ Esta revisão corrige regras de transformação e apresentação. Não certifica
 
 ## Validação executada
 
-11 testes Python de casos matemáticos/temporais e 11 casos JavaScript de entrada monetária; verificação de sintaxe JavaScript; geração completa dos 25 indicadores com os arquivos versionados. A coleta online completa e a inspeção visual em navegador não foram executadas nesta revisão.
+19 testes Python de casos matemáticos/temporais e 11 casos JavaScript de entrada monetária; verificação de sintaxe JavaScript; geração completa dos 25 indicadores com os arquivos versionados. A coleta online completa e a inspeção visual em navegador não foram executadas nesta revisão.
 
 ## Pendências antes de afirmar validação integral
 
 - A harmonização de PNADS_GINI foi conferida nos metadados do Ipeadata; ainda não foi refeita a estimação com microdados.
-- Conferir no SOFI original a revisão específica de 2,7%.
-- Conciliar integralmente filtros ANP, INEP, SIM e demais séries com arquivos originais.
+- A revisão de 2,7% e os limites <2,5 foram conciliados com o arquivo FAOSTAT de 21/07/2026; ainda não se reconstituíram todas as edições anteriores do SOFI.
+- ANP conciliada com as duas planilhas nacionais; INEP depende de acesso aos microdados; SIM ainda exige resolução da inconsistência do metadado e conciliação histórica do denominador. Ver docs/conciliacao-fontes.md.
 - Médias anuais ponderadas são convenções, não resultados observados em frações do ano. A análise de sensibilidade agora compara com anos civis completos, excluindo transições e ano corrente; não é intervalo de confiança. Ainda falta sensibilidade dos anos-base nas métricas de ritmo.
 - Salário mínimo permanece com ganho acumulado entre médias móveis de 12 meses; não comparar como ritmo anual.
 - Não foram calculados intervalos amostrais: exigem desenho amostral, microdados ou estimativas oficiais.
@@ -40,3 +40,9 @@ Esta revisão corrige regras de transformação e apresentação. Não certifica
 ## Publicação
 
 A branch não publica no GitHub Pages. O workflow de main coleta e regenera as saídas ao integrar o PR. Revisar as diferenças e as pendências antes de integrar.
+
+## Continuação: metodologia 2.2
+
+Conciliação numérica sem divergências: 302 preços ANP, 302 valores reais recalculados pelo IPCA, 45 taxas nacionais Ipeadata e 24 triênios tanto no Banco Mundial quanto na FAOSTAT. O arquivo original da FAOSTAT confirma o 2,7% de 2022–2024 e os sinais <2,5, resolvendo essa pendência da etapa 2.1. A censura só é exibida quando vinculada à evidência do mesmo arquivo de entrada.
+
+Adicionados 8 testes de fontes: produto e unidade da ANP, abrangência Brasil, conflito de preço duplicado, identidade de instituição, modalidade presencial e correspondência da censura FAO. Não foram alterados valores brutos existentes nesta etapa. A documentação do Ipeadata para homicídios contém uma inconsistência de códigos CID; não deve ser tomada como definição validada. Downloads INEP falharam com HTTP 503: a revisão dos filtros é uma proteção de código, não uma recontagem concluída.

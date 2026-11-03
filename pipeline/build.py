@@ -445,6 +445,20 @@ def resumo_periodos(df_anual, tipo):
     return out
 
 
+def limites_fao_verificados(anual_df, fao):
+    """Marcação de censura exige correspondência de triênio e valor na FAOSTAT."""
+    observados = dict(zip(anual_df.ano.astype(int), anual_df.valor))
+    anos = set()
+    for _, r in fao.iterrows():
+        inicio, fim = map(int, str(r["Year"]).split("-"))
+        if fim - inicio != 2:
+            raise ValueError("FAO: período não trienal")
+        centro = inicio + 1
+        if str(r["Value"]).strip() == "<2.5" and observados.get(centro) == 2.5:
+            anos.add(centro)
+    return anos
+
+
 def serie_anual_completa(a):
     """Série anual com todos os anos do intervalo; anos sem dado ficam null (o gráfico mostra a lacuna)."""
     obs = a.groupby("ano").valor.mean()
@@ -626,7 +640,7 @@ def main():
             direcao="menor", pergunta="Quanto custava o litro da gasolina, já descontada a inflação?",
             descricao=(f"Preço médio da gasolina comum nos postos, corrigido pelo IPCA para reais de {ref_mes}. "
                        "Passe o mouse para ver também o preço que se pagava na época. A pesquisa nacional de preços da ANP começa em jul/2001; "
-                       "antes disso o preço era tabelado pelo governo e não há série oficial de preço médio nos postos."),
+                       "este painel não dispõe de observações anteriores nessa série. Cada mês recebe o mesmo peso na média do governo."),
             resumo_rotulo="preço real médio", resumo=resumo_media_mensal(r),
             serie=[dict(p, n=nominal.get(p["x"])) for p in serie_json(r, "%Y-%m")],
             fonte="ANP — Levantamento de Preços de Combustíveis (série histórica mensal)",
@@ -682,7 +696,8 @@ def main():
          "fome", None, "anos_mapa",
          "Prevalência de subalimentação calculada pela FAO. Cada ano do gráfico é uma média de três anos centrada nele "
          "(2021 = média de 2020 a 2022), como a FAO publica, e a FAO revisa a série inteira a cada relatório. O país entra no Mapa da Fome quando "
-         "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
+         "passa de 2,5% da população. Na série do Banco Mundial, 2,5 pode representar um valor abaixo desse limite; "
+         "esses pontos são sinalizados como limite a confirmar, sem inferir um valor exato. "
          "Sem ranking: como a FAO não divulga valores exatos abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
          "Não há resumo por governo: os triênios se sobrepõem e podem atravessar mandatos.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
@@ -793,7 +808,16 @@ def main():
             d.update(resumo=resumo_media_ponderada(a[a.ano >= ANO_INICIAL]), resumo_rotulo="média no governo")
         if id_ == "fome":
             d["limite"] = {"valor": 2.5, "rotulo": "Linha do Mapa da Fome (2,5%)"}
-            d["mapa_fome"] = {str(int(r.ano)): bool(r.valor > 2.5) for r in a.itertuples()}
+            limites = set()
+            registro_fao = RAIZ / "data" / "auditoria" / "registro.json"
+            snapshot_fao = RAIZ / "data" / "auditoria" / "originais" / "fao_brasil.csv"
+            if registro_fao.exists() and snapshot_fao.exists():
+                evidencia = json.loads(registro_fao.read_text()).get("fome", {})
+                if hashlib.sha256((RAW / "fome.csv").read_bytes()).hexdigest() == evidencia.get("sha256_entrada"):
+                    limites = limites_fao_verificados(a, pd.read_csv(snapshot_fao))
+            for ponto in d["serie"]:
+                ponto["censurado"] = int(ponto["x"]) in limites
+            d["mapa_fome"] = {str(int(r.ano)): (False if int(r.ano) in limites else None if r.valor == 2.5 else bool(r.valor > 2.5)) for r in a.itertuples()}
         ind[id_] = d
 
     # Descoberta (não afeta o site): séries oficiais candidatas para SUS e programas sociais.
@@ -918,6 +942,20 @@ def main():
                             serie=serie_anual_completa(a), fonte="INEP — Censo da Educação Superior (microdados)",
                             fonte_url="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior")
 
+    registro_path = RAIZ / "data" / "auditoria" / "registro.json"
+    registro = json.loads(registro_path.read_text()) if registro_path.exists() else {}
+    for k, v in ind.items():
+        if k in registro:
+            audit = registro[k].copy()
+            entrada = RAIZ / audit["arquivo_entrada"]
+            mudou = not entrada.exists() or hashlib.sha256(entrada.read_bytes()).hexdigest() != audit["sha256_entrada"]
+            if audit.get("sha256_ipca"):
+                mudou = mudou or hashlib.sha256((RAW / "ipca.csv").read_bytes()).hexdigest() != audit["sha256_ipca"]
+            if mudou:
+                audit["status"] = "Pendente após atualização dos dados"
+                audit["escopo"] = "O registro anterior se refere a outra versão da entrada; repetir a conciliação."
+            v["auditoria"] = audit
+
     for k, v in ind.items():
         if k in AVISOS and not v.get("aviso"):
             v["aviso"] = AVISOS[k]
@@ -978,7 +1016,7 @@ def main():
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
              "indicadores": limpa(ind), "fontes": STATUS,
-             "metodologia_versao": "2.1",
+             "metodologia_versao": "2.2",
              "arquivos_origem": [{"arquivo": str(f.relative_to(RAIZ)),
                                   "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
                                  for f in sorted(RAW.glob("*.csv"))]}
@@ -1003,12 +1041,11 @@ AVISOS = {
     "bolsa_familia": "Entre nov/2021 e fev/2023 o programa se chamou Auxílio Brasil, com regras e valores diferentes. Mais benefícios pode indicar mais cobertura ou mais pobreza; o número sozinho não diz qual.",
     "analfabetismo": "A série oficial comparável do IBGE (PNAD Contínua) começa em 2016. Antes disso o IBGE usava a PNAD anual, com outra metodologia, por isso os governos anteriores não entram na comparação.",
     "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
-    "fome": ("Cada ponto é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório; abaixo de 2,5% a FAO "
-             "não divulga o valor exato. Médias de três anos atravessam governos e o ano do relatório não é o ano medido. "
-             "Os valores representam a série disponível no Banco Mundial (SN.ITK.DEFC.ZS). A edição específica do "
-             "SOFI correspondente a cada revisão ainda precisa ser conciliada; o painel não infere dela datas de "
-             "entrada ou saída anunciadas em relatórios anteriores. Não contamos triênios sobrepostos como anos "
-             "de fome de um governo."),
+    "fome": ("Os 24 triênios foram conciliados com a FAOSTAT, item 210041, no arquivo com data HTTP de "
+             "21/07/2026. Ele traz 2,7% em 2022–2024 e <2,5% em 2023–2025. O sinal < indica limite de publicação, "
+             "não uma medição de exatamente 2,5%. As observações são estimativas da FAO e podem ser revistas. "
+             "O painel preserva os triênios e não os conta como anos independentes de um governo. "
+             "Se a entrada mudar, a marcação exige nova conciliação; o registro 2,5 do Banco Mundial sozinho é ambíguo."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "desmatamento": ("O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior, e o site "
                      "usa no resumo apenas ciclos completos dentro do governo e consolidados. Desmatamento depende também de preço de "
@@ -1022,7 +1059,16 @@ AVISOS = {
                 "Os valores aqui são da edição atual e não devem ser comparados com números de edições antigas."),
     "ensino_superior": ("Taxa bruta: quem tem mais de 24 anos e está matriculado também entra na conta. Por isso ela não diz "
                         "quantos jovens estão na faculdade."),
-    "homicidios": "Os números podem diferir um pouco da edição mais recente do Atlas da Violência, que revisa população e mortes a cada ano.",
+    "homicidios": ("Os 45 valores da série armazenada coincidem com a série Brasil AVIOL12_THOMIC consultada no Ipeadata. "
+                    "Há, porém, uma inconsistência no metadado do produtor: o título diz homicídios, mas a descrição "
+                    "menciona códigos de suicídio. A taxa de 2024 (20,1) coincide com a divulgação do Atlas 2026. "
+                    "A definição histórica completa ainda requer conciliação; o painel não recalcula os óbitos do SIM. "
+                    "Revisões populacionais e mortes de intenção indeterminada limitam a comparação entre anos."),
+    "gasolina": ("A série nacional da ANP foi conferida em 302 meses, de jul/2001 a set/2026. "
+                 "Até outubro de 2004, a ANP usava média simples; desde novembro, divulga médias ponderadas "
+                 "pelas vendas das distribuidoras. Houve interrupção da pesquisa em 2020 e mudanças de amostra. "
+                 "O painel preserva a lacuna de setembro/2020. A média por governo dá peso igual aos meses observados, "
+                 "não aos litros vendidos. O IPCA ajusta poder de compra geral, não custos de produção da gasolina."),
 
     "universidades_federais": (
         "A contagem mostra quando a universidade passou a funcionar, não quem a criou. Exemplo: as 5 universidades que "
