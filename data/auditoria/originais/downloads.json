@@ -1,0 +1,44 @@
+[
+  {
+    "arquivo": "anp_antiga.xlsx",
+    "url": "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/2001-2012/mensal-brasil-2001-a-2012.xlsx",
+    "sha256": "76648249f2d6235e741c6912b706f87e4d5e2d4e4b8e8db938f2ef5f97c5daab",
+    "bytes": 86611,
+    "status": 200
+  },
+  {
+    "arquivo": "anp_recente.xlsx",
+    "url": "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp/mensal/mensal-brasil-desde-jan2013.xlsx",
+    "sha256": "33193d652c05a38c5f157fd8cbc10eb6aaffaf2e426c7937e17ddbb0d08ef940",
+    "bytes": 113245,
+    "status": 200
+  },
+  {
+    "arquivo": "homicidios_meta.json",
+    "url": "https://www.ipeadata.gov.br/api/odata4/Metadados('AVIOL12_THOMIC')",
+    "sha256": "5f45eeb42ae481d96e1938d3336b353504094fcdc1ad3c4e8beade1c0283a40b",
+    "bytes": 2163,
+    "status": 200
+  },
+  {
+    "arquivo": "homicidios_valores.json",
+    "url": "https://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='AVIOL12_THOMIC')",
+    "sha256": "2725249fe44be573f745a7a5f14a0656ef5677d2802d06961f7450bc88cb6407",
+    "bytes": 70535230,
+    "status": 200
+  },
+  {
+    "arquivo": "fome_bm.json",
+    "url": "https://api.worldbank.org/v2/country/BRA/indicator/SN.ITK.DEFC.ZS?format=json&per_page=200",
+    "sha256": "72a2c957d293197becd8b944b8cb2ca64a20dd9f91d8a9d9e82cacae5e08e8c6",
+    "bytes": 14915,
+    "status": 200
+  },
+  {
+    "arquivo": "fome_meta.json",
+    "url": "https://api.worldbank.org/v2/indicator/SN.ITK.DEFC.ZS?format=json",
+    "sha256": "71c6c83321b67c2c0b3448156bcdb7f8b6ad7cd300de1f73af846fbbe3b57263",
+    "bytes": 681,
+    "status": 200
+  }
+]

@@ -37,7 +37,7 @@ GitHub Actions (dias 12 e 28 + a cada push)
   └─ GitHub Pages publica a pasta site/
 ```
 
-Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Nenhum dado é inventado ou preenchido.
+Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.3 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
 
 ## Rodar localmente
 
@@ -59,3 +59,30 @@ sqlite3 data/painel.sqlite < queries/exemplos.sql
 ## Aviso
 
 Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Contexto externo e decisões de mandatos anteriores afetam os resultados.
+
+## Revisão estatística 2.3
+
+- Sem placar agregado entre indicadores; posições são descritivas, não testes de significância.
+- Ritmos exigem extremos presentes na fonte e cobertura original mínima de 75% dos anos.
+- Bolsa Família: média dos retratos de dezembro atribuídos ao governo nessa data.
+- PRODES: resumo apenas dos ciclos completos dentro do governo e consolidados; cobertura mínima de 75% dos ciclos elegíveis. Estimativas e ciclos compartilhados continuam no gráfico.
+- Gráficos FAO mostram o triênio e exportam o limite como `<2,5`, não como observação exata.
+- A base registra hashes SHA-256 dos CSVs usados. Isso rastreia entradas, mas não certifica a fonte nem substitui revisão de seus metadados.
+
+Validação: `python -m unittest discover -s tests -v` e `node tests/numeros.test.js`.
+Reprocessamento sem coleta: `TIRA_TEIMA_OFFLINE=1 python -m pipeline.build`.
+Nesse modo os CSVs existentes são preservados e as fontes são identificadas como cópia anterior; a projeção populacional usa a população já armazenada. Não é uma atualização de dados.
+
+Limitações ainda abertas: conciliação integral com os produtores, harmonização histórica do Gini, revisão FAO de 2,7%, intervalos amostrais e sensibilidade das médias anuais ponderadas. Não interpretar posições como efeito causal ou superioridade estatisticamente comprovada.
+
+## Conciliação de fontes
+
+Execute `python -m pipeline.auditar_fontes` após o build para comparar os dados com os snapshots oficiais arquivados em `data/auditoria/originais`. O comando falha diante de divergências e produz comparações por observação. Não substitui os dados automaticamente. Instale as dependências de `requirements.txt`.
+
+Escopo, pendências, definições e links: [matriz de conciliação](docs/conciliacao-fontes.md). O status apresentado no site exige nova conferência quando muda o arquivo de entrada.
+
+Homicídios: coleta direta do [Atlas da Violência, série 20](https://www.ipea.gov.br/atlasviolencia/dados-series/20), Brasil 1076, 1990–2024. A edição Ipeadata anterior foi arquivada e as diferenças estão em `data/auditoria/homicidios_entre_fontes.csv`. Rankings permanecem suspensos até conciliar as versões; dados de homicídios ocultos não são somados à série registrada.
+
+## Terras Indígenas — metodologia 2.4
+
+Novo indicador com incrementos PRODES nos recortes indígenas da Amazônia Legal, 2008–2025, edição INPE de 16/10/2026. Comparação anual entre territórios e CSV detalhado; sem ranking governamental, sem tratar a soma de recortes como taxa oficial ou área nacional única. As dimensões de integridade ainda não calculadas são explicitadas. Veja `docs/terras-indigenas.md`.

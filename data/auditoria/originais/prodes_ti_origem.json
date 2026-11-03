@@ -1,0 +1,27 @@
+{
+  "edicao_inpe": "2026-10-16",
+  "unidade": "km²",
+  "loi": 4,
+  "tipo_area": 1,
+  "ultimo_ano_incluido": 2025,
+  "arquivos": [
+    {
+      "url": "https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/data/prodes_legal_amazon.json",
+      "sha256_integral": "362bbe4f30e4146ead9224ddba88e9a0156be1c0f39c91ecc7b7eebc5b33d070"
+    },
+    {
+      "url": "https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/config/loinames/prodes_legal_amazon.json",
+      "sha256_integral": "0173c323300ce2eb4660ce2e1492d9cdb5c9f152bd48340b6d62336a2d6b8525"
+    },
+    {
+      "url": "https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/config/periods/prodes_legal_amazon.json",
+      "sha256_integral": "ae6c446f1ba1a787ac8a9880312409e36de7c68dab6a4e7c400c0d6549982343"
+    },
+    {
+      "url": "https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/last_update_date.json",
+      "sha256_integral": "11e951df42ef08dae798231da7c278309e09f9a90dcc1804dbf9a826590918fe"
+    }
+  ],
+  "selecao": "Somente features loi=4; máscara acumulada até 2007 e ciclo 2026 preservados no snapshot, excluídos do indicador. 2026 aguarda conferência específica da edição.",
+  "limites": "386 recortes indígenas definidos no arquivo do INPE; não equivalem ao cadastro atual completo da Funai. Sobreposições entre territórios não foram dissolvidas. Não foi auditada a geometria nem a história fundiária."
+}

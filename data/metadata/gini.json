@@ -1,0 +1,26 @@
+{
+  "url": "https://www.ipeadata.gov.br/api/odata4/Metadados('PNADS_GINI')",
+  "metadados": {
+    "@odata.context": "http://www.ipeadata.gov.br/api/odata4/$metadata#Metadados",
+    "value": [
+      {
+        "SERCODIGO": "PNADS_GINI",
+        "SERNOME": "Coeficiente de Gini da renda domiciliar per capita de todas as fontes",
+        "SERCOMENTARIO": "Índice de desigualdade multiplicado por 100, podendo variar entre 0 (igualdade perfeita) e 100 (maior desigualdade possível). Série estimada com base nas respostas à antiga Pesquisa Nacional por Amostra de Domicílios (PNAD) até 2011 e, a partir de 2012, à PNAD Contínua, do Instituto Brasileiro de Geografia e Estatística (IBGE). Até 2011, todos os resultados originais obtidos diretamente da fonte foram multiplicados pelo fator que, em 2012, iguala o resultado da antiga PNAD ao da PNAD Contínua. Para detalhes metodólogicos, ver: Souza e Hecksher (2025). Pobreza e desigualdade no Brasil no curto e no longo prazo.\r\n<p>Para acessar outras séries correlatas com desagregações territoriais, utilize os atalhos a seguir: \r\n<a href=http://www.ipeadata.gov.br/ExibeSerieR.aspx?stub=1&serid=2096726935&MINDATA=2012&MAXDATA=2030&TNIVID=0&TPAID=1&module=S>Gini (IBGE)</a>.\r\n<p><a href=\"http://www.ipeadata.gov.br/Default.aspx\" target=\"_blank\">Ipeadata - Página principal</a>.",
+        "SERATUALIZACAO": "2026-05-25T16:22:07.64-03:00",
+        "BASNOME": "Macroeconômico",
+        "FNTSIGLA": "IPEA",
+        "FNTNOME": "Instituto de Pesquisa Econômica Aplicada",
+        "FNTURL": "www.ipea.gov.br",
+        "PERNOME": "Anual",
+        "UNINOME": "-",
+        "MULNOME": null,
+        "SERSTATUS": "A",
+        "TEMCODIGO": 15,
+        "PAICODIGO": "BRA",
+        "SERNUMERICA": true
+      }
+    ]
+  },
+  "consultado_em": "2026-11-03T01:17:45.112785+00:00"
+}

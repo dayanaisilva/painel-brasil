@@ -32,8 +32,21 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt
 
-      - name: Baixar e processar dados
-        run: python -m pipeline.build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Processar e validar dados antes de publicar
+        env:
+          TIRA_TEIMA_OFFLINE: ${{ github.event_name != 'schedule' && '1' || '0' }}
+        run: |
+          python -m pipeline.build
+          python -m unittest discover -s tests -v
+          node tests/numeros.test.js
+          node --check site/app.js
+          python -m pipeline.auditar_fontes
+          npm install --prefix /tmp/tira-dom jsdom@26.1.0 --no-audit --no-fund
+          NODE_PATH=/tmp/tira-dom/node_modules node tests/interface.test.cjs
 
       - name: Versionar dados atualizados
         run: |
@@ -44,9 +57,8 @@ jobs:
             echo "Sem mudanças nos dados."
           else
             git commit -m "dados: atualização automática $(date -u +%Y-%m-%d) [skip ci]"
-            # o código pode ter mudado enquanto a coleta rodava: traz as mudanças antes de enviar os dados
-            git pull --rebase -X theirs origin main || { git rebase --abort; echo "rebase falhou; dados não versionados nesta execução"; exit 0; }
-            git push || echo "push falhou; o site é publicado mesmo assim"
+            # Falha no push interrompe o deploy; não resolve conflitos automaticamente.
+            git push
           fi
 
       - name: Preparar site

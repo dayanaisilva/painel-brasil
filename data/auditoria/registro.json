@@ -1,0 +1,45 @@
+{
+  "gasolina": {
+    "arquivo_entrada": "data/raw/gasolina.csv",
+    "sha256_entrada": "8e9777c97a613a79cb924c5aa3046dc0b607fe7b39392e688430422b43c2ac4b",
+    "status": "Conciliado com ressalvas",
+    "escopo": "302 preços mensais conferidos nas planilhas nacionais da ANP; 302 valores corrigidos pelo IPCA recalculados.",
+    "pendencia": "Mudanças de ponderação, amostra e interrupção da pesquisa limitam comparações históricas.",
+    "sha256_ipca": "0d66c612e02afd0b42d5499bd56d6c91ae617a515879355fca857a38d9300af2"
+  },
+  "fome": {
+    "arquivo_entrada": "data/raw/fome.csv",
+    "sha256_entrada": "5558feb27b6ebdafc5f83ef1cc39f01cdcce2c6af4439adcf12815c092c6e2a7",
+    "status": "Conciliado com ressalvas",
+    "escopo": "24 triênios coincidem com a FAOSTAT (item 210041, arquivo de 21/07/2026) e com o Banco Mundial. Confirmados 2,7% em 2022–2024 e <2,5% em 2023–2025.",
+    "pendencia": "Estimativas revisáveis; <2,5 é um limite de publicação. Não foi reestimado o modelo de subalimentação nem reconstituída cada edição anterior do SOFI."
+  },
+  "homicidios": {
+    "arquivo_entrada": "data/raw/homicidios.csv",
+    "sha256_entrada": "2fadc9e0dddfd0ffd276c9f0b95ee4d48c85392dec0105bb0e3159321486301b",
+    "status": "Conciliação parcial",
+    "escopo": "35 taxas nacionais (1990–2024) transcritas diretamente da série 20 do Atlas; Brasil identificado pelo código 1076. Definição: óbitos por residência, agressões e intervenções legais; taxa por 100 mil.",
+    "pendencia": "As 35 taxas diferem da edição Ipeadata arquivada. Em 2024: Atlas 20,03; Ipeadata 20,10. Não foi conciliada a versão dos numeradores/denominadores, nem recontado o SIM. Ranking suspenso; séries não emendadas."
+  },
+  "universidades_federais": {
+    "arquivo_entrada": "data/raw/inep_superior.csv",
+    "sha256_entrada": "108c51a823a4681a0b9d87f019e91c1020569f2ec1853162874754303dd53a78",
+    "status": "Conciliação parcial",
+    "escopo": "O total de 69 universidades federais em 2024 coincide com a apresentação oficial do INEP localizada na busca.",
+    "pendencia": "Arquivo original de microdados indisponível nesta consulta (HTTP 503). Série histórica ainda não recontada."
+  },
+  "municipios_federais": {
+    "arquivo_entrada": "data/raw/inep_superior.csv",
+    "sha256_entrada": "108c51a823a4681a0b9d87f019e91c1020569f2ec1853162874754303dd53a78",
+    "status": "Pendente",
+    "escopo": "Regras de filtro presencial, categoria federal e deduplicação revisadas no código.",
+    "pendencia": "Os 616 municípios em 2024 e a série histórica ainda precisam ser recontados nos microdados originais."
+  },
+  "desmatamento_ti": {
+    "arquivo_entrada": "data/raw/desmatamento_ti.csv",
+    "sha256_entrada": "89780f0fd921be1aa82224f5c32145b5cbd8397b28d32fc790e5eff556e0af8d",
+    "status": "Conciliação parcial",
+    "escopo": "18 ciclos (2008–2025), soma dos incrementos nos recortes indígenas da edição INPE de 16/10/2026. 386 territórios no cadastro do arquivo; transcrição conferida, sem auditoria geométrica.",
+    "pendencia": "Não é taxa oficial PRODES nem área nacional única: possíveis sobreposições entre recortes não foram dissolvidas. Faltam conciliar limites, cobertura de nuvens e situação territorial. Não mede integridade e não gera ranking governamental."
+  }
+}

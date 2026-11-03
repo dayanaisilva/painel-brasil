@@ -1,0 +1,115 @@
+{
+  "gasolina": {
+    "observacoes": 302,
+    "coincidentes": 302,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "8e9777c97a613a79cb924c5aa3046dc0b607fe7b39392e688430422b43c2ac4b"
+  },
+  "fome": {
+    "observacoes": 24,
+    "coincidentes": 24,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "5558feb27b6ebdafc5f83ef1cc39f01cdcce2c6af4439adcf12815c092c6e2a7"
+  },
+  "homicidios": {
+    "observacoes": 35,
+    "coincidentes": 35,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "2fadc9e0dddfd0ffd276c9f0b95ee4d48c85392dec0105bb0e3159321486301b"
+  },
+  "desmatamento_ti": {
+    "observacoes": 18,
+    "coincidentes": 18,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "89780f0fd921be1aa82224f5c32145b5cbd8397b28d32fc790e5eff556e0af8d"
+  },
+  "fome_fao": {
+    "observacoes": 24,
+    "coincidentes": 24,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "5558feb27b6ebdafc5f83ef1cc39f01cdcce2c6af4439adcf12815c092c6e2a7"
+  },
+  "gasolina_ipca": {
+    "observacoes": 302,
+    "coincidentes": 302,
+    "divergencias": 0,
+    "tolerancia_absoluta": 5.1e-05,
+    "sha256_ipca": "0d66c612e02afd0b42d5499bd56d6c91ae617a515879355fca857a38d9300af2"
+  },
+  "escopo": "Confronto com snapshots; não equivale a reestimar microdados nem conferir edições históricas.",
+  "origens": [
+    {
+      "arquivo": "data/auditoria/originais/anp_antiga.xlsx",
+      "sha256": "76648249f2d6235e741c6912b706f87e4d5e2d4e4b8e8db938f2ef5f97c5daab"
+    },
+    {
+      "arquivo": "data/auditoria/originais/anp_recente.xlsx",
+      "sha256": "33193d652c05a38c5f157fd8cbc10eb6aaffaf2e426c7937e17ddbb0d08ef940"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_brasil_identidade.json",
+      "sha256": "23e1eaedcba21fe8209eb6eadef94c75c9b724815a307a38b82f42ecbcc978f6"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_homicidios_brasil.json",
+      "sha256": "4680d53f4db3d625a2fcf2b23f1294c359f05210a7cbf12eeed47e2e8e414fb4"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_homicidios_meta.json",
+      "sha256": "c87ae619f893c9a2d7160f038ecb46c50f1886675624ef5fb031cf757ca17b8e"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_origem.json",
+      "sha256": "10b2f975803619cdebee4ec47f5faf5235d57e4ceb2b40267c5c3de3c1dba03d"
+    },
+    {
+      "arquivo": "data/auditoria/originais/downloads.json",
+      "sha256": "513c43e230513af656ceb83262fe0d46ab947b77a5ad90b1c7c42338d00b31a2"
+    },
+    {
+      "arquivo": "data/auditoria/originais/fao_brasil.csv",
+      "sha256": "eaf33aefd927682b2bbc6dbde11f0f308416a9c06590638c3669b721f82ee1df"
+    },
+    {
+      "arquivo": "data/auditoria/originais/fao_flags.csv",
+      "sha256": "b785e88e81edfed0a3e6d1b841fa82173bc25525211849d19b22fd834a66439b"
+    },
+    {
+      "arquivo": "data/auditoria/originais/fao_origem.json",
+      "sha256": "2a88d4889b54c03637c24b5c8c112d73ca754dca2822139841b91e0a95ce63b2"
+    },
+    {
+      "arquivo": "data/auditoria/originais/fome_bm.json",
+      "sha256": "72a2c957d293197becd8b944b8cb2ca64a20dd9f91d8a9d9e82cacae5e08e8c6"
+    },
+    {
+      "arquivo": "data/auditoria/originais/fome_meta.json",
+      "sha256": "71c6c83321b67c2c0b3448156bcdb7f8b6ad7cd300de1f73af846fbbe3b57263"
+    },
+    {
+      "arquivo": "data/auditoria/originais/homicidios_brasil_extraido.json",
+      "sha256": "462d5d34c77912b3ab2584fec9cbb78c0e2c701d26bf6f8976bb6309c9ed7305"
+    },
+    {
+      "arquivo": "data/auditoria/originais/homicidios_meta.json",
+      "sha256": "5f45eeb42ae481d96e1938d3336b353504094fcdc1ad3c4e8beade1c0283a40b"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti.json",
+      "sha256": "683802362f70fed42dd5c6fb6d8882af4c5efef6d17fb1f72d67dc9203239502"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti_nomes.json",
+      "sha256": "9bedca1d98e949506a9fe73754ba83e37756da0f891bfd7d7a16fe2a1549c129"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti_origem.json",
+      "sha256": "d931058cca7505a7ec63bff203e60ba4f9a401daac037117e4971facb5928c99"
+    }
+  ]
+}

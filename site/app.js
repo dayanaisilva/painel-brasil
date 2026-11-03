@@ -12,16 +12,16 @@
     ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "leitos_sus", "gasto_saude"]],
     ["educacao", "Educação", ["analfabetismo", "ensino_superior", "universidades_federais", "municipios_federais", "gasto_educacao"]],
     ["seguranca", "Segurança", ["homicidios"]],
-    ["ambiente", "Meio ambiente", ["desmatamento", "queimadas"]],
+    ["ambiente", "Meio ambiente", ["desmatamento", "desmatamento_ti", "queimadas"]],
   ];
   const CURTO = {
     pib_crescimento: "PIB", pib_per_capita: "PIB per capita", ipca: "Inflação", salario_minimo: "Salário mínimo",
     cesta_sp: "Cesta básica SP", gasolina: "Gasolina", gasolina_litros: "Gasolina por salário", queimadas: "Queimadas",
-    desmatamento: "Desmatamento", dolar: "Dólar", fome: "Mapa da Fome", pobreza: "Extrema pobreza", gini: "Desigualdade",
-    mortalidade_infantil: "Mortalidade infantil", expectativa_vida: "Expectativa de vida", gasto_saude: "Investimento em saúde",
+    desmatamento: "Desmatamento", desmatamento_ti: "Terras Indígenas", dolar: "Dólar", fome: "Mapa da Fome", pobreza: "Extrema pobreza", gini: "Desigualdade",
+    mortalidade_infantil: "Mortalidade infantil", expectativa_vida: "Expectativa de vida", gasto_saude: "Gasto público em saúde",
     desemprego: "Desemprego", homicidios: "Homicídios", bolsa_familia: "Bolsa Família", leitos_sus: "Leitos do SUS",
     analfabetismo: "Analfabetismo", universidades_federais: "Universidades federais", municipios_federais: "Cidades com ensino federal",
-    ensino_superior: "Matrícula no ensino superior", gasto_educacao: "Investimento em educação",
+    ensino_superior: "Matrícula no ensino superior", gasto_educacao: "Gasto público em educação",
   };
   // Palavras extras para a busca encontrar o indicador pelo nome popular.
   const SINONIMOS = {
@@ -51,10 +51,10 @@
     analfabetismo: ["queda mais rápida do analfabetismo", "queda mais lenta do analfabetismo", "Quanto o analfabetismo caiu (−) por ano, em %."],
     ensino_superior: ["maior aumento da taxa bruta de matrícula", "menor aumento da taxa bruta de matrícula", "Quantos pontos a taxa bruta de matrícula no ensino superior subiu por ano."],
     homicidios: ["menor taxa média de homicídios", "maior taxa média de homicídios", "Média da taxa de homicídios por 100 mil habitantes no governo."],
-    desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média da área desmatada por ano na Amazônia durante o governo."],
+    desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média dos ciclos PRODES consolidados inteiramente dentro do governo; ciclos compartilhados e estimativas ficam apenas no gráfico."],
     queimadas: ["menos focos de queimada por ano", "mais focos de queimada por ano", "Média de focos de queimada por ano durante o governo."],
   };
-  const explica = (id, ind) => (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
+  const explica = (id, ind) => ind.resumo_suspenso || (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
 
   const nf = (min, max) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: min, maximumFractionDigits: max });
   const F = {
@@ -64,6 +64,8 @@
     moeda_usd: (v) => "US$ " + nf(0, 0).format(v),
     inteiro: (v) => nf(0, 0).format(Math.round(v)),
     decimal: (v) => nf(1, 1).format(v),
+    area: (v) => nf(2, 2).format(v),
+    decimal2: (v) => nf(2, 2).format(v),
     delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(2, 2).format(Math.abs(v)) + " por ano",
     delta_pct: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1, 1).format(Math.abs(v)) + "% ao ano",
     inteiro_delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(0, 0).format(Math.abs(Math.round(v))),
@@ -254,7 +256,7 @@
     const mudou = (a, b) => {
       if (!(a > 0) || !(b > 0)) return "";
       const p = (b / a - 1) * 100;
-      if (Math.abs(p) < 0.5) return ", ficou estável";
+      if (Math.abs(p) < 0.5) return ", variação inferior a 0,5%";
       return `, ${p > 0 ? "subiu" : "caiu"} ${nf(0, 0).format(Math.abs(p))}%`;
     };
     if (r.de != null && r.para != null)
@@ -262,7 +264,7 @@
     const fr = ind.resumo_formato === "anos_mapa" ? ind.formato : resumoFmt(ind);
     const nivel = !ind.resumo_formato || ind.resumo_formato === "anos_mapa";
     if (r.inicio_val != null && r.fim_val != null)
-      return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}${nivel ? mudou(r.inicio_val, r.fim_val) : ""}`;
+      return `${r.inicio_ano}${ind.freq === "mensal" ? " (média dos 3 primeiros meses disponíveis)" : ""}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}${ind.freq === "mensal" ? " (média dos 3 últimos meses disponíveis)" : ""}: ${fmt(fr, r.fim_val)}${nivel ? mudou(r.inicio_val, r.fim_val) : ""}`;
     return "";
   }
 
@@ -310,11 +312,14 @@
         <p><span class="marcador ruim">✕</span>Pior resultado: <mark>${esc(nomeGov(ind.pior))}</mark>, com ${fmt(resumoFmt(ind), p.valor)}${ast(p)} <span class="mudo">(${esc(ind.resumo_rotulo)})</span>.${p.sentido === "melhorou" ? " O indicador melhorou nesse governo, só que menos que nos outros." : ""}</p>
         <p class="criterio">Critério: ${esc(c ? c[0] : "")} fica em 1º. ${esc(explica(id, ind))} ✓ e ✕ marcam o quarto melhor e o quarto pior dos governos com dado.</p>`;
     } else {
-      if (ind.limite && ultimo && ultimo.y <= ind.limite.valor) {
+      if (ind.limite && ultimo && (ultimo.censurado || ultimo.y < ind.limite.valor)) {
         veredito = `<p>Último dado: <mark>abaixo de ${fmt(fmtSerie, ind.limite.valor)}</mark>, fora do Mapa da Fome (média de ${+ultimo.x - 1} a ${+ultimo.x + 1}).</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} Os valores de cada governo estão na tabela abaixo.</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+      } else if (ind.mapa_fome && ultimo?.y === 2.5) {
+        veredito = `<p>Último dado: <mark>2,5% na série do Banco Mundial</mark>, triênio ${+ultimo.x - 1}–${+ultimo.x + 1}.</p>
+          <p class="criterio">Esse registro pode representar um valor abaixo de 2,5%. A marcação original da FAO precisa ser conferida; não tratamos 2,5 como uma medição exata.</p>`;
       } else veredito = `<p>Último dado: <mark>${fmt(fmtSerie, ultimo?.y)}</mark>${ultimo ? `, em ${ultimo.x.length > 4 ? `${ultimo.x.slice(5, 7)}/${ultimo.x.slice(0, 4)}` : ultimo.x}` : ""}.</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} Os valores de cada governo estão na tabela abaixo.</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
     }
     const temRank = !!ind.direcao;
     const marcosLeg = (() => {
@@ -336,27 +341,32 @@
         ${ind.aviso ? `<p class="ressalva"><b>Antes de tirar conclusões.</b> ${esc(ind.aviso)}</p>` : ""}
         ${faixaMapaFome(ind)}
 
-        <section class="bloco-ind"><h2>Ano a ano</h2>
+        <section class="bloco-ind"><h2>${ind.mapa_fome ? "Por triênio" : "Ano a ano"}</h2>
           <p class="sub">${esc(ind.descricao)}</p>
           <div class="grafico"><canvas id="g-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
           ${marcosLeg}</section>
 
-        <section class="bloco-ind"><h2>Por governo</h2>
+        ${ind.territorios ? terrasIndigenasHTML(ind) : ""}
+        ${ind.sem_resumo_governo ? "" : `<section class="bloco-ind"><h2>Por governo</h2>
           <p class="sub">${esc(explica(id, ind))}${temRank ? "" : " Sem ranking."} Toque no nome para ver todos os resultados daquele governo.</p>
           ${temRank ? `<div class="alternar" role="group" aria-label="Ordem da tabela"><button type="button" data-ordem="rank" aria-pressed="true">Do melhor para o pior</button><button type="button" data-ordem="crono" aria-pressed="false">Ordem cronológica</button></div>` : ""}
           <div class="tab-wrap"><table class="tab-gov"><thead><tr><th class="pos">${temRank ? "Posição" : ""}</th><th>Governo</th><th class="barra-c"></th><th class="num">${esc(ind.resumo_rotulo || "")}</th></tr></thead>
             <tbody id="tab-gov">${linhasTabela(id, ind, temRank ? "rank" : "crono")}</tbody></table></div>
           <p class="legenda-tab">${temRank ? "✓ entre os melhores · ✕ entre os piores. " : ""}${Object.values(ind.resumo).some((r) => r.parcial) ? "* Lula 3 está em andamento: valor parcial. " : ""}Governos sem dado suficiente (menos de 75% do período) ficam fora.</p>
-        </section>
+        </section>`}
 
         <div class="detalhes">
           <details><summary>De onde vem o número</summary><div class="corpo">
             <p>Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a>.</p>
             ${ind.notas ? notasHTML(ind) : ""}
+            ${ind.auditoria ? `<p><b>Conferência: ${esc(ind.auditoria.status)}.</b> ${esc(ind.auditoria.escopo)}</p><p>${esc(ind.auditoria.pendencia)}</p>` : ""}
             <p><button type="button" class="botao" id="baixar-csv">Baixar dados e cálculo (CSV)</button></p></div></details>
+          ${Object.values(ind.resumo).some((r) => r.sensibilidade) ? `<details><summary>Quanto o recorte dos anos muda o resultado?</summary><div class="corpo">
+            <p>Comparamos o resultado principal com outro recorte que exclui anos de troca de governo e o ano corrente. Nas médias, usamos somente anos completos; nos ritmos, comparamos o primeiro e o último desses anos. A diferença mostra sensibilidade ao recorte; não é margem de erro ou intervalo de confiança.</p>
+            <table><thead><tr><th>Governo</th><th>Resultado principal</th><th>Somente anos completos</th></tr></thead><tbody>${Object.entries(ind.resumo).map(([g, r]) => `<tr><td>${esc(nomeGov(g))}</td><td>${fmt(resumoFmt(ind), r.valor)}</td><td>${r.sensibilidade?.valor == null ? "Dados insuficientes" : fmt(resumoFmt(ind), r.sensibilidade.valor)}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
           <details><summary>Como cada governo é comparado</summary><div class="corpo">
             <p>${esc(explica(id, ind))} ${temRank ? `Em 1º fica o governo com ${esc(c ? c[0] : "o melhor resultado")}.` : "Este indicador não tem ranking."}</p>
-            <p>Dados mensais pertencem a quem governava no dia 15; dados anuais são divididos pelos dias de cada governo no ano. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
+            <p>Dados mensais usam a convenção do dia 15. Dados anuais seguem regras específicas: taxas ponderadas, retratos de dezembro ou ciclos completos do PRODES. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
         </div>
 
         <nav class="vizinhos" aria-label="Outros indicadores">
@@ -373,9 +383,43 @@
       });
     }
     $("#baixar-csv").addEventListener("click", () => csvIndicador(id, ind));
+    if (ind.territorios) {
+      for (const select of main.querySelectorAll(".ti-seletor")) select.addEventListener("change", () => tabelaTerritorios(ind));
+      tabelaTerritorios(ind);
+    }
     indAtual = ind;
     desenharGrafico();
     return ind.pergunta || ind.titulo;
+  }
+
+  function terrasIndigenasHTML(ind) {
+    const opcoes = (preferido) => ind.territorios.map((t) => `<option value="${t.id}"${t.nome === preferido ? " selected" : ""}>${esc(t.nome)}</option>`).join("");
+    return `<section class="bloco-ind"><h2>Comparar Terras Indígenas, ano a ano</h2>
+      <p class="sub">Compare os incrementos mapeados em dois recortes da mesma edição. Valores absolutos dependem do tamanho dos territórios; não são um ranking de proteção. Os limites desta base não representam necessariamente a situação fundiária em cada ano.</p>
+      <p><label for="ti-a">Primeira Terra Indígena</label> <select class="ti-seletor" id="ti-a">${opcoes("Apyterewa")}</select></p>
+      <p><label for="ti-b">Segunda Terra Indígena</label> <select class="ti-seletor" id="ti-b">${opcoes("Yanomami")}</select></p>
+      <div class="tab-wrap"><table><thead><tr><th>Ciclo PRODES</th><th id="ti-nome-a"></th><th id="ti-nome-b"></th></tr></thead><tbody id="ti-comparacao"></tbody></table></div>
+      <p class="sub">Unidade: km². “Sem registro” significa que não há linha para aquele recorte e ano no arquivo consultado; não é confirmação de área zero. O CSV inclui todos os registros territoriais disponíveis.</p>
+    </section>
+    <section class="bloco-ind"><h2>O que falta para avaliar a integridade das Terras Indígenas?</h2>
+      <p>Esta página mede apenas uma pressão: o desmatamento mapeado. Integridade ambiental e territorial exige dimensões separadas, sem uma nota única arbitrária.</p>
+      <div class="tab-wrap"><table><thead><tr><th>Dimensão</th><th>Como medir</th><th>Situação no painel</th></tr></thead><tbody>
+        <tr><th>Desmatamento anual</th><td>Incrementos PRODES nos recortes indígenas</td><td>Disponível nesta página, com ressalvas</td></tr>
+        <tr><th>Vegetação nativa remanescente</th><td>Área nativa / área efetivamente classificada, com limites fixos e classes de cada bioma</td><td>Ainda não calculada</td></tr>
+        <tr><th>Fogo, degradação e garimpo</th><td>Áreas afetadas por tipo e período, sem somar sobreposições; alertas DETER separados do PRODES</td><td>Ainda não integrados por TI</td></tr>
+        <tr><th>Proteção territorial</th><td>Situação fundiária datada, invasões e ações de proteção; reconhecimento jurídico não prova integridade ambiental</td><td>Ainda não integrada</td></tr>
+      </tbody></table></div>
+      <p>Fontes para ampliar a análise: <a href="https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas" target="_blank" rel="noopener">limites e dados da Funai</a>, <a href="https://cmr.funai.gov.br/" target="_blank" rel="noopener">monitoramento territorial da Funai</a> e <a href="https://terrabrasilis.dpi.inpe.br/ams/" target="_blank" rel="noopener">Sala de Situação do INPE</a>.</p>
+    </section>`;
+  }
+
+  function tabelaTerritorios(ind) {
+    const a = ind.territorios.find(t => String(t.id) === $("#ti-a").value);
+    const b = ind.territorios.find(t => String(t.id) === $("#ti-b").value);
+    $("#ti-nome-a").textContent = a.nome;
+    $("#ti-nome-b").textContent = b.nome;
+    const valor = (t,ano) => Object.hasOwn(t.valores,ano) ? fmt("area",t.valores[ano]) : "Sem registro";
+    $("#ti-comparacao").innerHTML = ind.serie.map(p => `<tr><th>${+p.x-1}/08 a ${p.x}/07</th><td>${valor(a,p.x)}</td><td>${valor(b,p.x)}</td></tr>`).join("");
   }
 
   function notasHTML(ind) {
@@ -391,17 +435,25 @@
     if (!anos.length) return "";
     return `<div class="mapa-fome bloco-ind"><h2>Brasil no Mapa da Fome</h2>
       <p class="sub">Cada quadro é uma média de três anos feita pela FAO; o rótulo mostra o triênio.</p>
-      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no ? "no" : "fora"}" title="${+a - 1} a ${+a + 1}: ${no ? "no Mapa da Fome" : "fora do Mapa da Fome"}"><b>${no ? "✕" : "✓"}</b>${String(+a - 1).slice(2)}–${String(+a + 1).slice(2)}</span>`).join("")}</div>
-      <p class="mf-leg">✕ no mapa (mais de 2,5% da população subalimentada). ✓ fora do mapa.</p></div>`;
+      <div class="mf-anos">${anos.map(([a, no]) => `<span class="mf-ano ${no === null ? "" : no ? "no" : "fora"}" title="${+a - 1} a ${+a + 1}: ${no === null ? "2,5 na série; limite a confirmar na FAO" : no ? "acima de 2,5%" : "abaixo de 2,5%"}"><b>${no === null ? "?" : no ? "✕" : "✓"}</b>${String(+a - 1).slice(2)}–${String(+a + 1).slice(2)}</span>`).join("")}</div>
+      <p class="mf-leg">✕ acima de 2,5%. ✓ abaixo de 2,5%. ? registro 2,5 que pode representar valor abaixo do limite; confirmação pendente.</p></div>`;
   }
 
   function csvIndicador(id, ind) {
     const q = (v) => (v === null || v === undefined ? "" : /[",;\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
     const L = [["# " + ind.titulo + " (" + ind.unidade + ")"], ["# fonte: " + ind.fonte + " (" + ind.fonte_url + ")"], ["# regra: " + explica(id, ind)], [],
-      ["periodo", "valor"], ...ind.serie.map((p) => [p.x, p.y]), [],
+      ["periodo", "valor"], ...ind.serie.map((p) => [ind.mapa_fome ? `${+p.x - 1}–${+p.x + 1}` : p.x, p.censurado ? "<2,5" : ind.mapa_fome && p.y === 2.5 ? "2,5 (possivelmente <2,5)" : p.y]), [],
       ["governo", "periodo_com_dado", ind.resumo_rotulo || "resumo", "valor_inicio", "ano_inicio", "valor_fim", "ano_fim", "posicao"]];
     for (const [g, r] of Object.entries(ind.resumo || {}))
-      L.push([nomeGov(g), r.periodo, r.valor, r.inicio_val, r.inicio_ano, r.fim_val, r.fim_ano, r.posicao]);
+      L.push([nomeGov(g), r.periodo, r.valor, r.de ?? r.inicio_val, r.de != null ? r.periodo.split(" → ")[0] : r.inicio_ano, r.para ?? r.fim_val, r.para != null ? r.periodo.split(" → ")[1] : r.fim_ano, r.posicao]);
+    if (Object.values(ind.resumo).some((r) => r.sensibilidade)) {
+      L.push([], ["governo", "resultado_principal", "resultado_anos_completos", "diferenca", "observacoes_anos_completos"]);
+      Object.entries(ind.resumo).forEach(([g, r]) => L.push([nomeGov(g), r.valor, r.sensibilidade?.valor, r.sensibilidade?.diferenca, r.sensibilidade?.observacoes]));
+    }
+    if (ind.territorios) {
+      L.push([], ["# Série territorial: ausência de registro não equivale a zero; km² por ciclo agosto-julho"], ["territorio_id_inpe", "territorio", "ano_final_ciclo", "km2"]);
+      ind.territorios.forEach(t => Object.entries(t.valores).forEach(([ano,v]) => L.push([t.id,t.nome,ano,v])));
+    }
     if (ind.notas) { L.push([], ["ano", "km2", "tipo", "documento"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
     const blob = new Blob(["﻿" + L.map((l) => l.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `tira-teima_${id}.csv`;
@@ -458,7 +510,7 @@
       <section class="bloco-ind"><h2>Todos os governos de uma vez</h2>
         <p class="sub"><span class="pt bom"></span> entre os melhores, <span class="pt ruim"></span> entre os piores, <span class="pt meio"></span> no meio, <span class="pt sem"></span> sem ranking. Ponto vazio na linha: sem dado. Passe o mouse ou toque para ver o número.</p>
         <div class="tab-wrap" tabindex="0" role="region" aria-label="Todos os governos"><table class="placar" id="placar"></table></div>
-        <p class="aviso-curto">Este placar não é uma conclusão das fontes oficiais. Os dados vêm delas; a forma de resumir cada governo e de ordenar é do site e está descrita em cada indicador. Contar pontos não diz quais indicadores pesam mais.</p>
+        <p class="aviso-curto">Esta comparação não é uma conclusão das fontes oficiais. Os dados vêm delas; os recortes e a ordenação são escolhas do site. Não somamos resultados em uma nota geral. Indicadores com conciliação pendente ficam sem resumo por governo.</p>
       </section></div>`;
     const sa = $("#du-a"), sb = $("#du-b");
     sa.value = duelo?.[0] || GOV.at(-2).id; sb.value = duelo?.[1] || GOV.at(-1).id;
@@ -482,8 +534,7 @@
         });
         if (linhas.length) h += `<tr class="tema-l"><td colspan="3">${esc(nomeTema)}</td></tr>${linhas.join("")}`;
       }
-      $("#duelo").innerHTML = `<p class="placar-duelo"><span><b>${pa}</b>indicadores com ${esc(nomeGov(A))} à frente</span><span><b>${pb}</b>com ${esc(nomeGov(B))} à frente</span></p>
-        <p class="aviso-curto">Só contam os indicadores com ranking em que os dois têm dado. Leia cada linha: contar vitórias não diz quais indicadores pesam mais.</p>
+      $("#duelo").innerHTML = `<p class="aviso-curto">Compare cada indicador e seu período. Não somamos resultados de medidas diferentes em uma nota geral. As posições são descritivas, não testes de significância estatística.</p>
         <div class="tab-wrap" style="margin-top:16px"><table class="duelo"><colgroup><col class="c-ind"><col><col></colgroup><thead><tr><th>Indicador</th><th class="v">${esc(nomeGov(A))}</th><th class="v">${esc(nomeGov(B))}</th></tr></thead><tbody>${h}</tbody></table></div>`;
     };
     sa.addEventListener("change", desenhar); sb.addEventListener("change", desenhar);
@@ -513,7 +564,7 @@
       }
     }
     $("#placar").innerHTML = `<thead><tr><th></th>${GOV.map((g) => `<th><a href="#/g/${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}</small></th>`).join("")}</tr>
-      <tr class="total"><td class="nome">Total de ✓ e ✕</td>${GOV.map((g) => `<td><span class="cont bom">${conta[g.id].bom}</span> <span class="cont ruim">${conta[g.id].ruim}</span></td>`).join("")}</tr></thead><tbody>${corpo}</tbody>`;
+      </thead><tbody>${corpo}</tbody>`;
   }
 
   /* ---------- calculadora ---------- */
@@ -549,9 +600,9 @@
       const moeda = moedaDo(ym);
       $("#calc-moeda").textContent = `${moeda[1]} (${moeda[2]})`;
       const bruto = $("#calc-valor").value.trim();
-      const v = parseFloat(bruto.includes(",") ? bruto.replace(/\./g, "").replace(",", ".") : bruto);
+      const v = lerValorBR(bruto);
       const out = $("#calc-res");
-      if (i < 0 || !(v > 0)) { out.innerHTML = '<p class="calc-nota">Digite um valor maior que zero e escolha um mês com dado (a série começa em 1985).</p>'; return; }
+      if (i < 0 || !(v > 0)) { out.innerHTML = '<p class="calc-nota">Use um valor positivo no formato 1.000,00 e escolha um mês com dado (desde 1985).</p>'; return; }
       const reais = paraReais(v, ym);
       const hoje = reais / C.indice[i];
       const sm = C.salario[i];
@@ -562,7 +613,7 @@
         <div class="calc-card"><span>Corrigido pela inflação (IPCA)</span><b>${F.moeda(hoje)}</b><small>em reais de ${esc(C.ref)}</small></div>
         ${pct != null ? `<div class="calc-card"><span>Peso no salário mínimo de ${quando}</span><b>${nf(casas, casas).format(pct)}%</b><small>o mínimo era ${moeda[2]} ${nf(2, 2).format(sm * (v / reais))}</small></div>
         <div class="calc-card"><span>O mesmo peso no mínimo de hoje</span><b>${F.moeda((pct / 100) * smHoje)}</b><small>${nf(casas, casas).format(pct)}% de ${F.moeda(smHoje)}</small></div>` : ""}
-        <p class="calc-nota">${moeda[2] !== "R$" ? `Valor convertido de ${esc(moeda[1])} para reais pelos fatores oficiais das trocas de moeda. ` : ""}As contas respondem perguntas diferentes: a primeira diz quanto aquilo custaria hoje se acompanhasse a inflação; as outras dizem quanto pesava no bolso de quem ganhava o mínimo.</p>`;
+        <p class="calc-nota">${moeda[2] !== "R$" ? `Valor convertido de ${esc(moeda[1])} para reais pelos fatores oficiais das trocas de moeda. ` : ""}Nos meses de troca de moeda, usamos a moeda vigente no dia 15. As contas respondem perguntas diferentes: a primeira diz quanto aquilo custaria hoje se acompanhasse a inflação; as outras dizem quanto pesava no bolso de quem ganhava o mínimo.</p>`;
     };
     $("#calc").addEventListener("input", calc);
     $("#calc").addEventListener("change", calc);
@@ -579,22 +630,22 @@
       <h2>Quem fica em 1º</h2>
       <ul>
         <li><strong>Maior é melhor:</strong> crescimento do PIB e do PIB per capita, ganho real do salário mínimo, litros de gasolina por salário, aumento da expectativa de vida e da taxa de matrícula no ensino superior.</li>
-        <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, homicídios, desmatamento e focos de queimada.</li>
-        <li><strong>Sem ranking:</strong> dólar, investimento público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não mede abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
+        <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, desmatamento e focos de queimada.</li>
+        <li><strong>Sem ranking:</strong> homicídios (comparação suspensa por pendência na fonte), dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, desmatamento nos recortes de Terras Indígenas, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
         <li>Entre os governos com dado, o quarto melhor (arredondado para cima) recebe ✓ e o quarto pior recebe ✕. Com 12 governos, são 3 de cada lado. ✓ e ✕ não dizem se o número subiu ou desceu, só se o resultado ficou entre os melhores ou os piores.</li>
         <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do período dele. Lula 3 entra com os dados até agora, marcado com *.</li>
       </ul>
 
       <h2>Ritmo, não nível</h2>
-      <p>Mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo, do ano anterior à posse até o último ano do mandato. Extrema pobreza, mortalidade infantil e analfabetismo usam a variação percentual, para não favorecer quem começou de um patamar mais alto. Gini, expectativa de vida e ensino superior usam a variação em pontos. Lacunas de até 2 anos são preenchidas por interpolação linear; lacunas maiores deixam o governo sem resultado.</p>
+      <p>Mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo, do ano anterior à posse até o último ano do mandato. Extrema pobreza, mortalidade infantil e analfabetismo usam a variação percentual, para não favorecer quem começou de um patamar mais alto. Gini, expectativa de vida e ensino superior usam a variação em pontos. Os extremos precisam existir na fonte e pelo menos 75% dos anos do intervalo precisam ter observações. Não interpolamos extremos para produzir rankings. Os anos-base são convenções: posse no primeiro semestre usa o ano anterior; no segundo, o próprio ano. O fim usa o ano da saída no segundo semestre ou o anterior no primeiro.</p>
 
       <h2>Como cada número vai para um governo</h2>
       <ul>
         <li><strong>Dados mensais:</strong> o mês pertence a quem governava no dia 15. Nos dois impeachments, o vice entra na data em que assumiu como interino: Itamar em 02/10/1992 e Temer em 12/05/2016.</li>
-        <li><strong>Dados anuais:</strong> o ano é dividido na proporção dos dias de cada governo. Nos gráficos, o ano aparece na faixa de quem governou mais dias.</li>
+        <li><strong>Dados anuais:</strong> médias de taxas anuais usam uma ponderação convencional por dias de governo, que não recupera resultados observados em partes do ano. Bolsa Família usa retratos de dezembro, atribuídos à data de referência. PRODES usa apenas ciclos inteiros dentro do governo e consolidados; os ciclos compartilhados e estimativas continuam no gráfico. Nos gráficos, o ano aparece na faixa de quem governou mais dias.</li>
         <li><strong>Inflação:</strong> média anual equivalente ao IPCA acumulado em todos os meses do mandato.</li>
         <li><strong>Salário mínimo:</strong> média do poder de compra nos últimos 12 meses do governo comparada com a dos 12 meses anteriores à posse. Médias evitam as distorções da hiperinflação.</li>
-        <li><strong>PIB per capita:</strong> de 1997 a 2023, a variação em volume do PIB per capita publicada pelo IBGE (Contas Nacionais). Fora desses anos, crescimento real do PIB descontado o crescimento da população estimada ou projetada pelo IBGE.</li>
+        <li><strong>PIB per capita:</strong> de 1996 a 2023, a variação em volume do PIB per capita publicada pelo IBGE (Contas Nacionais). Fora desses anos, crescimento real do PIB descontado o crescimento da população estimada ou projetada pelo IBGE.</li>
         <li><strong>Desmatamento:</strong> taxa PRODES/INPE da Amazônia Legal. O ano PRODES vai de agosto a julho, então o PRODES 2023 inclui agosto a dezembro de 2022.</li>
         <li><strong>Moedas antes do Real:</strong> de 1986 a 1994 o Brasil trocou de moeda cinco vezes. Salário mínimo e cesta básica são convertidos para reais pelos fatores oficiais de cada troca e depois corrigidos pelo IPCA.</li>
         <li><strong>Valores em reais de hoje:</strong> salário mínimo e gasolina são corrigidos pelo IPCA até o último mês divulgado. O dólar aparece em valor nominal, só a partir do Plano Real.</li>
@@ -712,15 +763,15 @@
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { ...faixas(labels, largura), ...marcos(labels, largura, !mensal), ...limite } },
+          annotation: { annotations: { ...(["Mapa da Fome", "Desmatamento na Amazônia"].includes(ind.titulo) ? {} : faixas(labels, largura)), ...marcos(labels, largura, !mensal), ...limite } },
           tooltip: {
             backgroundColor: cor("--superficie"), titleColor: cor("--tinta"), bodyColor: cor("--tinta-2"),
             borderColor: cor("--linha-forte"), borderWidth: 1, padding: 10, displayColors: false,
             titleFont: { weight: 650 }, bodyFont: { size: 13 },
             callbacks: {
-              title: (it) => { const x = it[0].label; const q = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x; const g = nomeGov(govDoPonto(x)); return g ? `${q}, ${g}` : q; },
+              title: (it) => { const x = it[0].label; const q = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x; if (ind.titulo === "Mapa da Fome") return `${+x - 1}–${+x + 1} (triênio)`; if (ind.notas) return `ago/${+x - 1}–jul/${x}`; const g = nomeGov(govDoPonto(x)); return g ? `${q}, ${g}` : q; },
               label: (it) => {
-                const linhas = [fmt(ind.formato, it.parsed.y) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
+                const linhas = [(ind.serie[it.dataIndex]?.censurado ? "<2,5%" : ind.mapa_fome && it.parsed.y === 2.5 ? "2,5% (possivelmente abaixo do limite)" : fmt(ind.formato, it.parsed.y)) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
                 const n = ind.serie[it.dataIndex]?.n;
                 if (n != null) linhas[0] += " em valores de hoje", linhas.push(`R$ ${nf(2, 2).format(n)} na época`);
                 return linhas;

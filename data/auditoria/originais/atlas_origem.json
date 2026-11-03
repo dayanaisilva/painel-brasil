@@ -1,0 +1,15 @@
+{
+  "fonte": "Atlas da Violência/Ipea, série 20, homicídios registrados",
+  "valores_url": "https://www.ipea.gov.br/dados-api/series-values/20/1",
+  "metadados_url": "https://www.ipea.gov.br/cms/api/series/20?filters[projetos][id][$eq]=3",
+  "geografia_url": "https://www.ipea.gov.br/dados-api/geo/countries",
+  "filtro": {
+    "serie_id": 20,
+    "tipo_regiao": 1,
+    "regiao_id": 1076
+  },
+  "sha256_resposta_integral": "b81b13ded1e69ae6847067c4dbaa4b366dd7b40e6f67850052e45b64cba6e6ff",
+  "observacoes_resposta_integral": 4138,
+  "observacoes_brasil": 35,
+  "nota": "O dia 15 codifica o período anual na API; o painel normaliza para 1 de janeiro. Captura nesta revisão; não confundir data de processamento com publicação da série."
+}
