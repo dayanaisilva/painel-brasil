@@ -7,6 +7,7 @@ mantém o último CSV válido em data/processed/ (ver build.py).
 from __future__ import annotations
 
 import io
+import os
 import logging
 import re
 import time
@@ -27,6 +28,8 @@ DESCOBERTA = Path(__file__).resolve().parent.parent / "data" / "descoberta"
 
 
 def _get(url, tentativas=3, **kw):
+    if os.environ.get("TIRA_TEIMA_OFFLINE") == "1":
+        raise RuntimeError("Coleta desativada no reprocessamento offline")
     for i in range(tentativas):
         try:
             r = S.get(url, timeout=TIMEOUT, **kw)

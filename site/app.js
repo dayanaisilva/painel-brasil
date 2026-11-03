@@ -18,10 +18,10 @@
     pib_crescimento: "PIB", pib_per_capita: "PIB per capita", ipca: "Inflação", salario_minimo: "Salário mínimo",
     cesta_sp: "Cesta básica SP", gasolina: "Gasolina", gasolina_litros: "Gasolina por salário", queimadas: "Queimadas",
     desmatamento: "Desmatamento", dolar: "Dólar", fome: "Mapa da Fome", pobreza: "Extrema pobreza", gini: "Desigualdade",
-    mortalidade_infantil: "Mortalidade infantil", expectativa_vida: "Expectativa de vida", gasto_saude: "Investimento em saúde",
+    mortalidade_infantil: "Mortalidade infantil", expectativa_vida: "Expectativa de vida", gasto_saude: "Gasto público em saúde",
     desemprego: "Desemprego", homicidios: "Homicídios", bolsa_familia: "Bolsa Família", leitos_sus: "Leitos do SUS",
     analfabetismo: "Analfabetismo", universidades_federais: "Universidades federais", municipios_federais: "Cidades com ensino federal",
-    ensino_superior: "Matrícula no ensino superior", gasto_educacao: "Investimento em educação",
+    ensino_superior: "Matrícula no ensino superior", gasto_educacao: "Gasto público em educação",
   };
   // Palavras extras para a busca encontrar o indicador pelo nome popular.
   const SINONIMOS = {
@@ -51,7 +51,7 @@
     analfabetismo: ["queda mais rápida do analfabetismo", "queda mais lenta do analfabetismo", "Quanto o analfabetismo caiu (−) por ano, em %."],
     ensino_superior: ["maior aumento da taxa bruta de matrícula", "menor aumento da taxa bruta de matrícula", "Quantos pontos a taxa bruta de matrícula no ensino superior subiu por ano."],
     homicidios: ["menor taxa média de homicídios", "maior taxa média de homicídios", "Média da taxa de homicídios por 100 mil habitantes no governo."],
-    desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média da área desmatada por ano na Amazônia durante o governo."],
+    desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média dos ciclos PRODES consolidados inteiramente dentro do governo; ciclos compartilhados e estimativas ficam apenas no gráfico."],
     queimadas: ["menos focos de queimada por ano", "mais focos de queimada por ano", "Média de focos de queimada por ano durante o governo."],
   };
   const explica = (id, ind) => (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
@@ -262,7 +262,7 @@
     const fr = ind.resumo_formato === "anos_mapa" ? ind.formato : resumoFmt(ind);
     const nivel = !ind.resumo_formato || ind.resumo_formato === "anos_mapa";
     if (r.inicio_val != null && r.fim_val != null)
-      return `${r.inicio_ano}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}: ${fmt(fr, r.fim_val)}${nivel ? mudou(r.inicio_val, r.fim_val) : ""}`;
+      return `${r.inicio_ano}${ind.freq === "mensal" ? " (média dos 3 primeiros meses disponíveis)" : ""}: ${fmt(fr, r.inicio_val)} → ${r.fim_ano}${ind.freq === "mensal" ? " (média dos 3 últimos meses disponíveis)" : ""}: ${fmt(fr, r.fim_val)}${nivel ? mudou(r.inicio_val, r.fim_val) : ""}`;
     return "";
   }
 
@@ -356,7 +356,7 @@
             <p><button type="button" class="botao" id="baixar-csv">Baixar dados e cálculo (CSV)</button></p></div></details>
           <details><summary>Como cada governo é comparado</summary><div class="corpo">
             <p>${esc(explica(id, ind))} ${temRank ? `Em 1º fica o governo com ${esc(c ? c[0] : "o melhor resultado")}.` : "Este indicador não tem ranking."}</p>
-            <p>Dados mensais pertencem a quem governava no dia 15; dados anuais são divididos pelos dias de cada governo no ano. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
+            <p>Dados mensais usam a convenção do dia 15. Dados anuais seguem regras específicas: taxas ponderadas, retratos de dezembro ou ciclos completos do PRODES. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
         </div>
 
         <nav class="vizinhos" aria-label="Outros indicadores">
@@ -398,10 +398,10 @@
   function csvIndicador(id, ind) {
     const q = (v) => (v === null || v === undefined ? "" : /[",;\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
     const L = [["# " + ind.titulo + " (" + ind.unidade + ")"], ["# fonte: " + ind.fonte + " (" + ind.fonte_url + ")"], ["# regra: " + explica(id, ind)], [],
-      ["periodo", "valor"], ...ind.serie.map((p) => [p.x, p.y]), [],
+      ["periodo", "valor"], ...ind.serie.map((p) => [ind.mapa_fome ? `${+p.x - 1}–${+p.x + 1}` : p.x, ind.mapa_fome && p.y === 2.5 ? "<2,5" : p.y]), [],
       ["governo", "periodo_com_dado", ind.resumo_rotulo || "resumo", "valor_inicio", "ano_inicio", "valor_fim", "ano_fim", "posicao"]];
     for (const [g, r] of Object.entries(ind.resumo || {}))
-      L.push([nomeGov(g), r.periodo, r.valor, r.inicio_val, r.inicio_ano, r.fim_val, r.fim_ano, r.posicao]);
+      L.push([nomeGov(g), r.periodo, r.valor, r.de ?? r.inicio_val, r.de != null ? r.periodo.split(" → ")[0] : r.inicio_ano, r.para ?? r.fim_val, r.para != null ? r.periodo.split(" → ")[1] : r.fim_ano, r.posicao]);
     if (ind.notas) { L.push([], ["ano", "km2", "tipo", "documento"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
     const blob = new Blob(["﻿" + L.map((l) => l.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `tira-teima_${id}.csv`;
@@ -482,8 +482,7 @@
         });
         if (linhas.length) h += `<tr class="tema-l"><td colspan="3">${esc(nomeTema)}</td></tr>${linhas.join("")}`;
       }
-      $("#duelo").innerHTML = `<p class="placar-duelo"><span><b>${pa}</b>indicadores com ${esc(nomeGov(A))} à frente</span><span><b>${pb}</b>com ${esc(nomeGov(B))} à frente</span></p>
-        <p class="aviso-curto">Só contam os indicadores com ranking em que os dois têm dado. Leia cada linha: contar vitórias não diz quais indicadores pesam mais.</p>
+      $("#duelo").innerHTML = `<p class="aviso-curto">Compare cada indicador e seu período. Não somamos resultados de medidas diferentes em uma nota geral. As posições são descritivas, não testes de significância estatística.</p>
         <div class="tab-wrap" style="margin-top:16px"><table class="duelo"><colgroup><col class="c-ind"><col><col></colgroup><thead><tr><th>Indicador</th><th class="v">${esc(nomeGov(A))}</th><th class="v">${esc(nomeGov(B))}</th></tr></thead><tbody>${h}</tbody></table></div>`;
     };
     sa.addEventListener("change", desenhar); sb.addEventListener("change", desenhar);
@@ -513,7 +512,7 @@
       }
     }
     $("#placar").innerHTML = `<thead><tr><th></th>${GOV.map((g) => `<th><a href="#/g/${g.id}">${esc(g.nome)}</a><small>${g.inicio.slice(0, 4)}</small></th>`).join("")}</tr>
-      <tr class="total"><td class="nome">Total de ✓ e ✕</td>${GOV.map((g) => `<td><span class="cont bom">${conta[g.id].bom}</span> <span class="cont ruim">${conta[g.id].ruim}</span></td>`).join("")}</tr></thead><tbody>${corpo}</tbody>`;
+      </thead><tbody>${corpo}</tbody>`;
   }
 
   /* ---------- calculadora ---------- */
@@ -549,9 +548,9 @@
       const moeda = moedaDo(ym);
       $("#calc-moeda").textContent = `${moeda[1]} (${moeda[2]})`;
       const bruto = $("#calc-valor").value.trim();
-      const v = parseFloat(bruto.includes(",") ? bruto.replace(/\./g, "").replace(",", ".") : bruto);
+      const v = lerValorBR(bruto);
       const out = $("#calc-res");
-      if (i < 0 || !(v > 0)) { out.innerHTML = '<p class="calc-nota">Digite um valor maior que zero e escolha um mês com dado (a série começa em 1985).</p>'; return; }
+      if (i < 0 || !(v > 0)) { out.innerHTML = '<p class="calc-nota">Use um valor positivo no formato 1.000,00 e escolha um mês com dado (desde 1985).</p>'; return; }
       const reais = paraReais(v, ym);
       const hoje = reais / C.indice[i];
       const sm = C.salario[i];
@@ -562,7 +561,7 @@
         <div class="calc-card"><span>Corrigido pela inflação (IPCA)</span><b>${F.moeda(hoje)}</b><small>em reais de ${esc(C.ref)}</small></div>
         ${pct != null ? `<div class="calc-card"><span>Peso no salário mínimo de ${quando}</span><b>${nf(casas, casas).format(pct)}%</b><small>o mínimo era ${moeda[2]} ${nf(2, 2).format(sm * (v / reais))}</small></div>
         <div class="calc-card"><span>O mesmo peso no mínimo de hoje</span><b>${F.moeda((pct / 100) * smHoje)}</b><small>${nf(casas, casas).format(pct)}% de ${F.moeda(smHoje)}</small></div>` : ""}
-        <p class="calc-nota">${moeda[2] !== "R$" ? `Valor convertido de ${esc(moeda[1])} para reais pelos fatores oficiais das trocas de moeda. ` : ""}As contas respondem perguntas diferentes: a primeira diz quanto aquilo custaria hoje se acompanhasse a inflação; as outras dizem quanto pesava no bolso de quem ganhava o mínimo.</p>`;
+        <p class="calc-nota">${moeda[2] !== "R$" ? `Valor convertido de ${esc(moeda[1])} para reais pelos fatores oficiais das trocas de moeda. ` : ""}Nos meses de troca de moeda, usamos a moeda vigente no dia 15. As contas respondem perguntas diferentes: a primeira diz quanto aquilo custaria hoje se acompanhasse a inflação; as outras dizem quanto pesava no bolso de quem ganhava o mínimo.</p>`;
     };
     $("#calc").addEventListener("input", calc);
     $("#calc").addEventListener("change", calc);
@@ -580,21 +579,21 @@
       <ul>
         <li><strong>Maior é melhor:</strong> crescimento do PIB e do PIB per capita, ganho real do salário mínimo, litros de gasolina por salário, aumento da expectativa de vida e da taxa de matrícula no ensino superior.</li>
         <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, homicídios, desmatamento e focos de queimada.</li>
-        <li><strong>Sem ranking:</strong> dólar, investimento público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não mede abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
+        <li><strong>Sem ranking:</strong> dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
         <li>Entre os governos com dado, o quarto melhor (arredondado para cima) recebe ✓ e o quarto pior recebe ✕. Com 12 governos, são 3 de cada lado. ✓ e ✕ não dizem se o número subiu ou desceu, só se o resultado ficou entre os melhores ou os piores.</li>
         <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do período dele. Lula 3 entra com os dados até agora, marcado com *.</li>
       </ul>
 
       <h2>Ritmo, não nível</h2>
-      <p>Mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo, do ano anterior à posse até o último ano do mandato. Extrema pobreza, mortalidade infantil e analfabetismo usam a variação percentual, para não favorecer quem começou de um patamar mais alto. Gini, expectativa de vida e ensino superior usam a variação em pontos. Lacunas de até 2 anos são preenchidas por interpolação linear; lacunas maiores deixam o governo sem resultado.</p>
+      <p>Mortalidade infantil, expectativa de vida, analfabetismo, ensino superior, extrema pobreza e desigualdade mudam devagar ao longo de décadas. Comparar o nível premiaria quem governou depois. Por isso o ranking mede quanto o indicador melhorou ou piorou por ano durante cada governo, do ano anterior à posse até o último ano do mandato. Extrema pobreza, mortalidade infantil e analfabetismo usam a variação percentual, para não favorecer quem começou de um patamar mais alto. Gini, expectativa de vida e ensino superior usam a variação em pontos. Os extremos precisam existir na fonte e pelo menos 75% dos anos do intervalo precisam ter observações. Não interpolamos extremos para produzir rankings. Os anos-base são convenções: posse no primeiro semestre usa o ano anterior; no segundo, o próprio ano. O fim usa o ano da saída no segundo semestre ou o anterior no primeiro.</p>
 
       <h2>Como cada número vai para um governo</h2>
       <ul>
         <li><strong>Dados mensais:</strong> o mês pertence a quem governava no dia 15. Nos dois impeachments, o vice entra na data em que assumiu como interino: Itamar em 02/10/1992 e Temer em 12/05/2016.</li>
-        <li><strong>Dados anuais:</strong> o ano é dividido na proporção dos dias de cada governo. Nos gráficos, o ano aparece na faixa de quem governou mais dias.</li>
+        <li><strong>Dados anuais:</strong> médias de taxas anuais usam uma ponderação convencional por dias de governo, que não recupera resultados observados em partes do ano. Bolsa Família usa retratos de dezembro, atribuídos à data de referência. PRODES usa apenas ciclos inteiros dentro do governo e consolidados; os ciclos compartilhados e estimativas continuam no gráfico. Nos gráficos, o ano aparece na faixa de quem governou mais dias.</li>
         <li><strong>Inflação:</strong> média anual equivalente ao IPCA acumulado em todos os meses do mandato.</li>
         <li><strong>Salário mínimo:</strong> média do poder de compra nos últimos 12 meses do governo comparada com a dos 12 meses anteriores à posse. Médias evitam as distorções da hiperinflação.</li>
-        <li><strong>PIB per capita:</strong> de 1997 a 2023, a variação em volume do PIB per capita publicada pelo IBGE (Contas Nacionais). Fora desses anos, crescimento real do PIB descontado o crescimento da população estimada ou projetada pelo IBGE.</li>
+        <li><strong>PIB per capita:</strong> de 1996 a 2023, a variação em volume do PIB per capita publicada pelo IBGE (Contas Nacionais). Fora desses anos, crescimento real do PIB descontado o crescimento da população estimada ou projetada pelo IBGE.</li>
         <li><strong>Desmatamento:</strong> taxa PRODES/INPE da Amazônia Legal. O ano PRODES vai de agosto a julho, então o PRODES 2023 inclui agosto a dezembro de 2022.</li>
         <li><strong>Moedas antes do Real:</strong> de 1986 a 1994 o Brasil trocou de moeda cinco vezes. Salário mínimo e cesta básica são convertidos para reais pelos fatores oficiais de cada troca e depois corrigidos pelo IPCA.</li>
         <li><strong>Valores em reais de hoje:</strong> salário mínimo e gasolina são corrigidos pelo IPCA até o último mês divulgado. O dólar aparece em valor nominal, só a partir do Plano Real.</li>
@@ -712,15 +711,15 @@
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { ...faixas(labels, largura), ...marcos(labels, largura, !mensal), ...limite } },
+          annotation: { annotations: { ...(["Mapa da Fome", "Desmatamento na Amazônia"].includes(ind.titulo) ? {} : faixas(labels, largura)), ...marcos(labels, largura, !mensal), ...limite } },
           tooltip: {
             backgroundColor: cor("--superficie"), titleColor: cor("--tinta"), bodyColor: cor("--tinta-2"),
             borderColor: cor("--linha-forte"), borderWidth: 1, padding: 10, displayColors: false,
             titleFont: { weight: 650 }, bodyFont: { size: 13 },
             callbacks: {
-              title: (it) => { const x = it[0].label; const q = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x; const g = nomeGov(govDoPonto(x)); return g ? `${q}, ${g}` : q; },
+              title: (it) => { const x = it[0].label; const q = x.length > 4 ? `${x.slice(5, 7)}/${x.slice(0, 4)}` : x; if (ind.titulo === "Mapa da Fome") return `${+x - 1}–${+x + 1} (triênio)`; if (ind.notas) return `ago/${+x - 1}–jul/${x}`; const g = nomeGov(govDoPonto(x)); return g ? `${q}, ${g}` : q; },
               label: (it) => {
-                const linhas = [fmt(ind.formato, it.parsed.y) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
+                const linhas = [(ind.mapa_fome && it.parsed.y === 2.5 ? "<2,5%" : fmt(ind.formato, it.parsed.y)) + (parcial(it.label) ? (ind.notas ? " (estimativa)" : " (ano incompleto)") : "")];
                 const n = ind.serie[it.dataIndex]?.n;
                 if (n != null) linhas[0] += " em valores de hoje", linhas.push(`R$ ${nf(2, 2).format(n)} na época`);
                 return linhas;

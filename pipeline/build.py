@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import logging
+import hashlib
+import os
 import sqlite3
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -50,6 +52,18 @@ STATUS: list[dict] = []
 def coletar(id_: str, func, fonte: str, max_atraso_dias: int = 120) -> pd.DataFrame | None:
     """Baixa a série e só substitui a cópia salva se a nova for recente e não encolher."""
     arq = RAW / f"{id_}.csv"
+    if os.environ.get("TIRA_TEIMA_OFFLINE") == "1":
+        anterior = SITE_DATA / "painel.json"
+        fontes_anteriores = json.loads(anterior.read_text()).get("fontes", []) if anterior.exists() else []
+        origem = next((f for f in fontes_anteriores if f["indicador"] == id_), {})
+        if not arq.exists():
+            STATUS.append({"indicador": id_, "fonte": fonte, "status": "indisponível"})
+            return None
+        df = pd.read_csv(arq, parse_dates=["data"])
+        FONTE_USADA[id_] = origem.get("fonte", fonte)
+        STATUS.append({"indicador": id_, "fonte": FONTE_USADA[id_], "status": "cópia anterior",
+                       "ultima_obs": str(df.data.max().date()), "erro": "Reprocessamento local sem nova coleta"})
+        return df
     try:
         df = func()
         fonte = FONTE_USADA.get(id_, fonte)
@@ -233,7 +247,7 @@ def resumo_media_ponderada(df_anual):
     """Média dos valores anuais de cada governo, ponderada pelos dias governados no ano."""
     ultimo = int(df_anual.ano.max())
     acc = {g["id"]: [0.0, 0.0, []] for g in GOVERNOS}
-    for _, r in df_anual.iterrows():
+    for _, r in df_anual.dropna(subset=["valor"]).iterrows():
         for gid, p in pesos_do_ano(int(r.ano)).items():
             acc[gid][0] += r.valor * p
             acc[gid][1] += p
@@ -339,35 +353,65 @@ def ano_base_fim(g, ultimo_ano):
     return base, min(final, ultimo_ano)
 
 
-def resumo_ritmo(df_anual, tolerancia=2, relativo=False):
-    """Variação média por ano de um indicador de nível durante cada governo.
+def resumo_ritmo(df_anual, tolerancia=0, relativo=False):
+    """Variação entre extremos observados; nunca interpola pontos de ranking.
 
-    Compara o valor do ano anterior à posse com o do último ano do governo, com
-    interpolação linear entre anos observados. Só usa anos a no máximo `tolerancia`
-    anos de uma observação real, para não inventar tendência em lacunas longas.
-    Medir o ritmo (e não o nível) evita premiar governos só por virem depois:
-    mortalidade e analfabetismo caem há décadas.
+    A cobertura é calculada antes de qualquer preenchimento. Os anos de
+    referência seguem ano_base_fim e não representam datas exatas de posse.
     """
-    obs = df_anual.groupby("ano").valor.mean()
-    anos = range(int(obs.index.min()), int(obs.index.max()) + 1)
-    serie = obs.reindex(anos).interpolate(limit_area="inside")
-    perto = lambda a: min(abs(a - o) for o in obs.index) <= tolerancia  # noqa: E731
+    obs = df_anual.dropna(subset=["valor"]).groupby("ano").valor.mean()
+    if obs.empty:
+        return {}
     out = {}
     for g in GOVERNOS:
         base, final = ano_base_fim(g, int(obs.index.max()))
-        if final <= base or base not in serie.index or final not in serie.index:
+        if final <= base or base not in obs.index or final not in obs.index:
             continue
-        if pd.isna(serie[base]) or pd.isna(serie[final]) or not (perto(base) and perto(final)):
+        n = sum(y in obs.index for y in range(base, final + 1))
+        cobertura = n / (final - base + 1)
+        if cobertura < COBERTURA_MINIMA:
             continue
+        inicio, fim = float(obs[base]), float(obs[final])
         if relativo:
-            if serie[base] <= 0 or serie[final] <= 0:
+            if inicio <= 0 or fim < 0:
                 continue
-            valor = ((serie[final] / serie[base]) ** (1 / (final - base)) - 1) * 100
+            valor = ((fim / inicio) ** (1 / (final - base)) - 1) * 100
         else:
-            valor = (serie[final] - serie[base]) / (final - base)
-        out[g["id"]] = {"valor": valor,
-                        "de": float(serie[base]), "para": float(serie[final]),
-                        "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3"}
+            valor = (fim - inicio) / (final - base)
+        out[g["id"]] = {"valor": valor, "de": inicio, "para": fim,
+                        "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3",
+                        "cobertura": cobertura, "observacoes": n,
+                        "extremos": "observados na fonte", "anos": final - base}
+    return out
+
+
+def resumo_periodos(df_anual, tipo):
+    """Média de retratos de dezembro ou ciclos PRODES inteiros e consolidados.
+
+    Ciclos que atravessam governos continuam no gráfico, mas não são
+    artificialmente rateados nem entram no resumo de um único governo.
+    """
+    if df_anual.empty:
+        return {}
+    ultimo = int(df_anual.ano.max())
+    out = {}
+    for g in GOVERNOS:
+        esperados = []
+        for ano in range(int(g["inicio"][:4]), ultimo + 1):
+            inicio = date(ano - 1, 8, 1) if tipo == "prodes" else date(ano, 12, 31)
+            fim = date(ano, 7, 31) if tipo == "prodes" else inicio
+            if g["_ini"] <= inicio and fim <= min(g["_fim"], date.today()):
+                esperados.append(ano)
+        dados = df_anual[df_anual.ano.isin(esperados)].dropna(subset=["valor"])
+        if tipo == "prodes":
+            dados = dados[dados.tipo == "consolidada"]
+        cobertura = len(dados) / len(esperados) if esperados else 0
+        if dados.empty or cobertura < COBERTURA_MINIMA:
+            continue
+        out[g["id"]] = {"valor": float(dados.valor.mean()),
+                         "periodo": ", ".join(str(int(y)) for y in sorted(dados.ano)),
+                         "parcial": g["id"] == "lula3", "observacoes": len(dados),
+                         "cobertura": cobertura, "metodo": tipo}
     return out
 
 
@@ -439,17 +483,17 @@ def main():
         p_ = anual(pop).groupby("ano").valor.mean()
         p_ = p_.reindex(range(int(p_.index.min()), int(p_.index.max()) + 1))  # lacunas viram NaN, sem crescimento falso
         g_ = anual(pib).groupby("ano").valor.mean()
-        cresc_pop = p_.pct_change() * 100
+        cresc_pop = p_.pct_change(fill_method=None) * 100
         base_pop = "estimativas de população do IBGE (via Ipeadata)"
         if pop_contas is not None:
             # Usa a mesma população das Contas Nacionais do IBGE (a do PIB per capita oficial). Depois do último
             # ano da tabela, segue o crescimento da projeção oficial do IBGE; antes do primeiro, as estimativas.
             pc_ = anual(pop_contas).groupby("ano").valor.mean()
             pc_ = pc_.reindex(range(int(pc_.index.min()), int(pc_.index.max()) + 1))
-            cresc_c = pc_.pct_change() * 100
+            cresc_c = pc_.pct_change(fill_method=None) * 100
             try:
-                proj = anual(fontes.ipea_serie("DEPIS_POPP")).groupby("ano").valor.mean()
-                cresc_proj = proj.pct_change() * 100
+                proj = anual(pop if os.environ.get("TIRA_TEIMA_OFFLINE") == "1" else fontes.ipea_serie("DEPIS_POPP")).groupby("ano").valor.mean()
+                cresc_proj = proj.pct_change(fill_method=None) * 100
             except Exception as e:  # noqa: BLE001
                 log.warning("projeção indisponível: %s", e)
                 cresc_proj = pd.Series(dtype=float)
@@ -626,7 +670,7 @@ def main():
          "Prevalência de subalimentação calculada pela FAO. Cada ano do gráfico é uma média de três anos centrada nele "
          "(2021 = média de 2020 a 2022), como a FAO publica, e a FAO revisa a série inteira a cada relatório. O país entra no Mapa da Fome quando "
          "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
-         "Sem ranking: como a FAO não mede abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
+         "Sem ranking: como a FAO não divulga valores exatos abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
          "O resumo conta, entre os anos do gráfico que caem em cada governo, quantos ficaram acima de 2,5%. Como cada ponto é média "
          "de três anos, isso não é uma medição separada de cada ano do governo.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
@@ -648,13 +692,13 @@ def main():
          "saude", "maior", "ritmo",
          "Anos que um recém-nascido deve viver nas condições do período. O ranking mede quanto ela subiu por ano em cada governo.",
          "ONU (World Population Prospects), via Banco Mundial (SP.DYN.LE00.IN)"),
-        ("gasto_saude", "SH.XPD.GHED.GD.ZS", "Investimento público em saúde", "Quanto do PIB o poder público (União, estados e municípios) investiu em saúde?", "% do PIB",
+        ("gasto_saude", "SH.XPD.GHED.GD.ZS", "Gasto público em saúde", "Quanto do PIB o poder público (União, estados e municípios) gastou em saúde?", "% do PIB",
          "saude", None, "nivel",
-         "Investimento público em saúde (União, estados e municípios, incluindo o SUS) como parcela do PIB. Soma tudo o que o poder público aplica na área: profissionais, manutenção da rede, medicamentos e obras. Sem ranking: investimento é meio, não resultado; o resultado aparece em indicadores como mortalidade infantil e expectativa de vida.",
+         "Gasto público em saúde (União, estados e municípios, incluindo o SUS) como parcela do PIB. Despesa governamental doméstica em saúde conforme a definição da OMS; não é uma medida específica de investimento em obras. Sem ranking: investimento é meio, não resultado; o resultado aparece em indicadores como mortalidade infantil e expectativa de vida.",
          "OMS (Global Health Expenditure Database), via Banco Mundial (SH.XPD.GHED.GD.ZS)"),
-        ("gasto_educacao", "SE.XPD.TOTL.GD.ZS", "Investimento público em educação", "Quanto do PIB o poder público (União, estados e municípios) investiu em educação?", "% do PIB",
+        ("gasto_educacao", "SE.XPD.TOTL.GD.ZS", "Gasto público em educação", "Quanto do PIB o poder público (União, estados e municípios) gastou em educação?", "% do PIB",
          "educacao", None, "nivel",
-         "Investimento público em educação (União, estados e municípios) como parcela do PIB. Soma tudo o que o poder público aplica na área: professores, manutenção das escolas e universidades e obras. Há anos sem dado. Sem ranking: investimento é meio, não resultado; o resultado aparece em indicadores como analfabetismo e matrículas.",
+         "Gasto público em educação (União, estados e municípios) como parcela do PIB. Soma tudo o que o poder público aplica na área: professores, manutenção das escolas e universidades e obras. Há anos sem dado. Sem ranking: investimento é meio, não resultado; o resultado aparece em indicadores como analfabetismo e matrículas.",
          "UNESCO, via Banco Mundial (SE.XPD.TOTL.GD.ZS), a partir de dados do INEP"),
         ("analfabetismo", "SE.ADT.LITR.ZS", "Analfabetismo", "Que parte das pessoas com 15 anos ou mais não sabia ler e escrever?", "% das pessoas com 15 anos ou mais",
          "educacao", "menor", "ritmo_rel",
@@ -807,7 +851,8 @@ def main():
             a = anual(bruto)
             a = a[a.ano >= ANO_INICIAL]
             ind[id_] = dict(base, formato="inteiro" if id_ == "bolsa_familia" else "decimal", grafico="linha_anual",
-                            resumo=resumo_media_ponderada(a), resumo_rotulo="média no governo",
+                            resumo=(resumo_periodos(a, "dezembro") if id_ == "bolsa_familia" else resumo_media_ponderada(a)),
+                            resumo_rotulo=("média dos retratos de dezembro" if id_ == "bolsa_familia" else "média das taxas anuais"),
                             serie=serie_anual_completa(a))
 
     def desmatamento():
@@ -833,8 +878,8 @@ def main():
                        "PRODES/INPE. O ano PRODES vai de agosto a julho: 2023 cobre ago/2022 a jul/2023. Os valores vêm das notas "
                        "técnicas do INPE (cada uma traz o ano e o anterior) e, para os anos que as notas não trazem em texto, da série "
                        "apresentada pelo INPE na coletiva do PRODES 2026 (16/10/2026). Cada ano tem o link do documento. O último ano "
-                       "é estimativa até o INPE publicar a taxa consolidada."),
-            resumo_rotulo="km² por ano, em média", resumo=resumo_media_ponderada(a), serie=serie_anual_completa(a),
+                       "é estimativa até o INPE publicar a taxa consolidada. O resumo usa apenas ciclos inteiramente dentro do governo e consolidados; ciclos compartilhados permanecem no gráfico."),
+            resumo_rotulo="média dos ciclos completos e consolidados", resumo=resumo_periodos(a, "prodes"), serie=serie_anual_completa(a),
             notas=notas, fonte="INPE — PRODES (notas técnicas e apresentação oficial)",
             fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
 
@@ -885,6 +930,13 @@ def main():
             else:
                 pesos = pesos_do_ano(ano)
                 gid = max(pesos.items(), key=lambda kv: kv[1])[0] if pesos else None
+            if id_ == "bolsa_familia":
+                gid = governo_do_mes(ano, 12)
+            elif id_ == "desmatamento":
+                gid = next((g["id"] for g in GOVERNOS if g["_ini"] <= date(ano - 1, 8, 1)
+                            and date(ano, 7, 31) <= g["_fim"]), None)
+            elif id_ == "fome":
+                gid = None  # triênios não pertencem exclusivamente ao ano central
             linhas.append({"indicador": id_, "periodo": x, "valor": p["y"], "governo": gid})
         pd.DataFrame([l for l in linhas if l["indicador"] == id_]).to_csv(PROC / f"{id_}.csv", index=False)
 
@@ -921,7 +973,11 @@ def main():
 
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
-             "indicadores": limpa(ind), "fontes": STATUS}
+             "indicadores": limpa(ind), "fontes": STATUS,
+             "metodologia_versao": "2.0",
+             "arquivos_origem": [{"arquivo": str(f.relative_to(RAIZ)),
+                                  "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
+                                 for f in sorted(RAW.glob("*.csv"))]}
     (SITE_DATA / "painel.json").write_text(json.dumps(saida, ensure_ascii=False), encoding="utf-8")
     pd.DataFrame(STATUS).to_csv(RAIZ / "data" / "status_fontes.csv", index=False)
     log.info("Status das fontes:\n%s", pd.DataFrame(STATUS).to_string(index=False))
@@ -950,7 +1006,7 @@ AVISOS = {
              "mais recente."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "desmatamento": ("O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior, e o site "
-                     "atribui cada ano pela regra geral (dias de governo no ano civil). Desmatamento depende também de preço de "
+                     "usa no resumo apenas ciclos completos dentro do governo e consolidados. Desmatamento depende também de preço de "
                      "commodities, clima e fiscalização de estados e municípios."),
     "gini": ("O IBGE divulga, para a PNAD Contínua, Gini de 0,545 em 2018, 0,518 em 2022 e 0,506 em 2024. A série do Ipea "
              "usada aqui (PNADS_GINI), escolhida porque volta até antes de 2012, dá 54,5, 51,7 e 50,4 nos mesmos anos: "
@@ -979,6 +1035,10 @@ def coletar_inep():
     cache = pd.read_csv(arq) if arq.exists() else pd.DataFrame(columns=["ano"])
     feitos = set(cache.dropna(subset=["universidades_federais", "municipios_federais"]).ano.astype(int)) \
         if len(cache) and {"universidades_federais", "municipios_federais"} <= set(cache.columns) else set()
+    if os.environ.get("TIRA_TEIMA_OFFLINE") == "1":
+        STATUS.append({"indicador": "inep_superior", "fonte": "INEP — Censo da Educação Superior",
+                       "status": "cópia anterior", "ultima_obs": str(int(cache.ano.max())) if len(cache) else ""})
+        return cache if len(cache) else None
     diag, novos = [], []
     ultimo = date.today().year - 1
     pendentes = [a for a in range(1995, ultimo + 1) if not (a in feitos and a < ultimo - 1)]
