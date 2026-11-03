@@ -862,7 +862,7 @@ def main():
          "vale para os seus três meses. Pesquisas anteriores usavam outra metodologia e cobriam só regiões metropolitanas, "
          "por isso não entram na comparação.",
          "IBGE — PNAD Contínua (taxa trimestral oficial)"),
-        ("homicidios", "AVIOL12_THOMIC", "Homicídios", "Quantos assassinatos havia para cada 100 mil habitantes?", "por 100 mil habitantes", "seguranca", "menor", "anual",
+        ("homicidios", "AVIOL12_THOMIC", "Homicídios", "Qual era a taxa de homicídios registrados?", "por 100 mil habitantes", "seguranca", "menor", "anual",
          "Taxa de homicídios por 100 mil habitantes, a partir das declarações de óbito do Ministério da Saúde (SIM/DATASUS), "
          "compilada no Atlas da Violência (Ipea).",
          "Ministério da Saúde (SIM/DATASUS) — Atlas da Violência/Ipea"),
@@ -906,7 +906,7 @@ def main():
         else:
             a = anual(bruto)
             a = a[a.ano >= ANO_INICIAL]
-            ind[id_] = dict(base, formato="inteiro" if id_ == "bolsa_familia" else "decimal", grafico="linha_anual",
+            ind[id_] = dict(base, formato="inteiro" if id_ == "bolsa_familia" else "decimal2" if id_ == "homicidios" else "decimal", grafico="linha_anual",
                             resumo=(resumo_periodos(a, "dezembro") if id_ == "bolsa_familia" else resumo_media_ponderada(a)),
                             resumo_rotulo=("média dos retratos de dezembro" if id_ == "bolsa_familia" else "média das taxas anuais"),
                             serie=serie_anual_completa(a))
@@ -938,6 +938,31 @@ def main():
             resumo_rotulo="média dos ciclos completos e consolidados", resumo=resumo_periodos(a, "prodes"), serie=serie_anual_completa(a),
             notas=notas, fonte="INPE — PRODES (notas técnicas e apresentação oficial)",
             fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates")
+
+    # Edição territorial fixada e auditável; novas edições exigem revisão dos limites.
+    from pipeline.territorios import carregar as carregar_territorios
+    ti_raw, territorios, ti_detalhe = carregar_territorios()
+    ti_detalhe.to_csv(PROC / "desmatamento_ti_territorios.csv", index=False)
+    STATUS.append({"indicador":"desmatamento_ti", "fonte":"INPE — PRODES/TerraBrasilis, edição 16/10/2026",
+                   "status":"cópia versionada", "ultima_obs":"2025-07-31",
+                   "erro":"Edição fixada para revisão dos recortes territoriais; atualização não automática"})
+    ind["desmatamento_ti"] = dict(
+        tema="ambiente", titulo="Desmatamento nos recortes de Terras Indígenas — Amazônia Legal",
+        pergunta="Como mudou o desmatamento mapeado nas Terras Indígenas?",
+        unidade="km² de incremento mapeado (soma dos recortes)", formato="area", grafico="barra", freq="anual",
+        direcao=None, resumo={}, resumo_rotulo="soma anual dos recortes indígenas", sem_resumo_governo=True,
+        descricao=("Incrementos anuais do PRODES dentro dos recortes indígenas do INPE na Amazônia Legal. "
+                   "Cada ciclo vai de agosto do ano anterior a julho do ano indicado. Edição de 16/10/2026, "
+                   "com 386 territórios no cadastro; mostramos 2008–2025. A máscara acumulada até 2007 não entra; "
+                   "2026 aguarda conferência específica. O total é uma soma de recortes, sem dissolver possíveis sobreposições. "
+                   "Não representa a taxa oficial PRODES, todas as TIs do Brasil nem a situação fundiária de cada época."),
+        aviso=("Desmatamento não equivale a integridade territorial. Áreas nativas não florestais, degradação, fogo, "
+               "garimpo e invasões precisam de medidas próprias. Não calculamos percentual de território íntegro "
+               "subtraindo estes incrementos de 100%. Ausência de registro no arquivo não prova ausência de dano."),
+        serie=[{"x":str(x.data.year),"y":float(x.valor)} for x in ti_raw.itertuples()],
+        territorios=territorios,
+        fonte="INPE — PRODES/TerraBrasilis, edição 16/10/2026 (recortes indígenas)",
+        fonte_url="https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/increments")
 
     inep = coletar_inep()
     if inep is not None and not inep.empty:
@@ -1045,7 +1070,7 @@ def main():
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
              "indicadores": limpa(ind), "fontes": STATUS,
-             "metodologia_versao": "2.3",
+             "metodologia_versao": "2.4",
              "arquivos_origem": [{"arquivo": str(f.relative_to(RAIZ)),
                                   "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
                                  for f in sorted(RAW.glob("*.csv"))]}
@@ -1092,7 +1117,8 @@ AVISOS = {
                     "Óbitos por residência: CID-10 X85–Y09 e Y35; taxa por 100 mil habitantes. "
                     "O painel transcreve a taxa publicada, sem reestimar óbitos ou população. "
                     "Não inclui estimativas de homicídios ocultos nem registros policiais. "
-                    "As 35 taxas diferem da edição Ipeadata arquivada (2024: 20,03 contra 20,10); "
+                    "As 35 taxas diferem da edição Ipeadata arquivada. Em 2024, o portal retorna 20,03, "
+                    "enquanto a divulgação do Atlas 2026 e o Ipeadata informam 20,1; "
                     "não emendamos as séries. A diferença de versões e denominadores ainda precisa ser esclarecida. "
                     "Mortes de intenção indeterminada e revisões populacionais limitam comparações históricas."),
     "gasolina": ("A série nacional da ANP foi conferida em 302 meses, de jul/2001 a set/2026. "

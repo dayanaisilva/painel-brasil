@@ -1,4 +1,4 @@
-# Matriz de conciliação das fontes — metodologia 2.3
+# Matriz de conciliação das fontes — metodologia 2.4
 
 A concordância com uma série publicada verifica a transcrição, não elimina erros, revisões ou incertezas do produtor. As capturas desta revisão estão em `data/auditoria/originais`; hashes, endereços e filtros identificam a origem. Homicídios agora usa a série direta do Atlas; a edição anterior do Ipeadata foi preservada como evidência separada. As demais séries brutas não foram substituídas.
 
@@ -68,3 +68,9 @@ O script gera CSVs por observação e `resultado.json`. Divergência não é cor
 Após nova tentativa de consulta, persistiu o HTTP 503 no INEP. O acesso direto ao Atlas resolveu a identificação da variável, mas revelou diferenças em todos os 35 anos comuns com o Ipeadata. Na versão 2.3, esses três indicadores conservam suas séries, mas não geram resumo nem ranking por governo enquanto sua situação for parcial ou pendente. A restrição também se aplica automaticamente quando uma entrada auditada muda. Não se apresenta a suspensão como validação concluída.
 
 A publicação em main usa o reprocessamento offline, seguido dos testes numéricos, de fontes, de DOM simulado e da conciliação com os snapshots. Coletas agendadas precisam passar pelas mesmas verificações antes de substituir o site.
+
+## Ampliação 2.4: Atlas como fonte principal e Terras Indígenas
+
+A escolha do Atlas é apropriada para séries anuais de homicídios registrados: produção Ipea/FBSP a partir do SIM. Não implica completude dos registros nem validação causal. Além da diferença com o Ipeadata, a [divulgação oficial do próprio Atlas 2026](https://www.gov.br/planejamento/pt-br/assuntos/noticias/2026/maio/atlas-da-violencia-brasil-registrou-42-590-homicidios-em-2024-menor-resultado-da-serie-historica-mas-subnotificacao-preocupa) informa 20,1 em 2024, enquanto a API do portal retorna 20,03. A série exibida é explicitamente a edição do portal, preservada inteira; não substituímos apenas o último ponto nem atribuímos a diferença exclusivamente a arredondamento. O ranking segue suspenso até reconciliar as versões.
+
+Desmatamento em recortes indígenas: 18 ciclos (2008–2025) transcritos do INPE, com 386 territórios no cadastro da edição. A conferência independente verifica a soma dos valores presentes, sem validar geometrias ou certificar integridade. Cadastro, dados, hashes e limites estão em `originais/prodes_ti*`; método em `docs/terras-indigenas.md`. A tabela permite comparar dois territórios e mantém ausências como “Sem registro”.

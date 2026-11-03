@@ -12,12 +12,12 @@
     ["saude", "Saúde", ["mortalidade_infantil", "expectativa_vida", "leitos_sus", "gasto_saude"]],
     ["educacao", "Educação", ["analfabetismo", "ensino_superior", "universidades_federais", "municipios_federais", "gasto_educacao"]],
     ["seguranca", "Segurança", ["homicidios"]],
-    ["ambiente", "Meio ambiente", ["desmatamento", "queimadas"]],
+    ["ambiente", "Meio ambiente", ["desmatamento", "desmatamento_ti", "queimadas"]],
   ];
   const CURTO = {
     pib_crescimento: "PIB", pib_per_capita: "PIB per capita", ipca: "Inflação", salario_minimo: "Salário mínimo",
     cesta_sp: "Cesta básica SP", gasolina: "Gasolina", gasolina_litros: "Gasolina por salário", queimadas: "Queimadas",
-    desmatamento: "Desmatamento", dolar: "Dólar", fome: "Mapa da Fome", pobreza: "Extrema pobreza", gini: "Desigualdade",
+    desmatamento: "Desmatamento", desmatamento_ti: "Terras Indígenas", dolar: "Dólar", fome: "Mapa da Fome", pobreza: "Extrema pobreza", gini: "Desigualdade",
     mortalidade_infantil: "Mortalidade infantil", expectativa_vida: "Expectativa de vida", gasto_saude: "Gasto público em saúde",
     desemprego: "Desemprego", homicidios: "Homicídios", bolsa_familia: "Bolsa Família", leitos_sus: "Leitos do SUS",
     analfabetismo: "Analfabetismo", universidades_federais: "Universidades federais", municipios_federais: "Cidades com ensino federal",
@@ -64,6 +64,8 @@
     moeda_usd: (v) => "US$ " + nf(0, 0).format(v),
     inteiro: (v) => nf(0, 0).format(Math.round(v)),
     decimal: (v) => nf(1, 1).format(v),
+    area: (v) => nf(2, 2).format(v),
+    decimal2: (v) => nf(2, 2).format(v),
     delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(2, 2).format(Math.abs(v)) + " por ano",
     delta_pct: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(1, 1).format(Math.abs(v)) + "% ao ano",
     inteiro_delta: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(0, 0).format(Math.abs(Math.round(v))),
@@ -344,6 +346,7 @@
           <div class="grafico"><canvas id="g-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
           ${marcosLeg}</section>
 
+        ${ind.territorios ? terrasIndigenasHTML(ind) : ""}
         ${ind.sem_resumo_governo ? "" : `<section class="bloco-ind"><h2>Por governo</h2>
           <p class="sub">${esc(explica(id, ind))}${temRank ? "" : " Sem ranking."} Toque no nome para ver todos os resultados daquele governo.</p>
           ${temRank ? `<div class="alternar" role="group" aria-label="Ordem da tabela"><button type="button" data-ordem="rank" aria-pressed="true">Do melhor para o pior</button><button type="button" data-ordem="crono" aria-pressed="false">Ordem cronológica</button></div>` : ""}
@@ -380,9 +383,43 @@
       });
     }
     $("#baixar-csv").addEventListener("click", () => csvIndicador(id, ind));
+    if (ind.territorios) {
+      for (const select of main.querySelectorAll(".ti-seletor")) select.addEventListener("change", () => tabelaTerritorios(ind));
+      tabelaTerritorios(ind);
+    }
     indAtual = ind;
     desenharGrafico();
     return ind.pergunta || ind.titulo;
+  }
+
+  function terrasIndigenasHTML(ind) {
+    const opcoes = (preferido) => ind.territorios.map((t) => `<option value="${t.id}"${t.nome === preferido ? " selected" : ""}>${esc(t.nome)}</option>`).join("");
+    return `<section class="bloco-ind"><h2>Comparar Terras Indígenas, ano a ano</h2>
+      <p class="sub">Compare os incrementos mapeados em dois recortes da mesma edição. Valores absolutos dependem do tamanho dos territórios; não são um ranking de proteção. Os limites desta base não representam necessariamente a situação fundiária em cada ano.</p>
+      <p><label for="ti-a">Primeira Terra Indígena</label> <select class="ti-seletor" id="ti-a">${opcoes("Apyterewa")}</select></p>
+      <p><label for="ti-b">Segunda Terra Indígena</label> <select class="ti-seletor" id="ti-b">${opcoes("Yanomami")}</select></p>
+      <div class="tab-wrap"><table><thead><tr><th>Ciclo PRODES</th><th id="ti-nome-a"></th><th id="ti-nome-b"></th></tr></thead><tbody id="ti-comparacao"></tbody></table></div>
+      <p class="sub">Unidade: km². “Sem registro” significa que não há linha para aquele recorte e ano no arquivo consultado; não é confirmação de área zero. O CSV inclui todos os registros territoriais disponíveis.</p>
+    </section>
+    <section class="bloco-ind"><h2>O que falta para avaliar a integridade das Terras Indígenas?</h2>
+      <p>Esta página mede apenas uma pressão: o desmatamento mapeado. Integridade ambiental e territorial exige dimensões separadas, sem uma nota única arbitrária.</p>
+      <div class="tab-wrap"><table><thead><tr><th>Dimensão</th><th>Como medir</th><th>Situação no painel</th></tr></thead><tbody>
+        <tr><th>Desmatamento anual</th><td>Incrementos PRODES nos recortes indígenas</td><td>Disponível nesta página, com ressalvas</td></tr>
+        <tr><th>Vegetação nativa remanescente</th><td>Área nativa / área efetivamente classificada, com limites fixos e classes de cada bioma</td><td>Ainda não calculada</td></tr>
+        <tr><th>Fogo, degradação e garimpo</th><td>Áreas afetadas por tipo e período, sem somar sobreposições; alertas DETER separados do PRODES</td><td>Ainda não integrados por TI</td></tr>
+        <tr><th>Proteção territorial</th><td>Situação fundiária datada, invasões e ações de proteção; reconhecimento jurídico não prova integridade ambiental</td><td>Ainda não integrada</td></tr>
+      </tbody></table></div>
+      <p>Fontes para ampliar a análise: <a href="https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas" target="_blank" rel="noopener">limites e dados da Funai</a>, <a href="https://cmr.funai.gov.br/" target="_blank" rel="noopener">monitoramento territorial da Funai</a> e <a href="https://terrabrasilis.dpi.inpe.br/ams/" target="_blank" rel="noopener">Sala de Situação do INPE</a>.</p>
+    </section>`;
+  }
+
+  function tabelaTerritorios(ind) {
+    const a = ind.territorios.find(t => String(t.id) === $("#ti-a").value);
+    const b = ind.territorios.find(t => String(t.id) === $("#ti-b").value);
+    $("#ti-nome-a").textContent = a.nome;
+    $("#ti-nome-b").textContent = b.nome;
+    const valor = (t,ano) => Object.hasOwn(t.valores,ano) ? fmt("area",t.valores[ano]) : "Sem registro";
+    $("#ti-comparacao").innerHTML = ind.serie.map(p => `<tr><th>${+p.x-1}/08 a ${p.x}/07</th><td>${valor(a,p.x)}</td><td>${valor(b,p.x)}</td></tr>`).join("");
   }
 
   function notasHTML(ind) {
@@ -412,6 +449,10 @@
     if (Object.values(ind.resumo).some((r) => r.sensibilidade)) {
       L.push([], ["governo", "resultado_principal", "resultado_anos_completos", "diferenca", "observacoes_anos_completos"]);
       Object.entries(ind.resumo).forEach(([g, r]) => L.push([nomeGov(g), r.valor, r.sensibilidade?.valor, r.sensibilidade?.diferenca, r.sensibilidade?.observacoes]));
+    }
+    if (ind.territorios) {
+      L.push([], ["# Série territorial: ausência de registro não equivale a zero; km² por ciclo agosto-julho"], ["territorio_id_inpe", "territorio", "ano_final_ciclo", "km2"]);
+      ind.territorios.forEach(t => Object.entries(t.valores).forEach(([ano,v]) => L.push([t.id,t.nome,ano,v])));
     }
     if (ind.notas) { L.push([], ["ano", "km2", "tipo", "documento"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
     const blob = new Blob(["﻿" + L.map((l) => l.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
@@ -590,7 +631,7 @@
       <ul>
         <li><strong>Maior é melhor:</strong> crescimento do PIB e do PIB per capita, ganho real do salário mínimo, litros de gasolina por salário, aumento da expectativa de vida e da taxa de matrícula no ensino superior.</li>
         <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, desmatamento e focos de queimada.</li>
-        <li><strong>Sem ranking:</strong> homicídios (comparação suspensa por pendência na fonte), dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
+        <li><strong>Sem ranking:</strong> homicídios (comparação suspensa por pendência na fonte), dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, desmatamento nos recortes de Terras Indígenas, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
         <li>Entre os governos com dado, o quarto melhor (arredondado para cima) recebe ✓ e o quarto pior recebe ✕. Com 12 governos, são 3 de cada lado. ✓ e ✕ não dizem se o número subiu ou desceu, só se o resultado ficou entre os melhores ou os piores.</li>
         <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do período dele. Lula 3 entra com os dados até agora, marcado com *.</li>
       </ul>

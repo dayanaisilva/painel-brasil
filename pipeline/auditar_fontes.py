@@ -52,6 +52,15 @@ def main():
     cruz=historico.merge(hom.rename(columns={'oficial':'valor_atlas'}),on='data',how='outer')
     cruz['diferenca_atlas_menos_ipeadata']=cruz.valor_atlas-cruz.valor_ipeadata
     cruz.to_csv(AUD/'homicidios_entre_fontes.csv',index=False,date_format='%Y-%m-%d')
+    # Soma independente por ciclo, sem usar o parser de produção.
+    ti=json.loads((ORIG/'prodes_ti.json').read_text())
+    ciclos=[]
+    for periodo in ti['periods']:
+        ano=periodo['endDate']['year']
+        if periodo['startDate']['year']==1500 or ano>2025:continue
+        areas=[a['area'] for f in periodo['features'] if f['loi']==4 for a in f['areas'] if a['type']==1]
+        ciclos.append({'data':pd.Timestamp(f'{ano}-01-01'),'oficial':sum(areas)})
+    resultado['desmatamento_ti']=comparar('desmatamento_ti',pd.DataFrame(ciclos))
     fao=pd.read_csv(ORIG/'fao_brasil.csv')
     f=pd.DataFrame({'data':pd.to_datetime((fao.Year.str[:4].astype(int)+1).astype(str)+'-01-01'),
                     'oficial':pd.to_numeric(fao.Value.str.replace('<','',regex=False))})

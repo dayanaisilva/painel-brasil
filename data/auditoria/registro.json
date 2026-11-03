@@ -34,5 +34,12 @@
     "status": "Pendente",
     "escopo": "Regras de filtro presencial, categoria federal e deduplicação revisadas no código.",
     "pendencia": "Os 616 municípios em 2024 e a série histórica ainda precisam ser recontados nos microdados originais."
+  },
+  "desmatamento_ti": {
+    "arquivo_entrada": "data/raw/desmatamento_ti.csv",
+    "sha256_entrada": "89780f0fd921be1aa82224f5c32145b5cbd8397b28d32fc790e5eff556e0af8d",
+    "status": "Conciliação parcial",
+    "escopo": "18 ciclos (2008–2025), soma dos incrementos nos recortes indígenas da edição INPE de 16/10/2026. 386 territórios no cadastro do arquivo; transcrição conferida, sem auditoria geométrica.",
+    "pendencia": "Não é taxa oficial PRODES nem área nacional única: possíveis sobreposições entre recortes não foram dissolvidas. Faltam conciliar limites, cobertura de nuvens e situação territorial. Não mede integridade e não gera ranking governamental."
   }
 }

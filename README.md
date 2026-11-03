@@ -82,3 +82,7 @@ Execute `python -m pipeline.auditar_fontes` após o build para comparar os dados
 Escopo, pendências, definições e links: [matriz de conciliação](docs/conciliacao-fontes.md). O status apresentado no site exige nova conferência quando muda o arquivo de entrada.
 
 Homicídios: coleta direta do [Atlas da Violência, série 20](https://www.ipea.gov.br/atlasviolencia/dados-series/20), Brasil 1076, 1990–2024. A edição Ipeadata anterior foi arquivada e as diferenças estão em `data/auditoria/homicidios_entre_fontes.csv`. Rankings permanecem suspensos até conciliar as versões; dados de homicídios ocultos não são somados à série registrada.
+
+## Terras Indígenas — metodologia 2.4
+
+Novo indicador com incrementos PRODES nos recortes indígenas da Amazônia Legal, 2008–2025, edição INPE de 16/10/2026. Comparação anual entre territórios e CSV detalhado; sem ranking governamental, sem tratar a soma de recortes como taxa oficial ou área nacional única. As dimensões de integridade ainda não calculadas são explicitadas. Veja `docs/terras-indigenas.md`.

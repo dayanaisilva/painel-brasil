@@ -22,11 +22,22 @@ async function route(hash){w.location.hash=hash;await tick();assert(w.document.q
  const routes=['#/','#/indicadores','#/governos','#/comparar','#/calculadora','#/metodologia',
  ...Object.keys(data.indicadores).map(id=>'#/i/'+id),...data.governos.map(g=>'#/g/'+g.id)];
  for(const r of routes)await route(r);
- for(const id of ['homicidios','universidades_federais','municipios_federais']){
+ for(const id of ['homicidios','universidades_federais','municipios_federais','desmatamento_ti']){
    await route('#/i/'+id);
    assert(w.document.querySelector('main').textContent.includes('Comparação por governo suspensa'));
    assert.equal(w.document.querySelector('#tab-gov'),null);
  }
+ await route('#/i/homicidios');
+ assert(w.document.querySelector('.veredito').textContent.includes('20,03'));
+ await route('#/i/desmatamento_ti');
+ assert.equal(w.document.querySelectorAll('#ti-a option').length,386);
+ assert.equal(w.document.querySelectorAll('#ti-comparacao tr').length,18);
+ assert.equal(w.document.querySelector('#ti-nome-a').textContent,'Apyterewa');
+ assert.equal(w.document.querySelector('#ti-nome-b').textContent,'Yanomami');
+ const ti=w.document.querySelector('#ti-a');
+ ti.value=data.indicadores.desmatamento_ti.territorios.find(t=>Object.keys(t.valores).length===0).id;
+ ti.dispatchEvent(new w.Event('change',{bubbles:true}));
+ assert([...w.document.querySelectorAll('#ti-comparacao tr td:first-of-type')].every(x=>x.textContent==='Sem registro'));
  await route('#/i/fome');
  assert.equal(w.document.querySelector('#tab-gov'),null);
  assert(w.document.querySelector('.veredito').textContent.includes('abaixo de 2,5%'));

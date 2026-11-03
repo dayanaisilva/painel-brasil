@@ -20,6 +20,13 @@
     "tolerancia_absoluta": 1e-08,
     "sha256_entrada": "2fadc9e0dddfd0ffd276c9f0b95ee4d48c85392dec0105bb0e3159321486301b"
   },
+  "desmatamento_ti": {
+    "observacoes": 18,
+    "coincidentes": 18,
+    "divergencias": 0,
+    "tolerancia_absoluta": 1e-08,
+    "sha256_entrada": "89780f0fd921be1aa82224f5c32145b5cbd8397b28d32fc790e5eff556e0af8d"
+  },
   "fome_fao": {
     "observacoes": 24,
     "coincidentes": 24,
@@ -91,6 +98,18 @@
     {
       "arquivo": "data/auditoria/originais/homicidios_meta.json",
       "sha256": "5f45eeb42ae481d96e1938d3336b353504094fcdc1ad3c4e8beade1c0283a40b"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti.json",
+      "sha256": "683802362f70fed42dd5c6fb6d8882af4c5efef6d17fb1f72d67dc9203239502"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti_nomes.json",
+      "sha256": "9bedca1d98e949506a9fe73754ba83e37756da0f891bfd7d7a16fe2a1549c129"
+    },
+    {
+      "arquivo": "data/auditoria/originais/prodes_ti_origem.json",
+      "sha256": "d931058cca7505a7ec63bff203e60ba4f9a401daac037117e4971facb5928c99"
     }
   ]
 }
