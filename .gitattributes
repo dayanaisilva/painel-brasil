@@ -1,0 +1,2 @@
+# Preserva os bytes dos snapshots oficiais, inclusive finais de linha CRLF.
+data/auditoria/originais/** -text whitespace=cr-at-eol
