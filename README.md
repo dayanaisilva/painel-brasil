@@ -37,7 +37,7 @@ GitHub Actions (dias 12 e 28 + a cada push)
   └─ GitHub Pages publica a pasta site/
 ```
 
-Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.0 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
+Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.1 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
 
 ## Rodar localmente
 
@@ -60,7 +60,7 @@ sqlite3 data/painel.sqlite < queries/exemplos.sql
 
 Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Contexto externo e decisões de mandatos anteriores afetam os resultados.
 
-## Revisão estatística 2.0
+## Revisão estatística 2.1
 
 - Sem placar agregado entre indicadores; posições são descritivas, não testes de significância.
 - Ritmos exigem extremos presentes na fonte e cobertura original mínima de 75% dos anos.

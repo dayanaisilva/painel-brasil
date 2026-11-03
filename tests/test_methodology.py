@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from pipeline.build import resumo_ritmo, resumo_periodos, ipca_acumulado
+from pipeline.build import resumo_ritmo, resumo_periodos, ipca_acumulado, crescimento_populacao, resumo_media_ponderada
 
 class MethodologyTests(unittest.TestCase):
     def test_missing_endpoint_is_not_interpolated(self):
@@ -37,5 +37,41 @@ class MethodologyTests(unittest.TestCase):
         a=pd.DataFrame({'data':pd.date_range('2003-01-01',periods=12,freq='MS'),
                         'valor':[10.,-10.]+[0.]*10,'governo':['lula1']*12})
         self.assertAlmostEqual(ipca_acumulado(a)['lula1']['acumulado'],-1)
+
+class PopulationTests(unittest.TestCase):
+    @staticmethod
+    def serie(years, values):
+        return pd.DataFrame({'data': pd.to_datetime([f'{y}-01-01' for y in years]), 'valor': values})
+
+    def test_projection_is_required_after_national_accounts(self):
+        pop = self.serie([2020, 2021, 2022], [100, 110, 140])
+        contas = self.serie([2020, 2021], [100, 105])
+        rates = crescimento_populacao(pop, contas)
+        self.assertAlmostEqual(rates[2021], 5)
+        self.assertNotIn(2022, rates.index)
+
+    def test_explicit_projection_replaces_incompatible_population_growth(self):
+        pop = self.serie([2020, 2021, 2022], [100, 110, 140])
+        contas = self.serie([2020, 2021], [100, 105])
+        proj = self.serie([2021, 2022], [200, 202])
+        self.assertAlmostEqual(crescimento_populacao(pop, contas, proj)[2022], 1)
+
+    def test_missing_projection_year_does_not_become_annual_growth(self):
+        pop = self.serie([2020, 2021, 2022, 2023], [100, 110, 140, 150])
+        contas = self.serie([2020, 2021], [100, 105])
+        proj = self.serie([2021, 2023], [200, 220])
+        self.assertTrue(pd.isna(crescimento_populacao(pop, contas, proj)[2023]))
+
+class SensitivityTests(unittest.TestCase):
+    def test_transition_year_is_excluded_from_alternative(self):
+        a = pd.DataFrame({'ano': [2016, 2017, 2018], 'valor': [100., 10., 20.]})
+        r = resumo_media_ponderada(a)['temer']
+        self.assertAlmostEqual(r['sensibilidade']['valor'], 15)
+        self.assertGreater(r['valor'], 15)
+        self.assertEqual(r['sensibilidade']['observacoes'], 2)
+
+    def test_no_full_year_means_no_alternative(self):
+        a = pd.DataFrame({'ano': [1992], 'valor': [100.]})
+        self.assertIsNone(resumo_media_ponderada(a)['itamar']['sensibilidade']['valor'])
 
 if __name__=='__main__':unittest.main()

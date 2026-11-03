@@ -4,6 +4,7 @@ salario_minimo,"Ministério do Trabalho (salário mínimo vigente), via Ipeadata
 dolar,BCB/SGS 1 (PTAX venda),cópia anterior,2026-10-30,Reprocessamento local sem nova coleta
 pib_crescimento,BCB/SGS 7326 (IBGE),cópia anterior,2025-01-01,Reprocessamento local sem nova coleta
 populacao,"IBGE — população residente, estimativas e projeção (via Ipeadata)",cópia anterior,2026-07-01,Reprocessamento local sem nova coleta
+populacao_projecao,"IBGE — projeção de população, Ipeadata DEPIS_POPP",cópia anterior,2026-01-01,Reprocessamento local sem nova coleta
 populacao_contas,"IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)",cópia anterior,2023-07-01,Reprocessamento local sem nova coleta
 pib_per_capita_nominal,IBGE — PIB per capita em R$ correntes (via Ipeadata),cópia anterior,2024-01-01,Reprocessamento local sem nova coleta
 cesta_sp,DIEESE via Ipeadata,cópia anterior,2026-09-01,Reprocessamento local sem nova coleta

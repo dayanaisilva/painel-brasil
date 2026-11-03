@@ -312,9 +312,9 @@
     } else {
       if (ind.limite && ultimo && ultimo.y <= ind.limite.valor) {
         veredito = `<p>Último dado: <mark>abaixo de ${fmt(fmtSerie, ind.limite.valor)}</mark>, fora do Mapa da Fome (média de ${+ultimo.x - 1} a ${+ultimo.x + 1}).</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} Os valores de cada governo estão na tabela abaixo.</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
       } else veredito = `<p>Último dado: <mark>${fmt(fmtSerie, ultimo?.y)}</mark>${ultimo ? `, em ${ultimo.x.length > 4 ? `${ultimo.x.slice(5, 7)}/${ultimo.x.slice(0, 4)}` : ultimo.x}` : ""}.</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} Os valores de cada governo estão na tabela abaixo.</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
     }
     const temRank = !!ind.direcao;
     const marcosLeg = (() => {
@@ -336,24 +336,27 @@
         ${ind.aviso ? `<p class="ressalva"><b>Antes de tirar conclusões.</b> ${esc(ind.aviso)}</p>` : ""}
         ${faixaMapaFome(ind)}
 
-        <section class="bloco-ind"><h2>Ano a ano</h2>
+        <section class="bloco-ind"><h2>${ind.mapa_fome ? "Por triênio" : "Ano a ano"}</h2>
           <p class="sub">${esc(ind.descricao)}</p>
           <div class="grafico"><canvas id="g-serie" role="img" aria-label="${esc(ind.titulo)} ao longo do tempo, com faixas por governo"></canvas></div>
           ${marcosLeg}</section>
 
-        <section class="bloco-ind"><h2>Por governo</h2>
+        ${ind.sem_resumo_governo ? "" : `<section class="bloco-ind"><h2>Por governo</h2>
           <p class="sub">${esc(explica(id, ind))}${temRank ? "" : " Sem ranking."} Toque no nome para ver todos os resultados daquele governo.</p>
           ${temRank ? `<div class="alternar" role="group" aria-label="Ordem da tabela"><button type="button" data-ordem="rank" aria-pressed="true">Do melhor para o pior</button><button type="button" data-ordem="crono" aria-pressed="false">Ordem cronológica</button></div>` : ""}
           <div class="tab-wrap"><table class="tab-gov"><thead><tr><th class="pos">${temRank ? "Posição" : ""}</th><th>Governo</th><th class="barra-c"></th><th class="num">${esc(ind.resumo_rotulo || "")}</th></tr></thead>
             <tbody id="tab-gov">${linhasTabela(id, ind, temRank ? "rank" : "crono")}</tbody></table></div>
           <p class="legenda-tab">${temRank ? "✓ entre os melhores · ✕ entre os piores. " : ""}${Object.values(ind.resumo).some((r) => r.parcial) ? "* Lula 3 está em andamento: valor parcial. " : ""}Governos sem dado suficiente (menos de 75% do período) ficam fora.</p>
-        </section>
+        </section>`}
 
         <div class="detalhes">
           <details><summary>De onde vem o número</summary><div class="corpo">
             <p>Fonte: <a href="${esc(ind.fonte_url)}" target="_blank" rel="noopener">${esc(ind.fonte)}</a>.</p>
             ${ind.notas ? notasHTML(ind) : ""}
             <p><button type="button" class="botao" id="baixar-csv">Baixar dados e cálculo (CSV)</button></p></div></details>
+          ${Object.values(ind.resumo).some((r) => r.sensibilidade) ? `<details><summary>Quanto o recorte dos anos muda a média?</summary><div class="corpo">
+            <p>Comparamos a média principal com a média que exclui anos de troca de governo e o ano corrente. A diferença mostra sensibilidade ao recorte; não é margem de erro ou intervalo de confiança.</p>
+            <table><thead><tr><th>Governo</th><th>Média principal</th><th>Somente anos completos</th></tr></thead><tbody>${Object.entries(ind.resumo).map(([g, r]) => `<tr><td>${esc(nomeGov(g))}</td><td>${fmt(resumoFmt(ind), r.valor)}</td><td>${r.sensibilidade?.valor == null ? "Dados insuficientes" : fmt(resumoFmt(ind), r.sensibilidade.valor)}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
           <details><summary>Como cada governo é comparado</summary><div class="corpo">
             <p>${esc(explica(id, ind))} ${temRank ? `Em 1º fica o governo com ${esc(c ? c[0] : "o melhor resultado")}.` : "Este indicador não tem ranking."}</p>
             <p>Dados mensais usam a convenção do dia 15. Dados anuais seguem regras específicas: taxas ponderadas, retratos de dezembro ou ciclos completos do PRODES. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
@@ -402,6 +405,10 @@
       ["governo", "periodo_com_dado", ind.resumo_rotulo || "resumo", "valor_inicio", "ano_inicio", "valor_fim", "ano_fim", "posicao"]];
     for (const [g, r] of Object.entries(ind.resumo || {}))
       L.push([nomeGov(g), r.periodo, r.valor, r.de ?? r.inicio_val, r.de != null ? r.periodo.split(" → ")[0] : r.inicio_ano, r.para ?? r.fim_val, r.para != null ? r.periodo.split(" → ")[1] : r.fim_ano, r.posicao]);
+    if (Object.values(ind.resumo).some((r) => r.sensibilidade)) {
+      L.push([], ["governo", "media_principal", "media_anos_completos", "diferenca", "observacoes_anos_completos"]);
+      Object.entries(ind.resumo).forEach(([g, r]) => L.push([nomeGov(g), r.valor, r.sensibilidade?.valor, r.sensibilidade?.diferenca, r.sensibilidade?.observacoes]));
+    }
     if (ind.notas) { L.push([], ["ano", "km2", "tipo", "documento"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
     const blob = new Blob(["﻿" + L.map((l) => l.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `tira-teima_${id}.csv`;

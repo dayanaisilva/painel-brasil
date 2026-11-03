@@ -172,6 +172,26 @@ def populacao_ibge():
     return pd.DataFrame({"data": pd.to_datetime([f"{int(a)}-07-01" for a in hist.index]), "valor": hist.values})
 
 
+def crescimento_populacao(pop, contas=None, projecao=None):
+    """Usa insumos versionados idênticos online/offline; não atravessa lacunas."""
+    def crescimento(df):
+        serie = anual(df).groupby("ano").valor.mean()
+        serie = serie.reindex(range(int(serie.index.min()), int(serie.index.max()) + 1))
+        return serie.pct_change(fill_method=None) * 100
+    taxas = crescimento(pop)
+    if contas is None:
+        return taxas
+    oficiais = crescimento(contas)
+    # Após as Contas Nacionais, somente a projeção identificada pode estender a série.
+    taxas = taxas.reindex(taxas.index.union(oficiais.index))
+    taxas = taxas[taxas.index <= oficiais.index.max()]
+    taxas.loc[oficiais.index[1:]] = oficiais.iloc[1:]
+    if projecao is not None:
+        proj = crescimento(projecao)
+        taxas = pd.concat([taxas, proj[proj.index > oficiais.index.max()]])
+    return taxas.sort_index()
+
+
 def queimadas():
     cache = RAW / "queimadas.csv"
     antigos = {}
@@ -262,6 +282,16 @@ def resumo_media_ponderada(df_anual):
             extra = {"inicio_val": float(v[dentro[0]]), "fim_val": float(v[dentro[-1]]),
                      "inicio_ano": dentro[0], "fim_ano": dentro[-1]} if len(dentro) >= 2 else {}
             out[g["id"]] = {"valor": s / w, "periodo": f"{min(anos)}–{max(anos)}", "parcial": g["id"] == "lula3", **extra}
+            completos = [a for a in range(int(g["inicio"][:4]), min(int(g["fim"][:4]), ultimo) + 1)
+                         if pesos_do_ano(a).get(g["id"], 0) == 1 and a < date.today().year]
+            valores = [float(v[a]) for a in completos if a in v and pd.notna(v[a])]
+            alternativo = (sum(valores) / len(valores) if completos and
+                           len(valores) / len(completos) >= COBERTURA_MINIMA else None)
+            out[g["id"]]["sensibilidade"] = {
+                "metodo": "somente anos civis completos, sem anos de transição ou ano corrente",
+                "valor": alternativo, "observacoes": len(valores),
+                "diferenca": alternativo - s / w if alternativo is not None else None}
+
     return out
 
 
@@ -444,6 +474,8 @@ def main():
     pib = coletar("pib_crescimento", pib_crescimento, "BCB/SGS 7326 (IBGE)", max_atraso_dias=800)
     pop = coletar("populacao", populacao_ibge, "IBGE — população residente, estimativas e projeção (via Ipeadata)",
                   max_atraso_dias=365 * 3)
+    pop_projecao = coletar("populacao_projecao", lambda: fontes.ipea_serie("DEPIS_POPP"),
+                           "IBGE — projeção de população, Ipeadata DEPIS_POPP", max_atraso_dias=365 * 3)
     pop_contas = coletar("populacao_contas", fontes.ibge_populacao_contas,
                          "IBGE — Contas Nacionais, população e PIB per capita (SIDRA 6784)", max_atraso_dias=365 * 4)
     pibpc_nom = coletar("pib_per_capita_nominal", lambda: fontes.ipea_serie("GAC_PIBCAPN"),
@@ -480,31 +512,12 @@ def main():
 
     if pib is not None and pop is not None:
         # Crescimento real per capita = (1 + crescimento real do PIB) / (1 + crescimento da população) - 1.
-        p_ = anual(pop).groupby("ano").valor.mean()
-        p_ = p_.reindex(range(int(p_.index.min()), int(p_.index.max()) + 1))  # lacunas viram NaN, sem crescimento falso
         g_ = anual(pib).groupby("ano").valor.mean()
-        cresc_pop = p_.pct_change(fill_method=None) * 100
+        cresc_pop = crescimento_populacao(pop, pop_contas, pop_projecao)
         base_pop = "estimativas de população do IBGE (via Ipeadata)"
         if pop_contas is not None:
-            # Usa a mesma população das Contas Nacionais do IBGE (a do PIB per capita oficial). Depois do último
-            # ano da tabela, segue o crescimento da projeção oficial do IBGE; antes do primeiro, as estimativas.
-            pc_ = anual(pop_contas).groupby("ano").valor.mean()
-            pc_ = pc_.reindex(range(int(pc_.index.min()), int(pc_.index.max()) + 1))
-            cresc_c = pc_.pct_change(fill_method=None) * 100
-            try:
-                proj = anual(pop if os.environ.get("TIRA_TEIMA_OFFLINE") == "1" else fontes.ipea_serie("DEPIS_POPP")).groupby("ano").valor.mean()
-                cresc_proj = proj.pct_change(fill_method=None) * 100
-            except Exception as e:  # noqa: BLE001
-                log.warning("projeção indisponível: %s", e)
-                cresc_proj = pd.Series(dtype=float)
-            for a_ in cresc_pop.index.union(cresc_c.index).union(cresc_proj.index):
-                if a_ in cresc_c.index and not pd.isna(cresc_c[a_]):
-                    cresc_pop[a_] = cresc_c[a_]
-                elif a_ > pc_.index.max() and a_ in cresc_proj.index and not pd.isna(cresc_proj[a_]):
-                    cresc_pop[a_] = cresc_proj[a_]
-            cresc_pop = cresc_pop.sort_index()
-            base_pop = (f"população das Contas Nacionais do IBGE ({int(pc_.dropna().index.min())}–{int(pc_.dropna().index.max())}); "
-                        f"antes disso, estimativas do IBGE; depois, crescimento da projeção oficial do IBGE")
+            base_pop = ("população das Contas Nacionais do IBGE; antes, estimativas do IBGE; "
+                        "depois, crescimento da projeção IBGE (DEPIS_POPP), quando disponível")
         anos_ok = [a for a in g_.index if a in cresc_pop.index and not pd.isna(cresc_pop[a])]
         pc = pd.DataFrame({"ano": anos_ok,
                            "valor": [((1 + g_[a] / 100) / (1 + cresc_pop[a] / 100) - 1) * 100 for a in anos_ok]})
@@ -671,8 +684,7 @@ def main():
          "(2021 = média de 2020 a 2022), como a FAO publica, e a FAO revisa a série inteira a cada relatório. O país entra no Mapa da Fome quando "
          "passa de 2,5% da população. A FAO não divulga valores abaixo de 2,5%: nesses anos o gráfico mostra 2,5% e o país está fora do mapa. "
          "Sem ranking: como a FAO não divulga valores exatos abaixo de 2,5%, não dá para comparar a melhora de quem já estava fora do mapa. "
-         "O resumo conta, entre os anos do gráfico que caem em cada governo, quantos ficaram acima de 2,5%. Como cada ponto é média "
-         "de três anos, isso não é uma medição separada de cada ano do governo.",
+         "Não há resumo por governo: os triênios se sobrepõem e podem atravessar mandatos.",
          "FAO (ONU), via Banco Mundial (SN.ITK.DEFC.ZS)"),
         ("pobreza", "SI.POV.DDAY", "Extrema pobreza", "Que parte da população vivia na extrema pobreza?", "% da população",
          "fome", "menor", "ritmo_rel",
@@ -771,17 +783,9 @@ def main():
         if metodo == "ritmo":
             d.update(resumo=resumo_ritmo(a), resumo_rotulo="variação por ano no governo", resumo_formato="delta")
         elif metodo == "anos_mapa":
-            res = {}
-            for g in GOVERNOS:
-                anos_g = [int(r.ano) for r in a.itertuples() if pesos_do_ano(int(r.ano)).get(g["id"], 0) >= 0.5]
-                if anos_g:
-                    no = [y for y in anos_g if float(a[a.ano == y].valor.iloc[0]) > 2.5]
-                    res[g["id"]] = {"valor": len(no), "total_anos": len(anos_g), "periodo": f"{min(anos_g)}–{max(anos_g)}",
-                                    "parcial": g["id"] == "lula3",
-                                    "inicio_val": float(a[a.ano == min(anos_g)].valor.iloc[0]),
-                                    "fim_val": float(a[a.ano == max(anos_g)].valor.iloc[0]),
-                                    "inicio_ano": min(anos_g), "fim_ano": max(anos_g)}
-            d.update(resumo=res, resumo_rotulo="pontos FAO acima de 2,5%", resumo_formato="anos_mapa")
+            # Triênios sobrepostos não são anos independentes nem pertencem ao ano central.
+            d.update(resumo={}, resumo_rotulo="triênios FAO, sem atribuição por governo",
+                     resumo_formato="anos_mapa", sem_resumo_governo=True)
         elif metodo == "ritmo_rel":
             d.update(resumo=resumo_ritmo(a, relativo=True), resumo_rotulo="variação % por ano no governo",
                      resumo_formato="delta_pct")
@@ -974,7 +978,7 @@ def main():
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
              "indicadores": limpa(ind), "fontes": STATUS,
-             "metodologia_versao": "2.0",
+             "metodologia_versao": "2.1",
              "arquivos_origem": [{"arquivo": str(f.relative_to(RAIZ)),
                                   "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
                                  for f in sorted(RAW.glob("*.csv"))]}
@@ -1001,16 +1005,19 @@ AVISOS = {
     "expectativa_vida": "A série usada é a da ONU (World Population Prospects), que permite comparar todos os anos desde 1985. O IBGE calcula um pouco diferente: para 2024 o IBGE informa 76,6 anos e a ONU, cerca de 76,0.",
     "fome": ("Cada ponto é uma média de três anos feita pela FAO, que revisa a série inteira a cada relatório; abaixo de 2,5% a FAO "
              "não divulga o valor exato. Médias de três anos atravessam governos e o ano do relatório não é o ano medido. "
-             "O relatório de 2025 (SOFI 2025) anunciou a saída do Mapa com base na média de 2022 a 2024; o de 2026 revisou "
-             "essa média para 2,7%, acima da linha, e colocou a média de 2023 a 2025 abaixo de 2,5%. O gráfico usa a revisão "
-             "mais recente."),
+             "Os valores representam a série disponível no Banco Mundial (SN.ITK.DEFC.ZS). A edição específica do "
+             "SOFI correspondente a cada revisão ainda precisa ser conciliada; o painel não infere dela datas de "
+             "entrada ou saída anunciadas em relatórios anteriores. Não contamos triênios sobrepostos como anos "
+             "de fome de um governo."),
     "queimadas": "Focos de queimada sobem muito em anos de seca forte (como 2007, 2010 e 2024) e dependem do clima, não só de fiscalização.",
     "desmatamento": ("O ano PRODES começa em agosto: o PRODES 2023 inclui ago–dez/2022, ainda no governo anterior, e o site "
                      "usa no resumo apenas ciclos completos dentro do governo e consolidados. Desmatamento depende também de preço de "
                      "commodities, clima e fiscalização de estados e municípios."),
-    "gini": ("O IBGE divulga, para a PNAD Contínua, Gini de 0,545 em 2018, 0,518 em 2022 e 0,506 em 2024. A série do Ipea "
-             "usada aqui (PNADS_GINI), escolhida porque volta até antes de 2012, dá 54,5, 51,7 e 50,4 nos mesmos anos: "
-             "diferenças de até 0,2 ponto entre os cálculos das duas instituições."),
+    "gini": ("A série PNADS_GINI do Ipea está na escala 0–100 e é uma série harmonizada: usa a PNAD até 2011 "
+             "e a PNAD Contínua desde 2012. O Ipea multiplicou os resultados até 2011 por um fator que iguala as duas "
+             "pesquisas em 2012 (Souza e Hecksher, 2025). Portanto, o trecho antigo foi ajustado pelo produtor; "
+             "não corresponde aos valores originalmente divulgados pela PNAD. A harmonização não elimina toda "
+             "incerteza de comparabilidade e não autoriza atribuir mudanças exclusivamente a governos."),
     "pobreza": ("O Banco Mundial revisa a linha de pobreza quando muda a base de PPC; cada revisão recalcula a série inteira. "
                 "Os valores aqui são da edição atual e não devem ser comparados com números de edições antigas."),
     "ensino_superior": ("Taxa bruta: quem tem mais de 24 anos e está matriculado também entra na conta. Por isso ela não diz "
