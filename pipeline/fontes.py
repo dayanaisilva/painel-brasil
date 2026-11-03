@@ -739,3 +739,38 @@ def ibge_desocupacao() -> pd.DataFrame:
     DESCOBERTA.mkdir(parents=True, exist_ok=True)
     df.to_csv(DESCOBERTA / "sidra_4099.csv", index=False)
     return df
+
+
+# Atlas da Violência: série publicada, sem emendar a edição distinta do Ipeadata.
+ATLAS_VALORES = 'https://www.ipea.gov.br/dados-api/series-values/20/1'
+ATLAS_GEO = 'https://www.ipea.gov.br/dados-api/geo/countries'
+
+
+def extrair_atlas_homicidios(valores, geografia):
+    """Seleciona Brasil explicitamente e normaliza o período anual da API."""
+    import math
+    paises = [f['properties'] for f in geografia['features']
+              if f['properties'].get('name') == 'Brasil']
+    if len(paises) != 1 or str(paises[0]['code']) != '1076':
+        raise ValueError('Atlas: identidade Brasil não confirmada')
+    linhas = []
+    for x in valores:
+        if x['serie_id'] != 20 or x['tipo_regiao'] != 1:
+            raise ValueError('Atlas: série ou abrangência inesperada')
+        if x['regiao_id'] != 1076:
+            continue
+        valor = x['valor']
+        if isinstance(valor, bool) or not isinstance(valor, (int, float)) or not math.isfinite(valor) or valor < 0:
+            raise ValueError('Atlas: taxa inválida')
+        periodo = pd.Timestamp(x['periodo'])
+        if periodo.month != 1:
+            raise ValueError('Atlas: período anual inesperado')
+        linhas.append({'data': pd.Timestamp(year=periodo.year, month=1, day=1), 'valor': float(valor)})
+    df = pd.DataFrame(linhas)
+    if df.empty or df.data.duplicated().any():
+        raise ValueError('Atlas: série vazia ou anos duplicados')
+    return df.sort_values('data').reset_index(drop=True)
+
+
+def atlas_homicidios():
+    return extrair_atlas_homicidios(_json(_get(ATLAS_VALORES)), _json(_get(ATLAS_GEO)))

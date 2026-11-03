@@ -19,3 +19,5 @@ jobs:
       - run: node --check site/app.js
       - run: TIRA_TEIMA_OFFLINE=1 python -m pipeline.build
       - run: python -m pipeline.auditar_fontes
+      - run: npm install --prefix /tmp/tira-dom jsdom@26.1.0 --no-audit --no-fund
+      - run: NODE_PATH=/tmp/tira-dom/node_modules node tests/interface.test.cjs

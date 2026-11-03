@@ -14,11 +14,11 @@
     "sha256_entrada": "5558feb27b6ebdafc5f83ef1cc39f01cdcce2c6af4439adcf12815c092c6e2a7"
   },
   "homicidios": {
-    "observacoes": 45,
-    "coincidentes": 45,
+    "observacoes": 35,
+    "coincidentes": 35,
     "divergencias": 0,
     "tolerancia_absoluta": 1e-08,
-    "sha256_entrada": "815d7c98c8051a4e2a395fbc155a9c80c64a464e1292d915b895650d38f39501"
+    "sha256_entrada": "2fadc9e0dddfd0ffd276c9f0b95ee4d48c85392dec0105bb0e3159321486301b"
   },
   "fome_fao": {
     "observacoes": 24,
@@ -43,6 +43,22 @@
     {
       "arquivo": "data/auditoria/originais/anp_recente.xlsx",
       "sha256": "33193d652c05a38c5f157fd8cbc10eb6aaffaf2e426c7937e17ddbb0d08ef940"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_brasil_identidade.json",
+      "sha256": "23e1eaedcba21fe8209eb6eadef94c75c9b724815a307a38b82f42ecbcc978f6"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_homicidios_brasil.json",
+      "sha256": "4680d53f4db3d625a2fcf2b23f1294c359f05210a7cbf12eeed47e2e8e414fb4"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_homicidios_meta.json",
+      "sha256": "c87ae619f893c9a2d7160f038ecb46c50f1886675624ef5fb031cf757ca17b8e"
+    },
+    {
+      "arquivo": "data/auditoria/originais/atlas_origem.json",
+      "sha256": "10b2f975803619cdebee4ec47f5faf5235d57e4ceb2b40267c5c3de3c1dba03d"
     },
     {
       "arquivo": "data/auditoria/originais/downloads.json",

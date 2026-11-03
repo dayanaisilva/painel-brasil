@@ -39,10 +39,19 @@ def main():
     wb=json.loads((ORIG/'fome_bm.json').read_text())
     fome=pd.DataFrame([{'data':pd.Timestamp(x['date']+'-01-01'),'oficial':x['value']}
                        for x in wb[1] if x['value'] is not None])
-    h=json.loads((ORIG/'homicidios_brasil_extraido.json').read_text())
-    if any(x['NIVNOME']!='Brasil' for x in h):raise ValueError('Homicídios: nível não nacional')
-    hom=pd.DataFrame([{'data':pd.Timestamp(x['VALDATA'][:10]),'oficial':x['VALVALOR']} for x in h])
+    h=json.loads((ORIG/'atlas_homicidios_brasil.json').read_text())
+    geo=json.loads((ORIG/'atlas_brasil_identidade.json').read_text())
+    if geo != [{'name':'Brasil','code':'1076','nivel':98}]:raise ValueError('Identidade Brasil alterada')
+    if any(x['serie_id']!=20 or x['tipo_regiao']!=1 or x['regiao_id']!=1076 for x in h):
+        raise ValueError('Homicídios: série ou abrangência errada')
+    hom=pd.DataFrame([{'data':pd.Timestamp(x['periodo'][:4]+'-01-01'),'oficial':x['valor']} for x in h])
     resultado={k:comparar(k,d) for k,d in [('gasolina',gas),('fome',fome),('homicidios',hom)]}
+    # Diferenças entre edições são evidência preservada, não falha de transcrição do Atlas.
+    antigo=json.loads((ORIG/'homicidios_brasil_extraido.json').read_text())
+    historico=pd.DataFrame([{'data':pd.Timestamp(x['VALDATA'][:10]),'valor_ipeadata':x['VALVALOR']} for x in antigo])
+    cruz=historico.merge(hom.rename(columns={'oficial':'valor_atlas'}),on='data',how='outer')
+    cruz['diferenca_atlas_menos_ipeadata']=cruz.valor_atlas-cruz.valor_ipeadata
+    cruz.to_csv(AUD/'homicidios_entre_fontes.csv',index=False,date_format='%Y-%m-%d')
     fao=pd.read_csv(ORIG/'fao_brasil.csv')
     f=pd.DataFrame({'data':pd.to_datetime((fao.Year.str[:4].astype(int)+1).astype(str)+'-01-01'),
                     'oficial':pd.to_numeric(fao.Value.str.replace('<','',regex=False))})

@@ -37,7 +37,7 @@ GitHub Actions (dias 12 e 28 + a cada push)
   └─ GitHub Pages publica a pasta site/
 ```
 
-Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.2 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
+Se uma fonte falhar, o pipeline reaproveita o último CSV válido e marca a série como "cópia anterior" na tabela de situação das fontes. Extremos ausentes não são interpolados nos rankings. A metodologia 2.3 distingue retratos de dezembro, ciclos PRODES e médias anuais convencionais.
 
 ## Rodar localmente
 
@@ -60,7 +60,7 @@ sqlite3 data/painel.sqlite < queries/exemplos.sql
 
 Os números mostram o que aconteceu durante cada governo, não o que cada governo causou. Contexto externo e decisões de mandatos anteriores afetam os resultados.
 
-## Revisão estatística 2.2
+## Revisão estatística 2.3
 
 - Sem placar agregado entre indicadores; posições são descritivas, não testes de significância.
 - Ritmos exigem extremos presentes na fonte e cobertura original mínima de 75% dos anos.
@@ -80,3 +80,5 @@ Limitações ainda abertas: conciliação integral com os produtores, harmoniza�
 Execute `python -m pipeline.auditar_fontes` após o build para comparar os dados com os snapshots oficiais arquivados em `data/auditoria/originais`. O comando falha diante de divergências e produz comparações por observação. Não substitui os dados automaticamente. Instale as dependências de `requirements.txt`.
 
 Escopo, pendências, definições e links: [matriz de conciliação](docs/conciliacao-fontes.md). O status apresentado no site exige nova conferência quando muda o arquivo de entrada.
+
+Homicídios: coleta direta do [Atlas da Violência, série 20](https://www.ipea.gov.br/atlasviolencia/dados-series/20), Brasil 1076, 1990–2024. A edição Ipeadata anterior foi arquivada e as diferenças estão em `data/auditoria/homicidios_entre_fontes.csv`. Rankings permanecem suspensos até conciliar as versões; dados de homicídios ocultos não são somados à série registrada.

@@ -344,6 +344,19 @@ def ipca_acumulado(ipca_m):
     return out
 
 
+def aplicar_restricao_auditoria(ind):
+    """Dados sem conciliação suficiente permanecem consultáveis, sem placar por governo."""
+    audit = ind.get("auditoria", {})
+    if audit and audit.get("status") != "Conciliado com ressalvas":
+        ind["direcao"] = None
+        ind["resumo"] = {}
+        ind["sem_resumo_governo"] = True
+        ind["resumo_suspenso"] = "Comparação por governo suspensa até concluir a conciliação da fonte."
+        ind["aviso"] = ind["resumo_suspenso"] + " " + audit.get("pendencia", "")
+        for campo in ("melhor", "pior"):
+            ind.pop(campo, None)
+
+
 def ranquear(ind):
     """Marca, com a mesma regra para todos, os melhores e piores períodos de cada indicador.
 
@@ -412,6 +425,19 @@ def resumo_ritmo(df_anual, tolerancia=0, relativo=False):
                         "periodo": f"{base} → {final}", "parcial": g["id"] == "lula3",
                         "cobertura": cobertura, "observacoes": n,
                         "extremos": "observados na fonte", "anos": final - base}
+        completos = [y for y in range(base, final + 1) if pesos_do_ano(y).get(g["id"], 0) == 1 and y < date.today().year]
+        alternativo, periodo_alt = None, None
+        if len(completos) >= 2:
+            b, f = completos[0], completos[-1]
+            if b in obs.index and f in obs.index and sum(y in obs.index for y in range(b, f+1))/(f-b+1) >= COBERTURA_MINIMA:
+                vi, vf = float(obs[b]), float(obs[f])
+                if not relativo or (vi > 0 and vf >= 0):
+                    alternativo = ((vf/vi)**(1/(f-b))-1)*100 if relativo else (vf-vi)/(f-b)
+                    periodo_alt = f"{b} → {f}"
+        out[g["id"]]["sensibilidade"] = {"metodo": "ritmo entre primeiro e último ano civil completo do governo",
+                                          "valor": alternativo, "periodo": periodo_alt,
+                                          "diferenca": alternativo-valor if alternativo is not None else None}
+
     return out
 
 
@@ -852,7 +878,8 @@ def main():
          "Ministério da Saúde (CNES/DATASUS), via Ipeadata"),
     ]
     for id_, cod, titulo, pergunta, unidade, tema, direcao, freq, descricao, fonte in oficiais:
-        func = fontes.ibge_desocupacao if id_ == "desemprego" else (lambda c=cod: fontes.ipea_serie(c))
+        func = (fontes.ibge_desocupacao if id_ == "desemprego" else
+                fontes.atlas_homicidios if id_ == "homicidios" else (lambda c=cod: fontes.ipea_serie(c)))
         bruto = coletar(id_, func, fonte,
                         max_atraso_dias=120 if freq == "mensal" else 300 if freq == "trimestral" else 365 * 4)
         if bruto is None:
@@ -860,6 +887,7 @@ def main():
         base = dict(titulo=titulo, pergunta=pergunta, unidade=unidade, tema=tema, direcao=direcao, descricao=descricao,
                     fonte=fonte, freq=freq,
                     fonte_url=("https://sidra.ibge.gov.br/tabela/4099" if id_ == "desemprego"
+                               else "https://www.ipea.gov.br/atlasviolencia/dados-series/20" if id_ == "homicidios"
                                else f"https://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='{cod}')"))
         if freq == "trimestral":
             # cada trimestre vale para os seus três meses: a média de 4 trimestres é a taxa anual oficial
@@ -959,6 +987,7 @@ def main():
     for k, v in ind.items():
         if k in AVISOS and not v.get("aviso"):
             v["aviso"] = AVISOS[k]
+        aplicar_restricao_auditoria(v)
         ranquear(v)
 
     # ---------------- saídas ----------------
@@ -977,7 +1006,7 @@ def main():
             elif id_ == "desmatamento":
                 gid = next((g["id"] for g in GOVERNOS if g["_ini"] <= date(ano - 1, 8, 1)
                             and date(ano, 7, 31) <= g["_fim"]), None)
-            elif id_ == "fome":
+            elif id_ == "fome" or d.get("resumo_suspenso"):
                 gid = None  # triênios não pertencem exclusivamente ao ano central
             linhas.append({"indicador": id_, "periodo": x, "valor": p["y"], "governo": gid})
         pd.DataFrame([l for l in linhas if l["indicador"] == id_]).to_csv(PROC / f"{id_}.csv", index=False)
@@ -1016,7 +1045,7 @@ def main():
     saida = {"gerado_em": datetime.now(timezone.utc).isoformat(timespec="minutes"), "calculadora": calc,
              "governos": governos_publicos(), "contexto": CONTEXTO, "marcos": MARCOS,
              "indicadores": limpa(ind), "fontes": STATUS,
-             "metodologia_versao": "2.2",
+             "metodologia_versao": "2.3",
              "arquivos_origem": [{"arquivo": str(f.relative_to(RAIZ)),
                                   "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
                                  for f in sorted(RAW.glob("*.csv"))]}
@@ -1059,11 +1088,13 @@ AVISOS = {
                 "Os valores aqui são da edição atual e não devem ser comparados com números de edições antigas."),
     "ensino_superior": ("Taxa bruta: quem tem mais de 24 anos e está matriculado também entra na conta. Por isso ela não diz "
                         "quantos jovens estão na faculdade."),
-    "homicidios": ("Os 45 valores da série armazenada coincidem com a série Brasil AVIOL12_THOMIC consultada no Ipeadata. "
-                    "Há, porém, uma inconsistência no metadado do produtor: o título diz homicídios, mas a descrição "
-                    "menciona códigos de suicídio. A taxa de 2024 (20,1) coincide com a divulgação do Atlas 2026. "
-                    "A definição histórica completa ainda requer conciliação; o painel não recalcula os óbitos do SIM. "
-                    "Revisões populacionais e mortes de intenção indeterminada limitam a comparação entre anos."),
+    "homicidios": ("Série 20 do Atlas da Violência, Brasil (código 1076), disponível de 1990 a 2024 nesta captura. "
+                    "Óbitos por residência: CID-10 X85–Y09 e Y35; taxa por 100 mil habitantes. "
+                    "O painel transcreve a taxa publicada, sem reestimar óbitos ou população. "
+                    "Não inclui estimativas de homicídios ocultos nem registros policiais. "
+                    "As 35 taxas diferem da edição Ipeadata arquivada (2024: 20,03 contra 20,10); "
+                    "não emendamos as séries. A diferença de versões e denominadores ainda precisa ser esclarecida. "
+                    "Mortes de intenção indeterminada e revisões populacionais limitam comparações históricas."),
     "gasolina": ("A série nacional da ANP foi conferida em 302 meses, de jul/2001 a set/2026. "
                  "Até outubro de 2004, a ANP usava média simples; desde novembro, divulga médias ponderadas "
                  "pelas vendas das distribuidoras. Houve interrupção da pesquisa em 2020 e mudanças de amostra. "

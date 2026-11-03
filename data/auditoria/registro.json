@@ -16,10 +16,10 @@
   },
   "homicidios": {
     "arquivo_entrada": "data/raw/homicidios.csv",
-    "sha256_entrada": "815d7c98c8051a4e2a395fbc155a9c80c64a464e1292d915b895650d38f39501",
+    "sha256_entrada": "2fadc9e0dddfd0ffd276c9f0b95ee4d48c85392dec0105bb0e3159321486301b",
     "status": "Conciliação parcial",
-    "escopo": "45 taxas coincidem com a série Brasil do Ipeadata; 2024 também coincide com a divulgação oficial do Atlas 2026.",
-    "pendencia": "Descrição do metadado contém códigos de suicídio. Não houve recontagem dos microdados SIM nem conciliação histórica do denominador."
+    "escopo": "35 taxas nacionais (1990–2024) transcritas diretamente da série 20 do Atlas; Brasil identificado pelo código 1076. Definição: óbitos por residência, agressões e intervenções legais; taxa por 100 mil.",
+    "pendencia": "As 35 taxas diferem da edição Ipeadata arquivada. Em 2024: Atlas 20,03; Ipeadata 20,10. Não foi conciliada a versão dos numeradores/denominadores, nem recontado o SIM. Ranking suspenso; séries não emendadas."
   },
   "universidades_federais": {
     "arquivo_entrada": "data/raw/inep_superior.csv",

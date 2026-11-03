@@ -54,7 +54,7 @@
     desmatamento: ["menos desmatamento por ano", "mais desmatamento por ano", "Média dos ciclos PRODES consolidados inteiramente dentro do governo; ciclos compartilhados e estimativas ficam apenas no gráfico."],
     queimadas: ["menos focos de queimada por ano", "mais focos de queimada por ano", "Média de focos de queimada por ano durante o governo."],
   };
-  const explica = (id, ind) => (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
+  const explica = (id, ind) => ind.resumo_suspenso || (CRIT[id] ? CRIT[id][2] : `${ind.resumo_rotulo[0].toUpperCase()}${ind.resumo_rotulo.slice(1)}.`);
 
   const nf = (min, max) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: min, maximumFractionDigits: max });
   const F = {
@@ -254,7 +254,7 @@
     const mudou = (a, b) => {
       if (!(a > 0) || !(b > 0)) return "";
       const p = (b / a - 1) * 100;
-      if (Math.abs(p) < 0.5) return ", ficou estável";
+      if (Math.abs(p) < 0.5) return ", variação inferior a 0,5%";
       return `, ${p > 0 ? "subiu" : "caiu"} ${nf(0, 0).format(Math.abs(p))}%`;
     };
     if (r.de != null && r.para != null)
@@ -312,12 +312,12 @@
     } else {
       if (ind.limite && ultimo && (ultimo.censurado || ultimo.y < ind.limite.valor)) {
         veredito = `<p>Último dado: <mark>abaixo de ${fmt(fmtSerie, ind.limite.valor)}</mark>, fora do Mapa da Fome (média de ${+ultimo.x - 1} a ${+ultimo.x + 1}).</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
       } else if (ind.mapa_fome && ultimo?.y === 2.5) {
         veredito = `<p>Último dado: <mark>2,5% na série do Banco Mundial</mark>, triênio ${+ultimo.x - 1}–${+ultimo.x + 1}.</p>
           <p class="criterio">Esse registro pode representar um valor abaixo de 2,5%. A marcação original da FAO precisa ser conferida; não tratamos 2,5 como uma medição exata.</p>`;
       } else veredito = `<p>Último dado: <mark>${fmt(fmtSerie, ultimo?.y)}</mark>${ultimo ? `, em ${ultimo.x.length > 4 ? `${ultimo.x.slice(5, 7)}/${ultimo.x.slice(0, 4)}` : ultimo.x}` : ""}.</p>
-        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? "Triênios sobrepostos não são contados como anos de um governo." : "Os valores de cada governo estão na tabela abaixo."}</p>`;
+        <p class="criterio">Este indicador não tem ranking entre governos. ${esc(explica(id, ind))} ${ind.sem_resumo_governo ? (ind.resumo_suspenso || "Triênios sobrepostos não são contados como anos de um governo.") : "Os valores de cada governo estão na tabela abaixo."}</p>`;
     }
     const temRank = !!ind.direcao;
     const marcosLeg = (() => {
@@ -358,9 +358,9 @@
             ${ind.notas ? notasHTML(ind) : ""}
             ${ind.auditoria ? `<p><b>Conferência: ${esc(ind.auditoria.status)}.</b> ${esc(ind.auditoria.escopo)}</p><p>${esc(ind.auditoria.pendencia)}</p>` : ""}
             <p><button type="button" class="botao" id="baixar-csv">Baixar dados e cálculo (CSV)</button></p></div></details>
-          ${Object.values(ind.resumo).some((r) => r.sensibilidade) ? `<details><summary>Quanto o recorte dos anos muda a média?</summary><div class="corpo">
-            <p>Comparamos a média principal com a média que exclui anos de troca de governo e o ano corrente. A diferença mostra sensibilidade ao recorte; não é margem de erro ou intervalo de confiança.</p>
-            <table><thead><tr><th>Governo</th><th>Média principal</th><th>Somente anos completos</th></tr></thead><tbody>${Object.entries(ind.resumo).map(([g, r]) => `<tr><td>${esc(nomeGov(g))}</td><td>${fmt(resumoFmt(ind), r.valor)}</td><td>${r.sensibilidade?.valor == null ? "Dados insuficientes" : fmt(resumoFmt(ind), r.sensibilidade.valor)}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
+          ${Object.values(ind.resumo).some((r) => r.sensibilidade) ? `<details><summary>Quanto o recorte dos anos muda o resultado?</summary><div class="corpo">
+            <p>Comparamos o resultado principal com outro recorte que exclui anos de troca de governo e o ano corrente. Nas médias, usamos somente anos completos; nos ritmos, comparamos o primeiro e o último desses anos. A diferença mostra sensibilidade ao recorte; não é margem de erro ou intervalo de confiança.</p>
+            <table><thead><tr><th>Governo</th><th>Resultado principal</th><th>Somente anos completos</th></tr></thead><tbody>${Object.entries(ind.resumo).map(([g, r]) => `<tr><td>${esc(nomeGov(g))}</td><td>${fmt(resumoFmt(ind), r.valor)}</td><td>${r.sensibilidade?.valor == null ? "Dados insuficientes" : fmt(resumoFmt(ind), r.sensibilidade.valor)}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
           <details><summary>Como cada governo é comparado</summary><div class="corpo">
             <p>${esc(explica(id, ind))} ${temRank ? `Em 1º fica o governo com ${esc(c ? c[0] : "o melhor resultado")}.` : "Este indicador não tem ranking."}</p>
             <p>Dados mensais usam a convenção do dia 15. Dados anuais seguem regras específicas: taxas ponderadas, retratos de dezembro ou ciclos completos do PRODES. Um governo só entra se a série cobrir pelo menos 75% do período dele. As regras completas estão em <a href="#/metodologia">Como calculamos</a>.</p></div></details>
@@ -410,7 +410,7 @@
     for (const [g, r] of Object.entries(ind.resumo || {}))
       L.push([nomeGov(g), r.periodo, r.valor, r.de ?? r.inicio_val, r.de != null ? r.periodo.split(" → ")[0] : r.inicio_ano, r.para ?? r.fim_val, r.para != null ? r.periodo.split(" → ")[1] : r.fim_ano, r.posicao]);
     if (Object.values(ind.resumo).some((r) => r.sensibilidade)) {
-      L.push([], ["governo", "media_principal", "media_anos_completos", "diferenca", "observacoes_anos_completos"]);
+      L.push([], ["governo", "resultado_principal", "resultado_anos_completos", "diferenca", "observacoes_anos_completos"]);
       Object.entries(ind.resumo).forEach(([g, r]) => L.push([nomeGov(g), r.valor, r.sensibilidade?.valor, r.sensibilidade?.diferenca, r.sensibilidade?.observacoes]));
     }
     if (ind.notas) { L.push([], ["ano", "km2", "tipo", "documento"]); ind.notas.forEach((n) => L.push([n.ano, n.valor, n.tipo, n.url])); }
@@ -469,7 +469,7 @@
       <section class="bloco-ind"><h2>Todos os governos de uma vez</h2>
         <p class="sub"><span class="pt bom"></span> entre os melhores, <span class="pt ruim"></span> entre os piores, <span class="pt meio"></span> no meio, <span class="pt sem"></span> sem ranking. Ponto vazio na linha: sem dado. Passe o mouse ou toque para ver o número.</p>
         <div class="tab-wrap" tabindex="0" role="region" aria-label="Todos os governos"><table class="placar" id="placar"></table></div>
-        <p class="aviso-curto">Este placar não é uma conclusão das fontes oficiais. Os dados vêm delas; a forma de resumir cada governo e de ordenar é do site e está descrita em cada indicador. Contar pontos não diz quais indicadores pesam mais.</p>
+        <p class="aviso-curto">Esta comparação não é uma conclusão das fontes oficiais. Os dados vêm delas; os recortes e a ordenação são escolhas do site. Não somamos resultados em uma nota geral. Indicadores com conciliação pendente ficam sem resumo por governo.</p>
       </section></div>`;
     const sa = $("#du-a"), sb = $("#du-b");
     sa.value = duelo?.[0] || GOV.at(-2).id; sb.value = duelo?.[1] || GOV.at(-1).id;
@@ -589,8 +589,8 @@
       <h2>Quem fica em 1º</h2>
       <ul>
         <li><strong>Maior é melhor:</strong> crescimento do PIB e do PIB per capita, ganho real do salário mínimo, litros de gasolina por salário, aumento da expectativa de vida e da taxa de matrícula no ensino superior.</li>
-        <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, homicídios, desmatamento e focos de queimada.</li>
-        <li><strong>Sem ranking:</strong> dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
+        <li><strong>Menor é melhor:</strong> desemprego, inflação, peso da cesta básica no salário, preço real da gasolina, extrema pobreza, desigualdade, mortalidade infantil, analfabetismo, desmatamento e focos de queimada.</li>
+        <li><strong>Sem ranking:</strong> homicídios (comparação suspensa por pendência na fonte), dólar, gasto público em saúde e em educação, universidades federais, cidades com ensino federal, Bolsa Família, leitos do SUS e Mapa da Fome. Câmbio alto ajuda exportadores e encarece importados; investimento é meio, e o resultado aparece nos indicadores de saúde e educação; a FAO não divulga valores exatos abaixo de 2,5%, então não dá para comparar quem já estava fora do Mapa da Fome.</li>
         <li>Entre os governos com dado, o quarto melhor (arredondado para cima) recebe ✓ e o quarto pior recebe ✕. Com 12 governos, são 3 de cada lado. ✓ e ✕ não dizem se o número subiu ou desceu, só se o resultado ficou entre os melhores ou os piores.</li>
         <li>Um governo só entra no ranking de um indicador se a série cobrir pelo menos 75% do período dele. Lula 3 entra com os dados até agora, marcado com *.</li>
       </ul>
