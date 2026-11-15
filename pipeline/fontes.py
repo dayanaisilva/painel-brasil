@@ -107,7 +107,7 @@ def banco_mundial(indicador: str) -> pd.DataFrame:
 # --------------------------------------------------------------------------- #
 # Ipeadata — API OData v4 (http://www.ipeadata.gov.br/api/)
 # --------------------------------------------------------------------------- #
-IPEA = "http://www.ipeadata.gov.br/api/odata4"
+IPEA = "https://www.ipeadata.gov.br/api/odata4"
 _meta_cache: pd.DataFrame | None = None
 
 

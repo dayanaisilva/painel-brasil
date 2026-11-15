@@ -1,10 +1,10 @@
 {
   "gasolina": {
-    "observacoes": 302,
-    "coincidentes": 302,
+    "observacoes": 303,
+    "coincidentes": 303,
     "divergencias": 0,
     "tolerancia_absoluta": 1e-08,
-    "sha256_entrada": "8e9777c97a613a79cb924c5aa3046dc0b607fe7b39392e688430422b43c2ac4b"
+    "sha256_entrada": "662c9c219df460227dfc3763aff1cf516928321e8c94496f6c396c53ab9c6c68"
   },
   "fome": {
     "observacoes": 24,
@@ -35,11 +35,11 @@
     "sha256_entrada": "5558feb27b6ebdafc5f83ef1cc39f01cdcce2c6af4439adcf12815c092c6e2a7"
   },
   "gasolina_ipca": {
-    "observacoes": 302,
-    "coincidentes": 302,
+    "observacoes": 303,
+    "coincidentes": 303,
     "divergencias": 0,
     "tolerancia_absoluta": 5.1e-05,
-    "sha256_ipca": "0d66c612e02afd0b42d5499bd56d6c91ae617a515879355fca857a38d9300af2"
+    "sha256_ipca": "a766febf7b60d341a615453ce64e0d21544987f9db29f70911d094b75d64d9d7"
   },
   "escopo": "Confronto com snapshots; não equivale a reestimar microdados nem conferir edições históricas.",
   "origens": [
@@ -49,7 +49,7 @@
     },
     {
       "arquivo": "data/auditoria/originais/anp_recente.xlsx",
-      "sha256": "33193d652c05a38c5f157fd8cbc10eb6aaffaf2e426c7937e17ddbb0d08ef940"
+      "sha256": "27617b9cf9115781a834cf056ae0565b703a7ff0d4c77886e884025d7ac1ba19"
     },
     {
       "arquivo": "data/auditoria/originais/atlas_brasil_identidade.json",
@@ -69,7 +69,7 @@
     },
     {
       "arquivo": "data/auditoria/originais/downloads.json",
-      "sha256": "513c43e230513af656ceb83262fe0d46ab947b77a5ad90b1c7c42338d00b31a2"
+      "sha256": "5283267d52a6764293771a48de7e009d29ad2328d764e9dc66a81deaa5e960a3"
     },
     {
       "arquivo": "data/auditoria/originais/fao_brasil.csv",

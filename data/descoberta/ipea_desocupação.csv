@@ -4,9 +4,13 @@ PNADC12_NDESOCM12,Nível da desocupação - mensalizada,IPEA,Mensal,(%),A
 PNADC12_NDESOCMD12,Nível da desocupação - mensalizada dessazonalizada,IPEA,Mensal,(%),A
 PNADC12_TDESOC12,Taxa de desemprego (desocupação),IBGE/PNAD Contínua,Mensal,(%),A
 PNADC12_TDESOCFT12,Taxa combinada de desocupação e força de trabalho potencial,IBGE/PNAD Contínua,Mensal,(%),A
+PNADC12_TDESOCFTM12,Taxa combinada de desocupação e força de trabalho potencial - mensalizada,IPEA,Mensal,(%),A
+PNADC12_TDESOCFTMD12,Taxa combinada de desocupação e força de trabalho potencial - mensalizada dessazonalizada,IPEA,Mensal,(%),A
 PNADC12_TDESOCM12,Taxa de desocupação - mensalizada,IPEA,Mensal,(%),A
 PNADC12_TDESOCMD12,Taxa de desocupação - mensalizada dessazonalizada,IPEA,Mensal,(%),A
 PNADC12_TDESSUBOC12,Taxa combinada de desocupação e de subocupação,IBGE/PNAD Contínua,Mensal,(%),A
+PNADC12_TDESSUBOCM12,Taxa combinada de desocupação e de subocupação - mensalizada,IPEA,Mensal,(%),A
+PNADC12_TDESSUBOCMD12,Taxa combinada de desocupação e de subocupação - mensalizada dessazonalizada,IPEA,Mensal,(%),A
 PAN_TDESOC,Taxa de desocupação,IBGE/PNAD Contínua,Anual,(%),A
 PAN12_TDESOC12,Taxa de desocupação,IBGE/PNAD Contínua,Mensal,(%),A
 PAN4_TDESOC4,Taxa de desocupação,IBGE/PNAD Contínua,Trimestral,(%),A
